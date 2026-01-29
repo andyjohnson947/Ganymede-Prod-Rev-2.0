@@ -1,0 +1,99 @@
+{
+  "readiness_score": 40.0,
+  "recommendation": "NOT_READY",
+  "status": "ML needs significantly more data before taking control",
+  "checks": {
+    "total_trades": {
+      "pass": false,
+      "value": 27,
+      "required": 100,
+      "message": "27 trades (need 100)"
+    },
+    "trades_per_confluence": {
+      "pass": false,
+      "value": 1,
+      "required": 30,
+      "message": "Min 1 trades per confluence (need 30)"
+    },
+    "confluence_coverage": {
+      "pass": true,
+      "value": 8,
+      "required": 5,
+      "message": "8 confluence levels (need 5)"
+    },
+    "data_freshness": {
+      "pass": true,
+      "value": 0,
+      "required": 7,
+      "message": "Data is 0 days old (need < 7 days)"
+    },
+    "continuous_logging": {
+      "pass": false,
+      "value": false,
+      "required": true,
+      "message": "No continuous trade log found"
+    }
+  },
+  "passed": 2,
+  "total": 5,
+  "volume_assessment": {
+    "total_trades": 27,
+    "confluence_levels_with_data": 8,
+    "min_trades_per_confluence": 1,
+    "max_trades_per_confluence": 7,
+    "hours_with_data": 22,
+    "total_hour_trades": 2210,
+    "has_continuous_log": false,
+    "continuous_log_size_mb": 0,
+    "data_timestamp": "unknown"
+  },
+  "quality_assessment": {
+    "data_age_days": 0,
+    "is_stale": false,
+    "statistically_significant_confluences": [],
+    "insufficient_data_confluences": [
+      {
+        "confluence": 8,
+        "trades": 3,
+        "needed": 27
+      },
+      {
+        "confluence": 9,
+        "trades": 5,
+        "needed": 25
+      },
+      {
+        "confluence": 11,
+        "trades": 2,
+        "needed": 28
+      },
+      {
+        "confluence": 12,
+        "trades": 2,
+        "needed": 28
+      },
+      {
+        "confluence": 13,
+        "trades": 1,
+        "needed": 29
+      },
+      {
+        "confluence": 17,
+        "trades": 5,
+        "needed": 25
+      },
+      {
+        "confluence": 19,
+        "trades": 2,
+        "needed": 28
+      },
+      {
+        "confluence": 20,
+        "trades": 7,
+        "needed": 23
+      }
+    ],
+    "total_significant": 0,
+    "total_insufficient": 8
+  }
+}

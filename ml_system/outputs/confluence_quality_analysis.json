@@ -1,0 +1,359 @@
+{
+  "summary": {
+    "total_confluence_levels_analyzed": 8,
+    "best_confluence_score": 13,
+    "worst_confluence_score": 9,
+    "recommended_min_threshold": 20
+  },
+  "question_answer": {
+    "question": "At what confluence does recovery become unnecessary?",
+    "answer": "Confluence 20+ shows the best quality",
+    "excellent_levels": [
+      13
+    ],
+    "good_levels": [
+      13,
+      9
+    ],
+    "explanation": "Trades at 20+ have lower recovery usage and better win rates"
+  },
+  "by_confluence": [
+    {
+      "confluence": 13,
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "avg_profit": 2.85,
+      "dca_usage_rate": 0.0,
+      "hedge_usage_rate": 0.0,
+      "recovery_usage_rate": 0.0,
+      "trades_with_recovery": 0,
+      "trades_without_recovery": 1,
+      "profit_with_recovery": 0.0,
+      "profit_without_recovery": 2.85,
+      "recovery_impact": 0,
+      "quality_score": 200.0,
+      "avg_dca_levels": 0.0,
+      "verdict": "EXCELLENT - No recovery needed"
+    },
+    {
+      "confluence": 19,
+      "total_trades": 2,
+      "win_rate": 50.0,
+      "avg_profit": -1.1400000000000006,
+      "dca_usage_rate": 0.0,
+      "hedge_usage_rate": 0.0,
+      "recovery_usage_rate": 0.0,
+      "trades_with_recovery": 0,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": 0.0,
+      "profit_without_recovery": -1.1400000000000006,
+      "recovery_impact": 0,
+      "quality_score": 150.0,
+      "avg_dca_levels": 0.0,
+      "verdict": "FAIR - Often needs recovery"
+    },
+    {
+      "confluence": 11,
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "avg_profit": 0.0,
+      "dca_usage_rate": 0.0,
+      "hedge_usage_rate": 0.0,
+      "recovery_usage_rate": 0.0,
+      "trades_with_recovery": 0,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": 0.0,
+      "profit_without_recovery": 0.0,
+      "recovery_impact": 0,
+      "quality_score": 100.0,
+      "avg_dca_levels": 0.0,
+      "verdict": "FAIR - Often needs recovery"
+    },
+    {
+      "confluence": 8,
+      "total_trades": 3,
+      "win_rate": 66.66666666666666,
+      "avg_profit": 0.5466666666666665,
+      "dca_usage_rate": 66.66666666666666,
+      "hedge_usage_rate": 33.33333333333333,
+      "recovery_usage_rate": 50.0,
+      "trades_with_recovery": 3,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": -1.5300000000000002,
+      "profit_without_recovery": 2.6399999999999997,
+      "recovery_impact": -8.34,
+      "quality_score": 33.26666666666665,
+      "avg_dca_levels": 1.3333333333333333,
+      "verdict": "POOR - Frequently needs recovery"
+    },
+    {
+      "confluence": 20,
+      "total_trades": 7,
+      "win_rate": 57.14285714285714,
+      "avg_profit": 5.4628571428571435,
+      "dca_usage_rate": 42.857142857142854,
+      "hedge_usage_rate": 42.857142857142854,
+      "recovery_usage_rate": 42.857142857142854,
+      "trades_with_recovery": 6,
+      "trades_without_recovery": 4,
+      "profit_with_recovery": 2.8666666666666667,
+      "profit_without_recovery": 7.41,
+      "recovery_impact": -9.086666666666666,
+      "quality_score": 23.419047619047618,
+      "avg_dca_levels": 2.142857142857143,
+      "verdict": "FAIR - Often needs recovery"
+    },
+    {
+      "confluence": 17,
+      "total_trades": 5,
+      "win_rate": 60.0,
+      "avg_profit": 0.9279999999999999,
+      "dca_usage_rate": 60.0,
+      "hedge_usage_rate": 60.0,
+      "recovery_usage_rate": 60.0,
+      "trades_with_recovery": 6,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": -1.336666666666667,
+      "profit_without_recovery": 4.325,
+      "recovery_impact": -11.323333333333334,
+      "quality_score": -13.233333333333348,
+      "avg_dca_levels": 3.0,
+      "verdict": "POOR - Frequently needs recovery"
+    },
+    {
+      "confluence": 12,
+      "total_trades": 2,
+      "win_rate": 50.0,
+      "avg_profit": -1.8249999999999997,
+      "dca_usage_rate": 50.0,
+      "hedge_usage_rate": 50.0,
+      "recovery_usage_rate": 50.0,
+      "trades_with_recovery": 2,
+      "trades_without_recovery": 1,
+      "profit_with_recovery": -5.52,
+      "profit_without_recovery": 1.87,
+      "recovery_impact": -14.78,
+      "quality_score": -47.79999999999998,
+      "avg_dca_levels": 1.5,
+      "verdict": "FAIR - Often needs recovery"
+    },
+    {
+      "confluence": 9,
+      "total_trades": 5,
+      "win_rate": 80.0,
+      "avg_profit": -4.338,
+      "dca_usage_rate": 40.0,
+      "hedge_usage_rate": 40.0,
+      "recovery_usage_rate": 40.0,
+      "trades_with_recovery": 4,
+      "trades_without_recovery": 3,
+      "profit_with_recovery": -13.360000000000001,
+      "profit_without_recovery": 1.6766666666666667,
+      "recovery_impact": -30.073333333333338,
+      "quality_score": -160.73333333333335,
+      "avg_dca_levels": 1.2,
+      "verdict": "FAIR - Often needs recovery"
+    }
+  ],
+  "optimal_threshold": {
+    "recommended_range": [
+      13,
+      13
+    ],
+    "best_threshold": 20,
+    "threshold_analysis": {
+      "8": {
+        "min_confluence": 8,
+        "total_trades": 27,
+        "avg_win_rate": 59.25925925925926,
+        "avg_recovery_rate": 38.888888888888886,
+        "avg_profit": 0.7314814814814816,
+        "score": 27.68518518518519
+      },
+      "9": {
+        "min_confluence": 9,
+        "total_trades": 24,
+        "avg_win_rate": 58.333333333333336,
+        "avg_recovery_rate": 37.5,
+        "avg_profit": 0.7545833333333335,
+        "score": 28.37916666666667
+      },
+      "10": {
+        "min_confluence": 10,
+        "total_trades": 19,
+        "avg_win_rate": 52.63157894736842,
+        "avg_recovery_rate": 36.8421052631579,
+        "avg_profit": 2.0947368421052635,
+        "score": 36.73684210526315
+      },
+      "11": {
+        "min_confluence": 11,
+        "total_trades": 19,
+        "avg_win_rate": 52.63157894736842,
+        "avg_recovery_rate": 36.8421052631579,
+        "avg_profit": 2.0947368421052635,
+        "score": 36.73684210526315
+      },
+      "12": {
+        "min_confluence": 12,
+        "total_trades": 17,
+        "avg_win_rate": 58.8235294117647,
+        "avg_recovery_rate": 41.1764705882353,
+        "avg_profit": 2.3411764705882354,
+        "score": 41.05882352941176
+      },
+      "13": {
+        "min_confluence": 13,
+        "total_trades": 15,
+        "avg_win_rate": 60.0,
+        "avg_recovery_rate": 40.0,
+        "avg_profit": 2.896666666666667,
+        "score": 48.96666666666667
+      },
+      "15": {
+        "min_confluence": 15,
+        "total_trades": 14,
+        "avg_win_rate": 57.142857142857146,
+        "avg_recovery_rate": 42.857142857142854,
+        "avg_profit": 2.9,
+        "score": 43.28571428571429
+      },
+      "17": {
+        "min_confluence": 17,
+        "total_trades": 14,
+        "avg_win_rate": 57.142857142857146,
+        "avg_recovery_rate": 42.857142857142854,
+        "avg_profit": 2.9,
+        "score": 43.28571428571429
+      },
+      "20": {
+        "min_confluence": 20,
+        "total_trades": 7,
+        "avg_win_rate": 57.142857142857146,
+        "avg_recovery_rate": 42.857142857142854,
+        "avg_profit": 5.4628571428571435,
+        "score": 68.91428571428573
+      }
+    },
+    "excellent_scores": [
+      13
+    ],
+    "good_scores": [
+      13,
+      9
+    ]
+  },
+  "best_performers": [
+    {
+      "confluence": 13,
+      "total_trades": 1,
+      "win_rate": 100.0,
+      "avg_profit": 2.85,
+      "dca_usage_rate": 0.0,
+      "hedge_usage_rate": 0.0,
+      "recovery_usage_rate": 0.0,
+      "trades_with_recovery": 0,
+      "trades_without_recovery": 1,
+      "profit_with_recovery": 0.0,
+      "profit_without_recovery": 2.85,
+      "recovery_impact": 0,
+      "quality_score": 200.0,
+      "avg_dca_levels": 0.0,
+      "verdict": "EXCELLENT - No recovery needed"
+    },
+    {
+      "confluence": 19,
+      "total_trades": 2,
+      "win_rate": 50.0,
+      "avg_profit": -1.1400000000000006,
+      "dca_usage_rate": 0.0,
+      "hedge_usage_rate": 0.0,
+      "recovery_usage_rate": 0.0,
+      "trades_with_recovery": 0,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": 0.0,
+      "profit_without_recovery": -1.1400000000000006,
+      "recovery_impact": 0,
+      "quality_score": 150.0,
+      "avg_dca_levels": 0.0,
+      "verdict": "FAIR - Often needs recovery"
+    },
+    {
+      "confluence": 11,
+      "total_trades": 2,
+      "win_rate": 0.0,
+      "avg_profit": 0.0,
+      "dca_usage_rate": 0.0,
+      "hedge_usage_rate": 0.0,
+      "recovery_usage_rate": 0.0,
+      "trades_with_recovery": 0,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": 0.0,
+      "profit_without_recovery": 0.0,
+      "recovery_impact": 0,
+      "quality_score": 100.0,
+      "avg_dca_levels": 0.0,
+      "verdict": "FAIR - Often needs recovery"
+    }
+  ],
+  "worst_performers": [
+    {
+      "confluence": 17,
+      "total_trades": 5,
+      "win_rate": 60.0,
+      "avg_profit": 0.9279999999999999,
+      "dca_usage_rate": 60.0,
+      "hedge_usage_rate": 60.0,
+      "recovery_usage_rate": 60.0,
+      "trades_with_recovery": 6,
+      "trades_without_recovery": 2,
+      "profit_with_recovery": -1.336666666666667,
+      "profit_without_recovery": 4.325,
+      "recovery_impact": -11.323333333333334,
+      "quality_score": -13.233333333333348,
+      "avg_dca_levels": 3.0,
+      "verdict": "POOR - Frequently needs recovery"
+    },
+    {
+      "confluence": 12,
+      "total_trades": 2,
+      "win_rate": 50.0,
+      "avg_profit": -1.8249999999999997,
+      "dca_usage_rate": 50.0,
+      "hedge_usage_rate": 50.0,
+      "recovery_usage_rate": 50.0,
+      "trades_with_recovery": 2,
+      "trades_without_recovery": 1,
+      "profit_with_recovery": -5.52,
+      "profit_without_recovery": 1.87,
+      "recovery_impact": -14.78,
+      "quality_score": -47.79999999999998,
+      "avg_dca_levels": 1.5,
+      "verdict": "FAIR - Often needs recovery"
+    },
+    {
+      "confluence": 9,
+      "total_trades": 5,
+      "win_rate": 80.0,
+      "avg_profit": -4.338,
+      "dca_usage_rate": 40.0,
+      "hedge_usage_rate": 40.0,
+      "recovery_usage_rate": 40.0,
+      "trades_with_recovery": 4,
+      "trades_without_recovery": 3,
+      "profit_with_recovery": -13.360000000000001,
+      "profit_without_recovery": 1.6766666666666667,
+      "recovery_impact": -30.073333333333338,
+      "quality_score": -160.73333333333335,
+      "avg_dca_levels": 1.2,
+      "verdict": "FAIR - Often needs recovery"
+    }
+  ],
+  "recommendations": [
+    "Set MIN_CONFLUENCE_SCORE = 20",
+    "Expected win rate: 57.1%",
+    "Expected recovery usage: 42.9%",
+    "AVOID confluence scores: 17 (high recovery usage)",
+    "SWEET SPOT: Confluence 13 (low recovery, high win rate)"
+  ]
+}

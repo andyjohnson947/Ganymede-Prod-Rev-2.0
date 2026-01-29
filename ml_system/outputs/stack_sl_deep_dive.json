@@ -1,0 +1,428 @@
+{
+  "question_1": {
+    "question": "What is the science behind lowering stack SL from $-20 to $-10?",
+    "answer": "TIGHTEN to $-10 saves an estimated $2.83 per trade that goes into recovery",
+    "current_behavior": {
+      "avg_loss_with_dca": -2.67,
+      "avg_loss_with_hedge": -2.9849999999999994,
+      "cascade_damage_per_trade": -17.994999999999997,
+      "explanation": "Current $-20 limit allows full cascade (DCA L1, L2, L3, Hedge, etc.)"
+    },
+    "proposed_behavior": {
+      "estimated_avg_loss": -2.8274999999999997,
+      "estimated_cascade_reduction": 8.997499999999999,
+      "explanation": "Proposed $-10 limit stops cascade earlier, preventing worst losses"
+    },
+    "real_data": {
+      "dca_analysis": [
+        {
+          "confluence": 8,
+          "trades": 3,
+          "trades_with_dca": 2,
+          "trades_without_dca": 1,
+          "avg_with_dca": -0.8600000000000001,
+          "avg_without_dca": 3.36,
+          "impact": -4.22,
+          "dca_levels_avg": 1.3333333333333333
+        },
+        {
+          "confluence": 9,
+          "trades": 5,
+          "trades_with_dca": 2,
+          "trades_without_dca": 3,
+          "avg_with_dca": -13.360000000000001,
+          "avg_without_dca": 1.6766666666666667,
+          "impact": -15.036666666666669,
+          "dca_levels_avg": 1.2
+        },
+        {
+          "confluence": 11,
+          "trades": 2,
+          "trades_with_dca": 0,
+          "trades_without_dca": 2,
+          "avg_with_dca": 0,
+          "avg_without_dca": 0.0,
+          "impact": 0.0,
+          "dca_levels_avg": 0.0
+        },
+        {
+          "confluence": 12,
+          "trades": 2,
+          "trades_with_dca": 1,
+          "trades_without_dca": 1,
+          "avg_with_dca": -5.52,
+          "avg_without_dca": 1.87,
+          "impact": -7.39,
+          "dca_levels_avg": 1.5
+        },
+        {
+          "confluence": 13,
+          "trades": 1,
+          "trades_with_dca": 0,
+          "trades_without_dca": 1,
+          "avg_with_dca": 0,
+          "avg_without_dca": 2.85,
+          "impact": -2.85,
+          "dca_levels_avg": 0.0
+        },
+        {
+          "confluence": 17,
+          "trades": 5,
+          "trades_with_dca": 3,
+          "trades_without_dca": 2,
+          "avg_with_dca": -1.336666666666667,
+          "avg_without_dca": 4.325,
+          "impact": -5.661666666666667,
+          "dca_levels_avg": 3.0
+        },
+        {
+          "confluence": 19,
+          "trades": 2,
+          "trades_with_dca": 0,
+          "trades_without_dca": 2,
+          "avg_with_dca": 0,
+          "avg_without_dca": -1.1400000000000006,
+          "impact": 1.1400000000000006,
+          "dca_levels_avg": 0.0
+        },
+        {
+          "confluence": 20,
+          "trades": 7,
+          "trades_with_dca": 3,
+          "trades_without_dca": 4,
+          "avg_with_dca": 2.8666666666666667,
+          "avg_without_dca": 7.41,
+          "impact": -4.543333333333333,
+          "dca_levels_avg": 2.142857142857143
+        }
+      ],
+      "hedge_analysis": [
+        {
+          "confluence": 8,
+          "trades": 3,
+          "trades_with_hedge": 1,
+          "trades_without_hedge": 2,
+          "avg_with_hedge": -2.2,
+          "avg_without_hedge": 1.92,
+          "impact": -4.12
+        },
+        {
+          "confluence": 9,
+          "trades": 5,
+          "trades_with_hedge": 2,
+          "trades_without_hedge": 3,
+          "avg_with_hedge": -13.360000000000001,
+          "avg_without_hedge": 1.6766666666666667,
+          "impact": -15.036666666666669
+        },
+        {
+          "confluence": 11,
+          "trades": 2,
+          "trades_with_hedge": 0,
+          "trades_without_hedge": 2,
+          "avg_with_hedge": 0,
+          "avg_without_hedge": 0.0,
+          "impact": 0.0
+        },
+        {
+          "confluence": 12,
+          "trades": 2,
+          "trades_with_hedge": 1,
+          "trades_without_hedge": 1,
+          "avg_with_hedge": -5.52,
+          "avg_without_hedge": 1.87,
+          "impact": -7.39
+        },
+        {
+          "confluence": 13,
+          "trades": 1,
+          "trades_with_hedge": 0,
+          "trades_without_hedge": 1,
+          "avg_with_hedge": 0,
+          "avg_without_hedge": 2.85,
+          "impact": -2.85
+        },
+        {
+          "confluence": 17,
+          "trades": 5,
+          "trades_with_hedge": 3,
+          "trades_without_hedge": 2,
+          "avg_with_hedge": -1.336666666666667,
+          "avg_without_hedge": 4.325,
+          "impact": -5.661666666666667
+        },
+        {
+          "confluence": 19,
+          "trades": 2,
+          "trades_with_hedge": 0,
+          "trades_without_hedge": 2,
+          "avg_with_hedge": 0,
+          "avg_without_hedge": -1.1400000000000006,
+          "impact": 1.1400000000000006
+        },
+        {
+          "confluence": 20,
+          "trades": 7,
+          "trades_with_hedge": 3,
+          "trades_without_hedge": 4,
+          "avg_with_hedge": 2.8666666666666667,
+          "avg_without_hedge": 7.41,
+          "impact": -4.543333333333333
+        }
+      ],
+      "summary": {
+        "dca": {
+          "total_trades_with_dca": 11,
+          "avg_profit_with_dca": -2.67,
+          "avg_profit_without_dca": 6.140000000000001,
+          "verdict": "HARMFUL - DCA is AMPLIFYING losses"
+        },
+        "hedge": {
+          "total_trades_with_hedge": 10,
+          "avg_profit_with_hedge": -2.9849999999999994,
+          "avg_profit_without_hedge": 6.2,
+          "verdict": "HARMFUL - Hedge is AMPLIFYING losses"
+        }
+      }
+    },
+    "key_insight": "Recovery systems ADD to losers, making losses WORSE by $17.99 per trade",
+    "conclusion": [
+      "Current $-20 limit: Allows full cascade (DCA L1, L2, L3, Hedge)",
+      "Trades WITH recovery: Average loss $-2.67",
+      "Trades WITHOUT recovery: Average profit $6.14",
+      "Difference: $-8.81 per trade (recovery is HURTING you)",
+      "Tightening to $-10: Cuts cascade in HALF, saves estimated $2.83 per trade"
+    ]
+  },
+  "question_2": {
+    "question": "What about positions already open during spread hours? Should we disable stack SL?",
+    "answer": "YES - DISABLE stack SL (recovery) during spread hours",
+    "options_compared": {
+      "option_1": {
+        "behavior": "Stack SL remains at $-20, recovery triggers during spread hours",
+        "risk": "HIGH - Spread widening + recovery cascade = IMPLOSION",
+        "example": "Position at -$5, spread widens, triggers DCA at -$10, hits -$20, full cascade",
+        "outcome": "This is what caused your two implosions in two days",
+        "recommendation": "DO NOT DO THIS"
+      },
+      "option_2": {
+        "behavior": "NO new DCA/Hedge added during spread hours (0, 9, 13, 20, 21)",
+        "risk": "MEDIUM - Position bleeds but no cascade",
+        "example": "Position at -$5 during hour 0, spread widens to -$8, NO DCA added, waits until hour 5",
+        "outcome": "Position might recover naturally when spread normalizes",
+        "benefit": "Prevents cascade during worst hours",
+        "recommendation": "RECOMMENDED - This is what you should do"
+      },
+      "option_3": {
+        "behavior": "Increase stack SL to $-30 during spread hours only",
+        "risk": "VERY HIGH - Allows even deeper losses",
+        "example": "Position goes to -$25 during hour 0, still adding recovery",
+        "outcome": "Even worse implosions",
+        "recommendation": "ABSOLUTELY NOT"
+      }
+    },
+    "recommendation": {
+      "answer": "YES - DISABLE stack SL (recovery) during spread hours",
+      "implementation": "Block DCA/Hedge triggers during hours 0, 9, 13, 20, 21",
+      "logic": "If position is underwater during spread hours, let it ride WITHOUT adding recovery",
+      "reasoning": [
+        "Spread widening is TEMPORARY - spreads normalize within 1-2 hours",
+        "Recovery during spread hours = bad entry prices + cascade risk",
+        "Better to wait until hour 5, 12, 14, 15 (good hours) to add recovery IF needed",
+        "ADX hard stops already protect against true trend moves"
+      ],
+      "what_happens": "Position stays open, no new orders added, waits for better market conditions"
+    },
+    "key_insight": "Spread widening is TEMPORARY. Dont add recovery during bad hours. Wait for good hours.",
+    "what_you_experienced": "Hour 0 (midnight): -$8.77 avg, 210 trades at hour 9: -$1.21 avg. Recovery cascades during these hours = IMPLOSION"
+  },
+  "implementation_plan": {
+    "step_1": {
+      "action": "Add time-based recovery blocking",
+      "code_location": "recovery_manager.py - check_dca_trigger(), check_hedge_trigger()",
+      "logic": "if current_hour in [0, 9, 13, 20, 21]: return None  # Block recovery"
+    },
+    "step_2": {
+      "action": "Tighten stack SL from $-20 to $-10",
+      "code_location": "recovery_manager.py - STACK_DRAWDOWN_LIMIT",
+      "logic": "STACK_DRAWDOWN_LIMIT = -10.0  # Was -20.0"
+    },
+    "step_3": {
+      "action": "OR consider disabling DCA/Hedge entirely",
+      "reasoning": "Data shows recovery HURTS profit. ADX hard stops already protect you.",
+      "alternative": "Set DCA_ENABLED = False, HEDGE_ENABLED = False, rely on ADX > 30 = -50 pip hard SL"
+    }
+  },
+  "recovery_impact_detail": {
+    "dca_analysis": [
+      {
+        "confluence": 8,
+        "trades": 3,
+        "trades_with_dca": 2,
+        "trades_without_dca": 1,
+        "avg_with_dca": -0.8600000000000001,
+        "avg_without_dca": 3.36,
+        "impact": -4.22,
+        "dca_levels_avg": 1.3333333333333333
+      },
+      {
+        "confluence": 9,
+        "trades": 5,
+        "trades_with_dca": 2,
+        "trades_without_dca": 3,
+        "avg_with_dca": -13.360000000000001,
+        "avg_without_dca": 1.6766666666666667,
+        "impact": -15.036666666666669,
+        "dca_levels_avg": 1.2
+      },
+      {
+        "confluence": 11,
+        "trades": 2,
+        "trades_with_dca": 0,
+        "trades_without_dca": 2,
+        "avg_with_dca": 0,
+        "avg_without_dca": 0.0,
+        "impact": 0.0,
+        "dca_levels_avg": 0.0
+      },
+      {
+        "confluence": 12,
+        "trades": 2,
+        "trades_with_dca": 1,
+        "trades_without_dca": 1,
+        "avg_with_dca": -5.52,
+        "avg_without_dca": 1.87,
+        "impact": -7.39,
+        "dca_levels_avg": 1.5
+      },
+      {
+        "confluence": 13,
+        "trades": 1,
+        "trades_with_dca": 0,
+        "trades_without_dca": 1,
+        "avg_with_dca": 0,
+        "avg_without_dca": 2.85,
+        "impact": -2.85,
+        "dca_levels_avg": 0.0
+      },
+      {
+        "confluence": 17,
+        "trades": 5,
+        "trades_with_dca": 3,
+        "trades_without_dca": 2,
+        "avg_with_dca": -1.336666666666667,
+        "avg_without_dca": 4.325,
+        "impact": -5.661666666666667,
+        "dca_levels_avg": 3.0
+      },
+      {
+        "confluence": 19,
+        "trades": 2,
+        "trades_with_dca": 0,
+        "trades_without_dca": 2,
+        "avg_with_dca": 0,
+        "avg_without_dca": -1.1400000000000006,
+        "impact": 1.1400000000000006,
+        "dca_levels_avg": 0.0
+      },
+      {
+        "confluence": 20,
+        "trades": 7,
+        "trades_with_dca": 3,
+        "trades_without_dca": 4,
+        "avg_with_dca": 2.8666666666666667,
+        "avg_without_dca": 7.41,
+        "impact": -4.543333333333333,
+        "dca_levels_avg": 2.142857142857143
+      }
+    ],
+    "hedge_analysis": [
+      {
+        "confluence": 8,
+        "trades": 3,
+        "trades_with_hedge": 1,
+        "trades_without_hedge": 2,
+        "avg_with_hedge": -2.2,
+        "avg_without_hedge": 1.92,
+        "impact": -4.12
+      },
+      {
+        "confluence": 9,
+        "trades": 5,
+        "trades_with_hedge": 2,
+        "trades_without_hedge": 3,
+        "avg_with_hedge": -13.360000000000001,
+        "avg_without_hedge": 1.6766666666666667,
+        "impact": -15.036666666666669
+      },
+      {
+        "confluence": 11,
+        "trades": 2,
+        "trades_with_hedge": 0,
+        "trades_without_hedge": 2,
+        "avg_with_hedge": 0,
+        "avg_without_hedge": 0.0,
+        "impact": 0.0
+      },
+      {
+        "confluence": 12,
+        "trades": 2,
+        "trades_with_hedge": 1,
+        "trades_without_hedge": 1,
+        "avg_with_hedge": -5.52,
+        "avg_without_hedge": 1.87,
+        "impact": -7.39
+      },
+      {
+        "confluence": 13,
+        "trades": 1,
+        "trades_with_hedge": 0,
+        "trades_without_hedge": 1,
+        "avg_with_hedge": 0,
+        "avg_without_hedge": 2.85,
+        "impact": -2.85
+      },
+      {
+        "confluence": 17,
+        "trades": 5,
+        "trades_with_hedge": 3,
+        "trades_without_hedge": 2,
+        "avg_with_hedge": -1.336666666666667,
+        "avg_without_hedge": 4.325,
+        "impact": -5.661666666666667
+      },
+      {
+        "confluence": 19,
+        "trades": 2,
+        "trades_with_hedge": 0,
+        "trades_without_hedge": 2,
+        "avg_with_hedge": 0,
+        "avg_without_hedge": -1.1400000000000006,
+        "impact": 1.1400000000000006
+      },
+      {
+        "confluence": 20,
+        "trades": 7,
+        "trades_with_hedge": 3,
+        "trades_without_hedge": 4,
+        "avg_with_hedge": 2.8666666666666667,
+        "avg_without_hedge": 7.41,
+        "impact": -4.543333333333333
+      }
+    ],
+    "summary": {
+      "dca": {
+        "total_trades_with_dca": 11,
+        "avg_profit_with_dca": -2.67,
+        "avg_profit_without_dca": 6.140000000000001,
+        "verdict": "HARMFUL - DCA is AMPLIFYING losses"
+      },
+      "hedge": {
+        "total_trades_with_hedge": 10,
+        "avg_profit_with_hedge": -2.9849999999999994,
+        "avg_profit_without_hedge": 6.2,
+        "verdict": "HARMFUL - Hedge is AMPLIFYING losses"
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "period_analyzed": "Last 10 days (aggregate data)",
+  "current_system": {
+    "total_trades": 27,
+    "trades_with_recovery": 11,
+    "trades_without_recovery": 16,
+    "profit_with_recovery": -29.369999999999997,
+    "profit_without_recovery": 49.120000000000005,
+    "total_profit_current_system": 19.750000000000007,
+    "avg_profit_with_recovery": -2.67,
+    "avg_profit_without_recovery": 3.0700000000000003,
+    "recovery_costs": 0.0,
+    "recovery_damage": -5.74
+  },
+  "adx_system": {
+    "total_trades": 27,
+    "trending_trades": 9,
+    "ranging_trades": 18,
+    "trending_rate": 0.35,
+    "hard_stop_loss_per_trade": -2.5,
+    "ranging_avg_profit": 3.0700000000000003,
+    "profit_from_trending": -22.5,
+    "profit_from_ranging": 55.260000000000005,
+    "total_profit_adx_system": 32.760000000000005,
+    "avg_profit_adx_system": 1.2133333333333336
+  },
+  "comparison": {
+    "profit_difference": 13.009999999999998,
+    "percent_improvement": 65.87341772151896,
+    "better_system": "ADX_HARD_STOPS",
+    "trades_saved_from_cascade": 11
+  }
+}

@@ -1,0 +1,445 @@
+{
+  "timestamp": "2026-01-22T08:29:26.251523",
+  "analysis_summary": {
+    "total_hours_analyzed": 24,
+    "spread_hours_identified": 5,
+    "best_hours_identified": 8,
+    "recovery_systems_status": "HURTING_PROFIT"
+  },
+  "question_1_best_trading_times": {
+    "answer": "Trade during hours: 12, 4, 15, 10, 14, 5, 22, 23 GMT",
+    "avoid_hours": [
+      0,
+      13,
+      9,
+      20,
+      21
+    ],
+    "spread_hours_detail": [
+      {
+        "hour": 0,
+        "trades": 53,
+        "total_profit": -464.65,
+        "avg_profit": -8.77,
+        "win_rate": 47.2,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 13,
+        "trades": 20,
+        "total_profit": -35.75,
+        "avg_profit": -1.79,
+        "win_rate": 10.0,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 9,
+        "trades": 210,
+        "total_profit": -254.35,
+        "avg_profit": -1.21,
+        "win_rate": 34.8,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 20,
+        "trades": 97,
+        "total_profit": -24.38,
+        "avg_profit": -0.25,
+        "win_rate": 7.2,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 21,
+        "trades": 351,
+        "total_profit": 73.71,
+        "avg_profit": 0.21,
+        "win_rate": 43.0,
+        "is_spread_hour": true
+      }
+    ],
+    "best_hours_detail": [
+      {
+        "hour": 12,
+        "trades": 65,
+        "total_profit": 1029.05,
+        "avg_profit": 15.83,
+        "win_rate": 81.5,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 4,
+        "trades": 1,
+        "total_profit": 8.15,
+        "avg_profit": 8.15,
+        "win_rate": 100.0,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 15,
+        "trades": 35,
+        "total_profit": 73.54,
+        "avg_profit": 2.1,
+        "win_rate": 82.9,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 10,
+        "trades": 6,
+        "total_profit": 10.59,
+        "avg_profit": 1.76,
+        "win_rate": 33.3,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 14,
+        "trades": 26,
+        "total_profit": 45.04,
+        "avg_profit": 1.73,
+        "win_rate": 84.6,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 5,
+        "trades": 106,
+        "total_profit": 167.52,
+        "avg_profit": 1.58,
+        "win_rate": 83.0,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 22,
+        "trades": 11,
+        "total_profit": 14.31,
+        "avg_profit": 1.3,
+        "win_rate": 100.0,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 23,
+        "trades": 49,
+        "total_profit": 51.1,
+        "avg_profit": 1.04,
+        "win_rate": 95.9,
+        "is_spread_hour": false
+      }
+    ],
+    "explanation": "These hours show positive avg profit and good win rates"
+  },
+  "question_2_stack_sl_adjustment": {
+    "answer": "TIGHTEN_STACK_SL",
+    "current_value": -20.0,
+    "recommended_value": -10.0,
+    "explanation": "Recovery systems are amplifying losses, not helping",
+    "dca_impact": -7.7123333333333335,
+    "hedge_impact": -7.692333333333335
+  },
+  "question_3_disable_during_spread_hours": {
+    "answer": "NO",
+    "spread_hours": [
+      0,
+      13,
+      9,
+      20,
+      21
+    ],
+    "avg_loss_during_spread": -3.005,
+    "avg_profit_normal": 1.7941176470588234,
+    "explanation": "Spread hours (0, 9, 13, 20) show $-3.00 avg loss",
+    "implementation": "Add hour-based check before enabling recovery/stack SL"
+  },
+  "recommendations": [
+    {
+      "priority": "CRITICAL",
+      "category": "stack_sl",
+      "action": "TIGHTEN_STACK_SL",
+      "reason": "Recovery systems HURTING profit (DCA: $-7.71, Hedge: $-7.69)",
+      "implementation": "Reduce stack SL from $-20.00 to $-10.00 to cut losses faster",
+      "alternative": "OR disable DCA/Hedge entirely and rely on ADX hard stops"
+    },
+    {
+      "priority": "HIGH",
+      "category": "trading_hours",
+      "action": "RESTRICT_TRADING_HOURS",
+      "reason": "Performance varies significantly by hour ($1.79 vs $-3.00)",
+      "implementation": "Only trade during: 12, 4, 15, 10, 14, 5, 22, 23 GMT"
+    }
+  ],
+  "spread_hours_analysis": {
+    "spread_hours": [
+      {
+        "hour": 0,
+        "trades": 53,
+        "total_profit": -464.65,
+        "avg_profit": -8.77,
+        "win_rate": 47.2,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 13,
+        "trades": 20,
+        "total_profit": -35.75,
+        "avg_profit": -1.79,
+        "win_rate": 10.0,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 9,
+        "trades": 210,
+        "total_profit": -254.35,
+        "avg_profit": -1.21,
+        "win_rate": 34.8,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 20,
+        "trades": 97,
+        "total_profit": -24.38,
+        "avg_profit": -0.25,
+        "win_rate": 7.2,
+        "is_spread_hour": true
+      },
+      {
+        "hour": 21,
+        "trades": 351,
+        "total_profit": 73.71,
+        "avg_profit": 0.21,
+        "win_rate": 43.0,
+        "is_spread_hour": true
+      }
+    ],
+    "normal_hours": [
+      {
+        "hour": 12,
+        "trades": 65,
+        "total_profit": 1029.05,
+        "avg_profit": 15.83,
+        "win_rate": 81.5,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 4,
+        "trades": 1,
+        "total_profit": 8.15,
+        "avg_profit": 8.15,
+        "win_rate": 100.0,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 15,
+        "trades": 35,
+        "total_profit": 73.54,
+        "avg_profit": 2.1,
+        "win_rate": 82.9,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 10,
+        "trades": 6,
+        "total_profit": 10.59,
+        "avg_profit": 1.76,
+        "win_rate": 33.3,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 14,
+        "trades": 26,
+        "total_profit": 45.04,
+        "avg_profit": 1.73,
+        "win_rate": 84.6,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 5,
+        "trades": 106,
+        "total_profit": 167.52,
+        "avg_profit": 1.58,
+        "win_rate": 83.0,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 22,
+        "trades": 11,
+        "total_profit": 14.31,
+        "avg_profit": 1.3,
+        "win_rate": 100.0,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 23,
+        "trades": 49,
+        "total_profit": 51.1,
+        "avg_profit": 1.04,
+        "win_rate": 95.9,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 7,
+        "trades": 314,
+        "total_profit": 216.76,
+        "avg_profit": 0.69,
+        "win_rate": 43.3,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 6,
+        "trades": 92,
+        "total_profit": 52.51,
+        "avg_profit": 0.57,
+        "win_rate": 56.5,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 8,
+        "trades": 336,
+        "total_profit": 164.69,
+        "avg_profit": 0.49,
+        "win_rate": 72.6,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 3,
+        "trades": 61,
+        "total_profit": 24.47,
+        "avg_profit": 0.4,
+        "win_rate": 67.2,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 17,
+        "trades": 129,
+        "total_profit": 37.07,
+        "avg_profit": 0.29,
+        "win_rate": 66.7,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 1,
+        "trades": 6,
+        "total_profit": 1.55,
+        "avg_profit": 0.26,
+        "win_rate": 66.7,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 11,
+        "trades": 219,
+        "total_profit": 38.98,
+        "avg_profit": 0.18,
+        "win_rate": 53.9,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 2,
+        "trades": 9,
+        "total_profit": 0.39,
+        "avg_profit": 0.04,
+        "win_rate": 11.1,
+        "is_spread_hour": false
+      },
+      {
+        "hour": 19,
+        "trades": 14,
+        "total_profit": -82.78,
+        "avg_profit": -5.91,
+        "win_rate": 92.9,
+        "is_spread_hour": false
+      }
+    ],
+    "spread_hour_numbers": [
+      0,
+      13,
+      9,
+      20,
+      21
+    ],
+    "best_hour_numbers": [
+      12,
+      4,
+      15,
+      10,
+      14,
+      5,
+      22,
+      23
+    ]
+  },
+  "recovery_analysis": {
+    "spread_hours": [
+      0,
+      13,
+      9,
+      20,
+      21
+    ],
+    "dca_analysis": {
+      "avg_impact": -7.7123333333333335,
+      "is_profitable": false,
+      "recommendation": "DISABLE"
+    },
+    "hedge_analysis": {
+      "avg_impact": -7.692333333333335,
+      "is_profitable": false,
+      "recommendation": "DISABLE"
+    },
+    "recovery_effectiveness": {
+      "timestamp": "2026-01-06T09:25:23.454394",
+      "note": "Win rates calculated from CLOSED positions only",
+      "grid": {
+        "count": 0,
+        "total_profit": 0,
+        "avg_profit": 0,
+        "win_rate": 0
+      },
+      "dca": {
+        "count": 0,
+        "total_profit": 0,
+        "avg_profit": 0,
+        "win_rate": 0
+      },
+      "hedge": {
+        "count": 0,
+        "total_profit": 0,
+        "avg_profit": 0,
+        "win_rate": 0
+      }
+    }
+  },
+  "trading_hours_analysis": {
+    "avoid_hours": [
+      0,
+      13,
+      9,
+      20,
+      21
+    ],
+    "recommended_hours": [
+      12,
+      4,
+      15,
+      10,
+      14,
+      5,
+      22,
+      23
+    ],
+    "analysis_best_hours": [
+      1,
+      3,
+      4,
+      5,
+      8,
+      12,
+      14,
+      15,
+      17,
+      19,
+      22,
+      23
+    ],
+    "summary": {
+      "spread_hours_count": 5,
+      "best_hours_count": 8,
+      "coverage": "8/24 hours recommended"
+    }
+  }
+}
