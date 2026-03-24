@@ -3,6 +3,8 @@ Signal Detection with Confluence Scoring
 Minimum confluence score: 4 (83.3% win rate at optimal score)
 """
 
+import os
+import logging
 import pandas as pd
 from typing import Dict, Optional, List
 from datetime import datetime
@@ -40,6 +42,20 @@ class SignalDetector:
         self.volume_profile = VolumeProfile()
         self.htf_levels = HTFLevels()
         self.ml_logger = ml_logger
+        self._last_direction_block = {}  # {symbol: block_key} — dedup direction block logs
+
+        # Persistent file logger for ALL signal pipeline decisions
+        self.signal_logger = logging.getLogger('SignalPipeline')
+        self.signal_logger.setLevel(logging.INFO)
+        if not self.signal_logger.handlers:  # Avoid duplicate handlers on re-init
+            log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                    'logs', 'signal_decisions.log')
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+            handler = logging.FileHandler(log_path)
+            handler.setFormatter(logging.Formatter('%(asctime)s | %(message)s'))
+            self.signal_logger.addHandler(handler)
+        # Keep backward compat alias
+        self.direction_logger = self.signal_logger
 
         # ADDED: Load ML-optimized weights if available (overrides default CONFLUENCE_WEIGHTS)
         self.confluence_weights = CONFLUENCE_WEIGHTS.copy()  # Start with defaults
@@ -55,6 +71,37 @@ class SignalDetector:
         except Exception as e:
             print(f"[ML FEEDBACK] Failed to load optimized weights: {e}")
             # Use defaults on error
+
+        # Q-TABLE: Load pre-trained Q-tables for signal filtering
+        self.q_tables = {}
+        self.state_encoder = None
+        try:
+            from ml_system.qtable.q_table import QTable
+            from ml_system.qtable.state_encoder import StateEncoder
+            self.state_encoder = StateEncoder()
+            for sym in ['EURUSD', 'GBPUSD']:
+                qt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                       '..', 'ml_system', 'qtable', f'q_table_{sym}.json')
+                qt_path = os.path.normpath(qt_path)
+                if os.path.exists(qt_path):
+                    qt = QTable()
+                    qt.load(qt_path)
+                    qt_version = getattr(qt, 'version', 1)
+                    if qt_version < 2:
+                        print(f"[Q-TABLE WARN] {sym}: v{qt_version} Q-table (no direction) — "
+                              f"retrain needed. Gate disabled.")
+                        continue
+                    self.q_tables[sym] = qt
+                    stats = qt.get_stats()
+                    print(f"[Q-TABLE] Loaded {sym} v{qt_version}: {stats['total_states']} states, "
+                          f"{stats['trade_pct']:.1f}% trade-favored, "
+                          f"{stats['skip_favored']} skip-favored")
+            if not self.q_tables:
+                print("[Q-TABLE] No pre-trained Q-tables found — all signals pass through")
+        except Exception as e:
+            print(f"[Q-TABLE] Failed to load Q-tables: {e}")
+            self.q_tables = {}
+            self.state_encoder = None
 
     def detect_fair_value_gaps(self, data: pd.DataFrame, price: float, tolerance_pct: float = 0.003) -> Dict:
         """
@@ -152,15 +199,8 @@ class SignalDetector:
             'htf_signals': {}
         }
 
-        # Check trading calendar restrictions (bank holidays, weekends, Friday afternoons)
-        calendar = get_trading_calendar()
-        is_allowed, reason = calendar.is_trading_allowed(signal['timestamp'])
-        if not is_allowed:
-            # Always show calendar restrictions (not just debug mode)
-            print(f"   [CALENDAR] {symbol}: {reason}", flush=True)
-            signal['should_trade'] = False
-            signal['reject_reason'] = reason
-            return None  # Don't trade during restricted periods
+        # Trading calendar disabled — K+Q handle entry filtering
+        # Forex markets set their own open/close times
 
         # Calculate indicators if not already done
         if 'vwap' not in current_data.columns:
@@ -208,10 +248,12 @@ class SignalDetector:
         if vp_signals['at_swing_high']:
             signal['confluence_score'] += self.confluence_weights.get('swing_high', 1)
             signal['factors'].append('Swing High')
+            signal['structural_direction'] = 'sell'  # metadata only — VWAP sets final direction
 
         if vp_signals['at_swing_low']:
             signal['confluence_score'] += self.confluence_weights.get('swing_low', 1)
             signal['factors'].append('Swing Low')
+            signal['structural_direction'] = 'buy'  # metadata only — VWAP sets final direction
 
         # 3. Check HTF levels (CRITICAL - highest weights)
         htf_levels = self.htf_levels.get_all_levels(daily_data, weekly_data)
@@ -221,6 +263,23 @@ class SignalDetector:
         signal['confluence_score'] += htf_confluence['score']
         signal['factors'].extend(htf_confluence['factors'])
 
+        # Derive direction from HTF structural levels (resistance → SELL, support → BUY)
+        # Only override if no structural_direction already set by swing high/low
+        RESISTANCE_FACTORS = {'Prev Day VAH', 'Prev Day High', 'Daily Swing High',
+                              'Prev Week High', 'Prev Week Swing High'}
+        SUPPORT_FACTORS = {'Prev Day VAL', 'Prev Day Low', 'Daily Swing Low',
+                           'Prev Week Low', 'Prev Week Swing Low'}
+        htf_factor_set = set(htf_confluence['factors'])
+        htf_resistance = htf_factor_set & RESISTANCE_FACTORS
+        htf_support = htf_factor_set & SUPPORT_FACTORS
+
+        if not signal.get('structural_direction'):
+            if htf_resistance and not htf_support:
+                signal['structural_direction'] = 'sell'  # metadata only
+            elif htf_support and not htf_resistance:
+                signal['structural_direction'] = 'buy'  # metadata only
+        # HTF with mixed resistance+support = no structural direction (MIXED)
+
         # NOTE: Fair Value Gaps (FVGs) are NOT used in production bot
         # FVGs are tracked by ML system ONLY for data collection & analysis
         # Once ML proves FVGs are effective (15+ trades), they can be enabled here
@@ -229,9 +288,20 @@ class SignalDetector:
         # 4. Determine if we should trade based on confluence
         signal['should_trade'] = signal['confluence_score'] >= MIN_CONFLUENCE_SCORE
 
+        # GATE 1: Log confluence score decision
+        if signal['should_trade']:
+            self.signal_logger.info(
+                f"CONFLUENCE {symbol} @ {price:.5f}: Score={signal['confluence_score']}/{MIN_CONFLUENCE_SCORE} "
+                f"| Factors: {', '.join(signal['factors'])} | struct_dir={signal.get('structural_direction', 'none')} | PASS"
+            )
+        elif signal['confluence_score'] > 0:
+            self.signal_logger.info(
+                f"CONFLUENCE {symbol} @ {price:.5f}: Score={signal['confluence_score']}/{MIN_CONFLUENCE_SCORE} "
+                f"| Factors: {', '.join(signal['factors'])} | FAIL (need {MIN_CONFLUENCE_SCORE - signal['confluence_score']} more)"
+            )
+
         # DEBUG: Always show confluence score for visibility (even if 0)
         if self.debug:
-            from datetime import datetime
             timestamp = datetime.now().strftime("%H:%M:%S")
 
             print(f"   🎲 {symbol}: Calculated confluence score: {signal['confluence_score']}/{MIN_CONFLUENCE_SCORE}", flush=True)
@@ -280,11 +350,14 @@ class SignalDetector:
             if not should_trade:
                 signal['should_trade'] = False
                 signal['reject_reason'] = trend_reason
+                self.signal_logger.info(
+                    f"TREND_FILTER {symbol} {signal['direction']}: ADX={adx_value:.1f} +DI={plus_di:.1f} -DI={minus_di:.1f} | BLOCKED ({trend_reason})"
+                )
                 return None  # Reject signal due to trend filter
 
-        # 5b. M15 FAST TREND DETECTION (blocks mean reversion during trending markets)
-        # This is 4x faster than H1 ADX and catches trends before they cascade
-        if signal['should_trade'] and m15_data is not None and len(m15_data) >= 4:
+        # 5b. M15 FAST TREND DETECTION
+        # DISABLED: K+Q are sufficient entry filters. Kept for data collection only.
+        if signal['should_trade'] and TREND_FILTER_ENABLED and m15_data is not None and len(m15_data) >= 4:
             last_4_candles = m15_data.tail(4)
 
             # Count CONSECUTIVE candles in one direction
@@ -326,10 +399,18 @@ class SignalDetector:
                 'reason': m15_trend_reason if m15_trend_blocks_entry else "M15 clear or no strong trend against entry"
             }
 
+            # GATE 2: Log M15 trend filter decision
             if m15_trend_blocks_entry:
+                self.signal_logger.info(
+                    f"M15_FILTER {symbol} {signal['direction']}: bull={consecutive_bullish} bear={consecutive_bearish} | BLOCKED ({m15_trend_reason})"
+                )
                 signal['should_trade'] = False
                 signal['reject_reason'] = m15_trend_reason
                 print(f"[WARN]  [ENTRY BLOCKED] {symbol} - {m15_trend_reason}")
+            else:
+                self.signal_logger.info(
+                    f"M15_FILTER {symbol} {signal['direction']}: bull={consecutive_bullish} bear={consecutive_bearish} | PASS"
+                )
 
                 # LOG TO ML: Track M15 entry blocks for fine-tuning
                 if self.ml_logger:
@@ -348,40 +429,197 @@ class SignalDetector:
 
                 return None  # Reject entry due to M15 trend
 
-        # 6. Finalize direction if not set
-        if signal['should_trade'] and signal['direction'] is None:
-            # Use VWAP position to determine direction
-            # MEAN REVERSION LOGIC: Buy when price is BELOW VWAP (expecting reversion UP)
-            #                       Sell when price is ABOVE VWAP (expecting reversion DOWN)
-            if vwap_signals['direction'] == 'below':
-                signal['direction'] = 'buy'  # Price below VWAP, buy for reversion
+        # 6. Set direction from VWAP (MR: price below VWAP = BUY, above = SELL)
+        #    Then check agreement with structural factors — BLOCK on conflict
+        if signal['should_trade']:
+            # VWAP ALWAYS determines MR direction
+            vwap_dir = 'buy' if vwap_signals['direction'] == 'below' else 'sell'
+            signal['direction'] = vwap_dir
+
+            struct_dir = signal.get('structural_direction')
+
+            if struct_dir and struct_dir != vwap_dir:
+                # CONFLICT: Structure says opposite of VWAP — skip this trade
+                signal['should_trade'] = False
+                signal['reject_reason'] = (
+                    f"Direction conflict: VWAP={vwap_dir.upper()} vs Structure={struct_dir.upper()}"
+                )
+                self.direction_logger.info(
+                    f"BLOCKED {symbol}: VWAP={vwap_dir.upper()} vs Structure={struct_dir.upper()} "
+                    f"| Score={signal['confluence_score']} | Factors: {', '.join(signal['factors'])}"
+                )
+                # Only log once per symbol until condition changes (avoid spam)
+                block_key = f"{vwap_dir}_{struct_dir}"
+                if self._last_direction_block.get(symbol) != block_key:
+                    print(f"[DIRECTION BLOCKED] {symbol}: VWAP={vwap_dir.upper()} vs Structure={struct_dir.upper()} — skipping")
+                    print(f"   Factors: {', '.join(signal['factors'])}")
+                    self._last_direction_block[symbol] = block_key
+                return None
+            elif struct_dir:
+                self._last_direction_block.pop(symbol, None)
+                self.direction_logger.info(
+                    f"ALIGNED {symbol}: VWAP + Structure agree -> {vwap_dir.upper()} "
+                    f"| Score={signal['confluence_score']} | Factors: {', '.join(signal['factors'])}"
+                )
+                print(f"[DIRECTION] {symbol}: VWAP + Structure agree -> {vwap_dir.upper()}")
             else:
-                signal['direction'] = 'sell'  # Price above VWAP, sell for reversion
+                self._last_direction_block.pop(symbol, None)
+                self.direction_logger.info(
+                    f"VWAP-ONLY {symbol}: {vwap_dir.upper()} (no structure) "
+                    f"| Score={signal['confluence_score']} | Factors: {', '.join(signal['factors'])}"
+                )
+                print(f"[DIRECTION] {symbol}: VWAP -> {vwap_dir.upper()} (no structural direction)")
 
         # 7. Add detailed signal metadata for debugging
         if signal['should_trade']:
-            print(f"[OK] [SIGNAL PASSED ALL FILTERS] {symbol} {signal['direction']} @ {price:.5f}")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[OK] [{ts}] [SIGNAL PASSED ALL FILTERS] {symbol} {signal['direction']} @ {price:.5f}")
             print(f"   Proceeding to trade execution")
 
             signal['vwap_value'] = vwap_signals.get('vwap', 0)
             signal['vwap_distance_pct'] = vwap_signals.get('distance_pct', 0)
             signal['price_vs_vwap'] = vwap_signals['direction']  # 'above' or 'below'
 
-            # Validation: Ensure direction logic is correct for mean reversion
-            # If price is BELOW VWAP, direction should be BUY
-            # If price is ABOVE VWAP, direction should be SELL
-            if vwap_signals['direction'] == 'below' and signal['direction'] != 'buy':
-                print(f"WARNING: Direction mismatch! Price BELOW VWAP but direction is {signal['direction']}")
-                print(f"   Price: {price:.5f}, VWAP: {signal['vwap_value']:.5f}")
-                print(f"   Correcting to BUY (mean reversion)")
-                signal['direction'] = 'buy'
-            elif vwap_signals['direction'] == 'above' and signal['direction'] != 'sell':
-                print(f"WARNING: Direction mismatch! Price ABOVE VWAP but direction is {signal['direction']}")
-                print(f"   Price: {price:.5f}, VWAP: {signal['vwap_value']:.5f}")
-                print(f"   Correcting to SELL (mean reversion)")
-                signal['direction'] = 'sell'
+        # 8. Q-TABLE GATE: Check if this state/pattern historically loses
+        if signal['should_trade'] and self.state_encoder and symbol in self.q_tables:
+            try:
+                # Get ADX values (may already be calculated from trend filter)
+                adx_val = signal.get('trend_filter', {}).get('adx', 0)
+                vwap_dist = vwap_signals.get('distance_pct', 0) or 0
+
+                # Compute real ATR percentile from H1 data
+                atr_pct = 0.5  # fallback
+                try:
+                    if 'atr' in current_data.columns and len(current_data) >= 50:
+                        atr_series = current_data['atr'].dropna()
+                        if len(atr_series) >= 50:
+                            current_atr = float(atr_series.iloc[-1])
+                            window = atr_series.tail(50)
+                            atr_pct = float((window < current_atr).sum() / len(window))
+                except Exception:
+                    pass
+
+                # Try to get current hour/day
+                current_time = signal.get('timestamp', datetime.now())
+                if isinstance(current_time, str):
+                    try:
+                        current_time = datetime.fromisoformat(current_time)
+                    except (ValueError, TypeError):
+                        current_time = datetime.now()
+                hour = current_time.hour if hasattr(current_time, 'hour') else 0
+                day = current_time.weekday() if hasattr(current_time, 'weekday') else 0
+
+                # Calculate range position within 10-bar range
+                lookback_bars = current_data.tail(10)
+                range_high = lookback_bars['high'].max()
+                range_low = lookback_bars['low'].min()
+                range_span = range_high - range_low
+                range_position_pct = (price - range_low) / range_span * 100 if range_span > 0 else 50.0
+
+                market_state = {
+                    'hour_utc': hour,
+                    'day_of_week': day,
+                    'adx': adx_val,
+                    'atr_percentile_50': atr_pct,
+                    'vwap_distance_pct': vwap_dist,
+                    'active_factors': signal['factors'],
+                    'confluence_score': signal['confluence_score'],
+                    'direction': signal['direction'],
+                    'range_position_pct': range_position_pct,
+                }
+                state = self.state_encoder.encode(market_state)
+                q_vals = self.q_tables[symbol].get_q_values(state)
+                visits = self.q_tables[symbol].get_visit_count(state)
+
+                signal['q_trade'] = q_vals['TRADE']
+                signal['q_skip'] = q_vals['NO_TRADE']
+                signal['q_state'] = str(state)
+                signal['q_visits'] = visits
+
+                if q_vals['NO_TRADE'] > q_vals['TRADE'] and visits >= 5:
+                    signal['should_trade'] = False
+                    signal['reject_reason'] = (
+                        f"Q-table: skip (trade={q_vals['TRADE']:.3f}, "
+                        f"skip={q_vals['NO_TRADE']:.3f}, visits={visits})"
+                    )
+                    self.signal_logger.info(
+                        f"Q_TABLE {symbol} {signal['direction']}: TRADE={q_vals['TRADE']:.3f} SKIP={q_vals['NO_TRADE']:.3f} visits={visits} range={range_position_pct:.0f}% | BLOCKED"
+                    )
+                    print(f"[Q-TABLE BLOCKED] {symbol} {signal['direction']} @ {price:.5f} (range {range_position_pct:.0f}%)")
+                    print(f"   Q(TRADE)={q_vals['TRADE']:.3f}, Q(SKIP)={q_vals['NO_TRADE']:.3f}, "
+                          f"state visits={visits}")
+                    print(f"   Factors: {', '.join(signal['factors'])}")
+                    print(f"   State: {state}")
+                elif signal['should_trade']:
+                    self.signal_logger.info(
+                        f"Q_TABLE {symbol} {signal['direction']}: TRADE={q_vals['TRADE']:.3f} SKIP={q_vals['NO_TRADE']:.3f} visits={visits} range={range_position_pct:.0f}% | PASS"
+                    )
+                    print(f"[Q-TABLE OK] {symbol} {signal['direction']} @ range {range_position_pct:.0f}% — "
+                          f"Q(TRADE)={q_vals['TRADE']:.3f} > Q(SKIP)={q_vals['NO_TRADE']:.3f} "
+                          f"(visits={visits})")
+            except Exception as e:
+                print(f"[Q-TABLE WARN] Error checking Q-table: {e}")
+                # On error, let signal through (don't block)
+
+        # GATE 5: Log final result
+        if signal['should_trade']:
+            self.signal_logger.info(
+                f"SIGNAL_RESULT {symbol} {signal['direction'].upper()} @ {price:.5f}: TRADE "
+                f"| Score={signal['confluence_score']} | Factors: {', '.join(signal['factors'])} "
+                f"| struct_dir={signal.get('structural_direction', 'none')}"
+            )
+        else:
+            self.signal_logger.info(
+                f"SIGNAL_RESULT {symbol} @ {price:.5f}: REJECTED | Reason={signal.get('reject_reason', 'confluence too low')}"
+            )
 
         return signal if signal['should_trade'] else None
+
+    def update_q_table_online(self, symbol: str, q_state_str: str, reward: float):
+        """Online Q-learning: update Q-table from live trade outcome.
+
+        Called after each trade closes. Updates Q-value for the state that
+        was active at entry, then periodically saves to disk for persistence.
+
+        Args:
+            symbol: Trading pair (EURUSD, GBPUSD)
+            q_state_str: String repr of state tuple from signal time
+            reward: +1.0 for profitable trade, -1.0 for losing trade
+        """
+        if not q_state_str or symbol not in self.q_tables:
+            return
+        try:
+            import ast
+            state = ast.literal_eval(q_state_str)
+            self.q_tables[symbol].update(state, 'TRADE', reward)
+
+            visits = self.q_tables[symbol].get_visit_count(state)
+            q_vals = self.q_tables[symbol].get_q_values(state)
+            print(f"[Q-LEARN] {symbol} updated: reward={reward:+.1f} | "
+                  f"Q(TRADE)={q_vals['TRADE']:.3f} | visits={visits} | state={state}")
+
+            # Periodic save (every 5 updates) for crash protection
+            self._q_update_count = getattr(self, '_q_update_count', 0) + 1
+            if self._q_update_count % 5 == 0:
+                qt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                       '..', 'ml_system', 'qtable', f'q_table_{symbol}.json')
+                self.q_tables[symbol].save(os.path.normpath(qt_path))
+                print(f"[Q-TABLE] Saved {symbol} after {self._q_update_count} online updates")
+        except Exception as e:
+            print(f"[Q-TABLE] Online update error: {e}")
+
+    def save_q_tables(self):
+        """Save all Q-tables to disk. Called on bot shutdown."""
+        for sym, qt in self.q_tables.items():
+            try:
+                qt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                       '..', 'ml_system', 'qtable', f'q_table_{sym}.json')
+                qt.save(os.path.normpath(qt_path))
+                stats = qt.get_stats()
+                print(f"[Q-TABLE] Saved {sym} on shutdown: {stats['total_states']} states, "
+                      f"{stats.get('avg_visits', 0):.0f} avg visits")
+            except Exception as e:
+                print(f"[Q-TABLE] Error saving {sym}: {e}")
 
     def check_exit_signal(
         self,

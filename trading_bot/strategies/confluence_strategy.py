@@ -26,6 +26,7 @@ from utils.risk_calculator import RiskCalculator
 from utils.config_reloader import reload_config, print_current_config
 from utils.timezone_manager import get_current_time
 from portfolio.portfolio_manager import PortfolioManager
+from portfolio.instruments_config import INSTRUMENTS
 from ml_system.ml_integration_manager import MLIntegrationManager
 from config.strategy_config import (
     SYMBOLS,
@@ -34,8 +35,6 @@ from config.strategy_config import (
     DATA_REFRESH_INTERVAL,
     MAX_OPEN_POSITIONS,
     MAX_POSITIONS_PER_SYMBOL,
-    PROFIT_TARGET_PERCENT,
-    MAX_POSITION_HOURS,
     PARTIAL_CLOSE_ENABLED,
     PARTIAL_CLOSE_RECOVERY,
     BREAKOUT_ENABLED,
@@ -46,6 +45,8 @@ from config.strategy_config import (
     DCA_ENABLED,                # Startup diagnostics
     HEDGE_ENABLED,              # Startup diagnostics
     ENABLE_TIME_FILTERS,        # Startup diagnostics
+    ENABLE_CONFIRMATION_REENTRY,  # Confirmation re-entry add-on
+    REENTRY_EXPIRY_HOURS,          # Pending re-entry expiry window
 )
 
 # Module-level logger
@@ -95,15 +96,33 @@ class ConfluenceStrategy:
         self.breakout_strategy = BreakoutStrategy() if BREAKOUT_ENABLED else None
         self.partial_close_manager = PartialCloseManager() if PARTIAL_CLOSE_ENABLED else None
 
+        # Market State Alignment Scorer (Phase 5)
+        self.alignment_scorers = {}
+        try:
+            from ml_system.market_state.alignment_scorer import AlignmentScorer
+            for sym in ['EURUSD', 'GBPUSD']:
+                scorer = AlignmentScorer(sym)
+                if scorer.load_models():
+                    self.alignment_scorers[sym] = scorer
+                    print(f"[ALIGNMENT] Loaded alignment model for {sym}")
+            if not self.alignment_scorers:
+                print("[ALIGNMENT] No alignment models found — alignment check disabled")
+        except Exception as e:
+            print(f"[ALIGNMENT] Failed to load alignment scorer: {e}")
+            self.alignment_scorers = {}
+
         self.running = False
         self.last_data_refresh = {}
         self.market_data_cache = {}
 
-        # Market state tracking for trend-based trade blocking
-        self.market_trending_block = {}
+        # market_trending_block removed — K+Q handle entry filtering
 
         # Cascade protection - blocks new trades after cascade close
         self.cascade_blocks = {}  # {symbol: block_until_time}
+
+        # Confirmation re-entry: pending re-entries after BE stop-outs (add-on)
+        # {original_ticket: {symbol, direction, entry_price, trigger_price, sl_distance, volume, expiry}}
+        self.pending_reentries = {}
 
         # Crash recovery tracking
         self.recovery_stacks_reconstructed = False
@@ -120,8 +139,87 @@ class ConfluenceStrategy:
             'hedges_activated': 0,
             'dca_levels_added': 0,
         }
+
+        # Entry confirmation: pending signals waiting for next-bar rejection
+        # {symbol: {'signal': signal_dict, 'signal_bar_time': datetime, 'level_price': float}}
+        self.pending_signals = {}
+        # Max bars to wait for confirmation (expire after this)
+        self.CONFIRMATION_MAX_BARS = 4  # Wait up to 4 H1 bars for rejection candle
+        # Cooldown after expired confirmation — prevents re-detecting same signal
+        # {symbol: datetime_of_expiry}
+        self.expired_signals = {}
+        self.SIGNAL_COOLDOWN_BARS = 4  # 4 H1 bars = 4 hours cooldown
+        self._last_block_reason = {}  # {symbol: str} — print block only on state change
+        self.SIGNAL_STATE_FILE = "data/signal_state.json"  # Persistence file
+
+        # SQLite trade database for persistent logging
+        self.trade_db = None
+        try:
+            from ml_system.trade_database import TradeDatabase
+            self.trade_db = TradeDatabase()
+        except Exception as e:
+            print(f"[DB WARN] Failed to initialize trade database: {e}")
+
         if self.debug:
             print("[DEBUG] ConfluenceStrategy.__init__() completed successfully", flush=True)
+
+    def _db_log_exit(self, ticket: int, exit_price: float, pnl: float, pnl_pips: float, exit_reason: str):
+        """Helper to log trade exit to DB."""
+        if self.trade_db:
+            try:
+                self.trade_db.update_trade_exit(
+                    ticket=ticket,
+                    exit_time=datetime.utcnow().isoformat(),
+                    exit_price=exit_price,
+                    pnl=pnl,
+                    pnl_pips=pnl_pips,
+                    exit_reason=exit_reason,
+                )
+            except Exception as e:
+                print(f"[DB WARN] Exit logging failed for {ticket}: {e}")
+
+    def _q_learn_on_exit(self, ticket: int, symbol: str, profit: float):
+        """Online Q-table learning: update Q-table when a trade closes.
+
+        Called at every exit point. Reads q_state from tracked_pos (stored at entry),
+        calculates reward from profit, and updates the Q-table in place.
+        Also logs MAE (Maximum Adverse Excursion) for SL optimization.
+        """
+        tracked_pos = self.recovery_manager.tracked_positions.get(ticket)
+        if not tracked_pos:
+            return
+
+        # Log MAE at exit for SL optimization analysis
+        mae_pips = tracked_pos.get('mae_pips', 0.0)
+        result = "WIN" if profit > 0 else "LOSS"
+        print(f"[MAE] #{ticket} {symbol} {result} ${profit:.2f} | worst drawdown: {mae_pips:.1f} pips")
+
+        q_state = tracked_pos.get('q_state')
+        if not q_state:
+            return
+        if not hasattr(self, 'signal_detector') or not self.signal_detector:
+            return
+
+        reward = 1.0 if profit > 0 else -1.0
+        self.signal_detector.update_q_table_online(symbol, q_state, reward)
+
+    def _db_log_recovery(self, original_ticket: int, recovery_type: str, recovery_ticket: int,
+                         level: int, entry_price: float, volume: float, pips_underwater: float):
+        """Helper to log recovery event to DB."""
+        if self.trade_db:
+            try:
+                self.trade_db.log_recovery(
+                    original_ticket=original_ticket,
+                    recovery_type=recovery_type,
+                    recovery_ticket=recovery_ticket,
+                    level=level,
+                    entry_time=datetime.utcnow().isoformat(),
+                    entry_price=entry_price,
+                    volume=volume,
+                    pips_underwater=pips_underwater,
+                )
+            except Exception as e:
+                print(f"[DB WARN] Recovery logging failed: {e}")
 
     def start(self, symbols: List[str]):
         """
@@ -201,32 +299,10 @@ class ConfluenceStrategy:
         if not blocks_loaded:
             print("[INFO] No previous blocks - starting with clean state")
 
-        # MARKET STATE EVALUATION: Check market conditions on startup
-        print("[INFO] Evaluating market state for all symbols...")
-        for symbol in symbols:
-            # Fetch initial H1 data for market state evaluation
-            h1_data = self.mt5.get_historical_data(symbol, TIMEFRAME, bars=500)
-            if h1_data is not None:
-                # Evaluate market state (ADX analysis)
-                market_state = self.recovery_manager.check_market_state_for_hedge_close(
-                    symbol=symbol,
-                    current_data=h1_data
-                )
+        # LOAD SIGNAL STATE: Restore pending signals & cooldowns from previous session
+        self.load_signal_state()
 
-                # Initialize market_trending_block with current market state
-                should_block = market_state.get('should_block_new_trades', False)
-                self.market_trending_block[symbol] = should_block
-
-                if should_block:
-                    print(f"   [WARN]  {symbol}: Trading BLOCKED - {market_state.get('reason', 'Unknown')}")
-                else:
-                    print(f"   [OK] {symbol}: Trading ALLOWED - {market_state.get('reason', 'Unknown')}")
-            else:
-                print(f"   [WARN]  {symbol}: Could not fetch market data")
-                self.market_trending_block[symbol] = False  # Allow trading if data unavailable
-
-        # Save blocking state after startup evaluation
-        self.save_blocking_state()
+        # K+Q handle entry filtering — no ADX/M15/alignment blocking needed
 
         # STARTUP DIAGNOSTICS: Show comprehensive trading status
         print()
@@ -254,10 +330,6 @@ class ConfluenceStrategy:
                 time_left = (self.cascade_blocks[symbol] - get_current_time()).total_seconds() / 60
                 if time_left > 0:
                     status_parts.append(f"CASCADE BLOCK ({time_left:.0f}min left)")
-
-            # Check market trending block
-            if self.market_trending_block.get(symbol, False):
-                status_parts.append("TRENDING BLOCK (ADX > 40)")
 
             # Check position limit
             symbol_positions = [p for p in all_positions if p['symbol'] == symbol]
@@ -339,6 +411,10 @@ class ConfluenceStrategy:
         """Stop the strategy"""
         self.running = False
 
+        # Save Q-tables with online learning updates
+        if hasattr(self, 'signal_detector') and self.signal_detector:
+            self.signal_detector.save_q_tables()
+
         # Save final state before shutdown
         print("\n Saving final state...")
         if self.recovery_manager.save_state():
@@ -377,8 +453,26 @@ class ConfluenceStrategy:
                 if self.debug:
                     print(f"[DEBUG] Positions managed for {symbol}", flush=True)
 
-                # 3. Look for new signals
-                if self._can_open_new_position(symbol):
+                # 3. Check pending signal confirmations (entry confirmation system)
+                if symbol in self.pending_signals:
+                    self._check_pending_confirmation(symbol)
+
+                # 4. Look for new signals (only if no pending signal and no cooldown)
+                if self._can_open_new_position(symbol) and symbol not in self.pending_signals:
+                    # Check cooldown from expired confirmations
+                    if symbol in self.expired_signals:
+                        elapsed = (datetime.utcnow() - self.expired_signals[symbol]).total_seconds()
+                        cooldown_seconds = self.SIGNAL_COOLDOWN_BARS * 3600  # H1 bars
+                        if elapsed < cooldown_seconds:
+                            hours_left = (cooldown_seconds - elapsed) / 3600
+                            # Print once per hour to avoid log spam
+                            if int(elapsed) % 3600 < 60:
+                                print(f"   [COOLDOWN] {symbol}: {hours_left:.1f}h remaining after expired confirmation")
+                            continue
+                        else:
+                            del self.expired_signals[symbol]
+                            self.save_signal_state()  # Persist cooldown clear
+
                     if self.debug:
                         print(f"[DEBUG] Checking for signals on {symbol}...", flush=True)
                     self._check_for_signals(symbol)
@@ -448,27 +542,7 @@ class ConfluenceStrategy:
 
         self.last_data_refresh[symbol] = now
 
-        # RE-EVALUATE MARKET STATE: Check if market conditions have changed
-        # This updates market_trending_block every DATA_REFRESH_INTERVAL (60 min)
-        market_state = self.recovery_manager.check_market_state_for_hedge_close(
-            symbol=symbol,
-            current_data=h1_data
-        )
-
-        # Update market trending block based on current conditions
-        was_blocked = self.market_trending_block.get(symbol, False)
-        should_block = market_state.get('should_block_new_trades', False)
-        self.market_trending_block[symbol] = should_block
-
-        # Log state changes
-        if was_blocked and not should_block:
-            print(f"\n[OK] {symbol}: Market state IMPROVED - Trading RESUMED")
-            print(f"   {market_state.get('reason', 'Unknown')}")
-            self.save_blocking_state()  # Save state change
-        elif not was_blocked and should_block:
-            print(f"\n[WARN]  {symbol}: Market state DEGRADED - Trading BLOCKED")
-            print(f"   {market_state.get('reason', 'Unknown')}")
-            self.save_blocking_state()  # Save state change
+        # K+Q handle entry filtering — no market state blocking needed
 
     def _manage_positions(self, symbol: str):
         """Manage existing positions for symbol"""
@@ -497,7 +571,7 @@ class ConfluenceStrategy:
                         ticket=pos_ticket,
                         symbol=pos['symbol'],
                         entry_price=pos['price_open'],
-                        position_type='buy' if pos['type'] == 0 else 'sell',
+                        position_type=pos['type'],  # Already 'buy'/'sell' string from get_positions()
                         volume=pos['volume']
                     )
 
@@ -532,33 +606,35 @@ class ConfluenceStrategy:
         if len(all_positions) > 0:
             total_unrealized = sum(pos['profit'] for pos in all_positions)
 
-            # Emergency cascade threshold: -$100 total unrealized loss
-            if total_unrealized <= -100:
+            # Emergency cascade threshold: -$240 total unrealized loss (4 positions × $60 each)
+            if total_unrealized <= -240:
                 print(f"\n[ALERT] CASCADE PROTECTION TRIGGERED [ALERT]")
                 print(f"   Total unrealized loss: ${total_unrealized:.2f}")
-                print(f"   Threshold: -$100.00")
+                print(f"   Threshold: -$240.00")
                 print(f"   Open positions: {len(all_positions)}")
-                print(f"   ACTION: Closing ALL positions immediately")
-                print(f"   REASON: Multiple positions in drawdown - trending market detected")
+                print(f"   ACTION: Closing UNDERWATER positions only (protecting profitable positions with active PC)")
                 print()
 
-                logger.critical(f"CASCADE PROTECTION: Total unrealized ${total_unrealized:.2f} exceeds -$100 threshold")
-                logger.critical(f"   Closing {len(all_positions)} positions to prevent further losses")
+                logger.critical(f"CASCADE PROTECTION: Total unrealized ${total_unrealized:.2f} exceeds -$240 threshold")
 
-                # Close all positions
+                # Close only underwater positions — let profitable ones run their PC/BE/TP cycle
                 closed_count = 0
                 for pos in all_positions:
+                    if pos['profit'] >= 0:
+                        print(f"   [KEPT] #{pos['ticket']} {pos['symbol']} +${pos['profit']:.2f} (profitable, PC active)")
+                        continue
                     if self.mt5.close_position(pos['ticket']):
                         closed_count += 1
+                        self._q_learn_on_exit(pos['ticket'], pos['symbol'], pos.get('profit', 0))
                         self.recovery_manager.untrack_position(pos['ticket'])
                         self.stats['trades_closed'] += 1
+                        self._db_log_exit(pos['ticket'], pos.get('price_current', 0), pos.get('profit', 0), 0, 'cascade_close')
 
                 print(f"[CASCADE] Closed {closed_count}/{len(all_positions)} positions")
                 print(f"[CASCADE] Blocking new trades for 60 minutes")
                 print()
 
                 # Block trading for 60 minutes to avoid re-entering during strong trend
-                from datetime import timedelta
                 self.trade_block_until = get_current_time() + timedelta(minutes=60)
 
                 # Save recovery state
@@ -567,18 +643,25 @@ class ConfluenceStrategy:
                 # Exit early - no position management needed
                 return
 
-        # Check for trading window closures - close negative positions if window is ending
-        close_actions = self.portfolio_manager.check_window_closures()
-        for action in close_actions:
-            if action.symbol == symbol and action.close_negatives_only:
-                # Close all negative positions for this symbol
-                for pos in positions:
-                    if pos['profit'] < 0:
-                        ticket = pos['ticket']
-                        print(f"[CLOSE] Closing negative position {ticket} - {action.reason}")
-                        if self.mt5.close_position(ticket):
-                            self.recovery_manager.untrack_position(ticket)
-                            self.stats['trades_closed'] += 1
+        # Window close REMOVED — hardware SL handles losses, PC/trail handles profits
+
+        # CONFIRMATION RE-ENTRY: Detect BE stop-outs (PC1 hit, PC2 not hit, position gone)
+        if ENABLE_CONFIRMATION_REENTRY:
+            current_tickets = {p['ticket'] for p in positions}
+            for ticket, tracked_pos in list(self.recovery_manager.tracked_positions.items()):
+                if tracked_pos.get('symbol') != symbol:
+                    continue
+                if not tracked_pos.get('partial_1_closed', False):
+                    continue  # PC1 never hit — not a BE stop-out
+                if tracked_pos.get('partial_2_closed', False):
+                    continue  # PC2 hit — full run, no re-entry needed
+                if tracked_pos.get('reentry_used', False):
+                    continue  # Already registered re-entry for this position
+                if ticket in current_tickets:
+                    continue  # Position still open
+                # Position had PC1, no PC2, and just disappeared — BE stop-out detected
+                self._register_pending_reentry(ticket, tracked_pos)
+                tracked_pos['reentry_used'] = True
 
         for position in positions:
             ticket = position['ticket']
@@ -609,7 +692,23 @@ class ConfluenceStrategy:
             # Get symbol info (needed for various checks)
             current_price = position['price_current']
             symbol_info = self.mt5.get_symbol_info(symbol)
-            pip_value = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+            # For 5-digit brokers: point=0.00001, pip=0.0001 = point*10
+            point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+            digits = symbol_info.get('digits', 5) if symbol_info else 5
+            pip_value = point * 10 if digits in (3, 5) else point  # Convert point to pip
+
+            # MAE tracking: record worst drawdown (pips) per position every loop
+            if ticket in self.recovery_manager.tracked_positions:
+                tracked_pos = self.recovery_manager.tracked_positions[ticket]
+                entry_price = position['price_open']
+                pos_type = position['type']
+                if pos_type == 'buy':
+                    live_pips = (current_price - entry_price) / pip_value
+                else:
+                    live_pips = (entry_price - current_price) / pip_value
+                prev_mae = tracked_pos.get('mae_pips', 0.0)
+                if live_pips < prev_mae:
+                    tracked_pos['mae_pips'] = live_pips
 
             # PC1/PC2/TRAILING STOP: ONLY for profitable ORIGINAL positions
             # NOT for recovery orders (grid/DCA/hedge) or positions in active recovery
@@ -630,20 +729,19 @@ class ConfluenceStrategy:
 
             # ONLY apply to positive original positions without active recovery
             if position['profit'] > 0 and not is_recovery_order and not has_active_recovery:
-                # Get instrument-specific PC1/PC2 levels from instruments_config
-                from trading_bot.portfolio.instruments_config import INSTRUMENTS
+                # Get instrument-specific PC1/PC2 levels (INSTRUMENTS imported at top of file)
                 instrument_config = INSTRUMENTS.get(symbol, {})
                 tp_settings = instrument_config.get('take_profit', {})
 
                 pc1_pips = tp_settings.get('partial_1_pips', 10)
                 pc2_pips = tp_settings.get('partial_2_pips', 20)
-                pc1_percent = tp_settings.get('partial_1_percent', 0.25)
+                pc1_percent = tp_settings.get('partial_1_percent', 0.50)
                 pc2_percent = tp_settings.get('partial_2_percent', 0.25)
 
                 # Calculate current profit in pips
                 entry_price = position['price_open']
                 current_price = position['price_current']
-                pos_type = 'buy' if position['type'] == 0 else 'sell'
+                pos_type = position['type']  # Already 'buy'/'sell' string from get_positions()
 
                 if pos_type == 'buy':
                     profit_pips = (current_price - entry_price) / pip_value
@@ -665,25 +763,35 @@ class ConfluenceStrategy:
                 pc1_closed = tracked_pos.get('partial_1_closed', False)
                 pc2_closed = tracked_pos.get('partial_2_closed', False)
 
-                # PC1 CHECK: Close 25% at 10 pips (EURUSD) or 12 pips (GBPUSD)
+                # PC CHECK LOGGING
+                print(f"[PC CHECK] #{ticket} {symbol}: +{profit_pips:.1f}p | PC1={pc1_pips}p closed={pc1_closed} | PC2={pc2_pips}p closed={pc2_closed} | pip_val={pip_value}")
+
+                # PC1 CHECK: Close 50% at 1R pips + SL→BE
                 if not pc1_closed and profit_pips >= pc1_pips:
                     close_volume = round(position['volume'] * pc1_percent, 2)
 
                     if close_volume > 0 and close_volume < position['volume']:
                         short_ticket = str(ticket)[-5:]
-                        pc1_comment = f"PC1-25%@{profit_pips:.0f}pips-{short_ticket}"
+                        pc1_comment = f"PC1-50%@{profit_pips:.0f}pips-{short_ticket}"
 
                         if self.mt5.close_partial_position(ticket, close_volume, comment=pc1_comment):
-                            print(f"[PC1] {ticket} - Closed 25% @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
+                            print(f"[PC1] {ticket} - Closed 50% @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
                             tracked_pos['partial_1_closed'] = True
+
+                            # PERSIST STATE immediately so re-entry detection survives bot restart
+                            self.recovery_manager.save_state()
+
+                            # MOVE HARDWARE SL TO BREAKEVEN after PC1
+                            if self.mt5.modify_position(ticket, sl=entry_price):
+                                print(f"[PC1] Hardware SL -> breakeven @ {entry_price:.5f}")
 
                             # DISABLE VWAP EXITS after PC1
                             print(f"[PC1] VWAP exits disabled for {ticket}")
 
-                # PC2 CHECK: Close another 25% at 20 pips (EURUSD) or 25 pips (GBPUSD)
+                # PC2 CHECK: Close 25% of original at 2R pips, trail remaining 25%
                 elif pc1_closed and not pc2_closed and profit_pips >= pc2_pips:
-                    # FIXED: Use INITIAL volume for PC2, not current volume (which is reduced after PC1)
-                    # PC2 should close 25% of ORIGINAL position, leaving 50% running total
+                    # Use INITIAL volume for PC2 (current volume is reduced after PC1)
+                    # PC2 closes 25% of original, leaving 25% running with trail
                     initial_volume = tracked_pos.get('initial_volume', position['volume'])
                     close_volume = round(initial_volume * pc2_percent, 2)
 
@@ -692,7 +800,7 @@ class ConfluenceStrategy:
                         pc2_comment = f"PC2-25%@{profit_pips:.0f}pips-{short_ticket}"
 
                         if self.mt5.close_partial_position(ticket, close_volume, comment=pc2_comment):
-                            print(f"[PC2] {ticket} - Closed 25% (50% total) @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
+                            print(f"[PC2] {ticket} - Closed 25% (75% total) @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
                             tracked_pos['partial_2_closed'] = True
 
                             # ACTIVATE TRAILING STOP
@@ -781,8 +889,10 @@ class ConfluenceStrategy:
                                         entry_price=float(entry_price),
                                         peak_price=float(peak_price)
                                     )
+                                self._q_learn_on_exit(ticket, symbol, position.get('profit', 0))
                                 self.recovery_manager.untrack_position(ticket)
                                 self.stats['trades_closed'] += 1
+                                self._db_log_exit(ticket, float(current_price), position.get('profit', 0), 0, 'pc2_time_limit')
                             continue
 
                     # Update trailing stop (moves stop with price as profit increases)
@@ -795,9 +905,11 @@ class ConfluenceStrategy:
                     # Check if stop moved and log the update
                     new_stop = tracked_pos.get('trailing_stop_price', 0)
                     if new_stop != old_stop and self.ml_logger:
-                        pip_value = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+                        # For 5-digit brokers: point=0.00001, pip=0.0001 = point*10
+                        _point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+                        _digits = symbol_info.get('digits', 5) if symbol_info else 5
+                        pip_value = _point * 10 if _digits in (3, 5) else _point
 
-                        # FIXED: Removed * 10 from pips calculation
                         pips_moved = abs(new_stop - old_stop) / pip_value
                         self.ml_logger.log_trailing_update(
                             ticket=ticket,
@@ -809,8 +921,9 @@ class ConfluenceStrategy:
                         )
 
                     # Update hardware SL to match software trailing stop (crash protection)
+                    # Only modify on MT5 when trailing stop actually moved (avoids "No changes" spam)
                     trailing_stop_price = tracked_pos.get('trailing_stop_price')
-                    if trailing_stop_price:
+                    if trailing_stop_price and new_stop != old_stop:
                         self.mt5.modify_position(ticket, sl=trailing_stop_price)
 
                     # Check if trailing stop hit
@@ -831,296 +944,271 @@ class ConfluenceStrategy:
                             )
 
                         if self.mt5.close_position(ticket):
+                            self._q_learn_on_exit(ticket, symbol, position.get('profit', 0))
                             self.recovery_manager.untrack_position(ticket)
                             self.stats['trades_closed'] += 1
+                            self._db_log_exit(ticket, current_price, position.get('profit', 0), 0, 'trailing_stop')
                         continue
 
             # RECOVERY & EXIT CONDITIONS: For UNDERWATER positions with active recovery
-            # This handles positions that went negative and need grid/DCA/hedge management
-            # Positive positions without recovery are handled by PC1/PC2/trailing above
-            if ticket in self.recovery_manager.tracked_positions:
-                # Get market data for trend detection in recovery triggers
-                # Use M15 for fast trend detection (4x faster than H1)
-                # Use H1 for ADX backup confirmation
-                h1_data = None
-                m15_data = None
-                if symbol in self.market_data_cache:
-                    h1_data = self.market_data_cache[symbol]['h1']
-                    m15_data = self.market_data_cache[symbol].get('m15')
+            # SIMPLIFIED EXIT MODEL: Only PC1/PC2/Trail + hardware SL
+            # All recovery exits REMOVED:
+            #   - Stack drawdown (4x) — REMOVED
+            #   - Per-stack stop loss + cascade detection — REMOVED
+            #   - Hedge drawdown — REMOVED
+            #   - Hedge DCA trigger — REMOVED
+            #   - Hedge partial close — REMOVED
+            #   - Profit target — REMOVED
+            #   - Time limit — REMOVED
+            #   - VWAP exit — REMOVED
+            #   - Orphaned hedge check — REMOVED
+            # Losing trades are handled by hardware SL (-$30) set at entry on MT5
+            # Cascade protection (-$120 total) remains as emergency account safety net above
 
-                # Check recovery triggers (grid, DCA, hedge for underwater positions)
-                # Pass M15 for fast consecutive candle detection + H1 for ADX backup
-                recovery_actions = self.recovery_manager.check_all_recovery_triggers(
-                    ticket, current_price, pip_value, h1_data, m15_data
-                )
+        # CONFIRMATION RE-ENTRY: Check if any pending re-entries should fire
+        if ENABLE_CONFIRMATION_REENTRY and self.pending_reentries:
+            self._check_pending_reentries(symbol)
 
-                # Execute recovery actions
-                for action in recovery_actions:
-                    self._execute_recovery_action(action)
+    # _check_orphaned_hedges REMOVED — no hedging in simplified model
 
-                # Check exit conditions (only for tracked original positions)
-                # Priority order: 0) Stack drawdown (risk protection), 0.25) Per-stack stop loss, 0.5) Hedge drawdown, 1) Profit target, 2) Time limit, 3) VWAP reversion
+    # =========================================================================
+    # CONFIRMATION RE-ENTRY METHODS (add-on — disabled by default)
+    # =========================================================================
 
-                # Get account info and positions for checks
-                account_info = self.mt5.get_account_info()
-                all_positions = self.mt5.get_positions()
+    def _register_pending_reentry(self, original_ticket: int, tracked_pos: dict):
+        """Register a pending confirmation re-entry after a BE stop-out.
 
-                # 0. Check stack drawdown (HIGHEST PRIORITY - risk protection)
-                if self.recovery_manager.check_stack_drawdown(
-                    ticket=ticket,
-                    mt5_positions=all_positions,
-                    pip_value=pip_value
-                ):
-                    self._close_recovery_stack(ticket, reason="Stack Drawdown Exceeded (4x expected profit loss)")
-                    continue
+        Called when a position that hit PC1 (but not PC2) disappears from MT5.
+        Places a pending trigger SL/3 pips in the original direction from BE price.
+        """
+        from config.strategy_config import MAX_LOSS_PER_POSITION
 
-                # 0.25. Check per-stack stop loss + cascade detection
-                # Get current ADX for stop-out logging
-                current_adx = None
-                if symbol in self.market_data_cache:
-                    h1_data = self.market_data_cache[symbol]['h1']
-                    if 'adx' in h1_data.columns and len(h1_data) > 0:
-                        current_adx = h1_data.iloc[-1]['adx']
+        symbol = tracked_pos.get('symbol', '')
+        direction = tracked_pos.get('position_type', '')
+        entry_price = tracked_pos.get('entry_price', 0.0)
+        volume = tracked_pos.get('volume', 0.16)
 
-                # Check stack stop loss (passes ADX for logging)
-                stack_stop = self.recovery_manager.check_stack_stop_loss(
-                    ticket=ticket,
-                    mt5_positions=all_positions,
-                    current_adx=current_adx
-                )
-
-                if stack_stop:
-                    print(f"\n[STOP] Per-stack stop loss triggered")
-                    print(f"   Stack type: {stack_stop['stack_type']}")
-                    print(f"   Loss: ${stack_stop['loss_amount']:.2f}")
-                    print(f"   Limit: ${stack_stop['stop_loss_limit']:.2f}")
-
-                    # Close this stack
-                    reason = f"Per-Stack Stop Loss ({stack_stop['stack_type']}: ${stack_stop['loss_amount']:.2f} exceeds ${stack_stop['stop_loss_limit']:.2f})"
-                    self._close_recovery_stack(ticket, reason=reason)
-
-                    # Check if cascade detected (2nd stop in 30min window)
-                    if ENABLE_CASCADE_PROTECTION and self.recovery_manager.stop_out_tracker:
-                        cascade_info = self.recovery_manager.stop_out_tracker.check_cascade()
-
-                        if cascade_info:
-                            # CASCADE DETECTED - close all underwater stacks
-                            print(f"\n{'='*70}")
-                            print(f"[CASCADE] MULTIPLE STOP-OUTS DETECTED")
-                            print(f"{'='*70}")
-                            print(f"   Stops in 30min: {cascade_info['stop_count']}")
-                            if cascade_info['avg_adx']:
-                                print(f"   Avg ADX: {cascade_info['avg_adx']:.1f}")
-                            print(f"   Trend confirmed: {cascade_info['trend_confirmed']}")
-                            print(f"   Symbols affected: {', '.join(cascade_info['symbols'])}")
-
-                            # Get all underwater stacks
-                            underwater_tickets = self.recovery_manager.get_underwater_stacks(all_positions)
-
-                            if underwater_tickets:
-                                print(f"\n   Closing {len(underwater_tickets)} underwater stack(s):")
-                                for uw_ticket in underwater_tickets:
-                                    if uw_ticket == ticket:
-                                        continue  # Already closed above
-                                    uw_profit = self.recovery_manager.calculate_net_profit(uw_ticket, all_positions)
-                                    uw_symbol = self.recovery_manager.tracked_positions[uw_ticket]['symbol']
-                                    print(f"     #{uw_ticket} ({uw_symbol}): ${uw_profit:.2f}")
-                                    cascade_reason = f"Cascade Protection ({cascade_info['stop_count']} stops in 30min, trend confirmed, cutting losses)"
-                                    self._close_recovery_stack(uw_ticket, reason=cascade_reason)
-
-                                # Block new trades for affected symbols if trend confirmed
-                                if cascade_info['trend_confirmed']:
-                                    block_until = get_current_time() + timedelta(minutes=TREND_BLOCK_MINUTES)
-                                    for affected_symbol in cascade_info['symbols']:
-                                        self.cascade_blocks[affected_symbol] = block_until
-                                        print(f"\n   [BLOCK] {affected_symbol} trades blocked for {TREND_BLOCK_MINUTES} minutes")
-                                        if cascade_info['avg_adx']:
-                                            print(f"          Market trending (ADX: {cascade_info['avg_adx']:.1f})")
-                                    # Save cascade blocks to state file
-                                    self.save_blocking_state()
-                            else:
-                                print(f"   No other underwater stacks found")
-
-                            print(f"{'='*70}\n")
-
-                    continue
-
-                # 0.5. Check hedge drawdown (NEW - monitor hedge positions specifically)
-                hedge_action = self.recovery_manager.check_hedge_drawdown(
-                    ticket=ticket,
-                    mt5_positions=all_positions
-                )
-                if hedge_action:
-                    # Close underwater hedges
-                    hedges_to_close = hedge_action.get('hedges_to_close', [])
-                    for hedge in hedges_to_close:
-                        hedge_ticket = hedge['ticket']
-                        print(f"[STOP] Closing underwater hedge {hedge_ticket} (Loss: ${hedge['loss']:.2f})")
-                        if self.mt5.close_position(hedge_ticket):
-                            self.recovery_manager.remove_closed_hedge(ticket, hedge_ticket)
-                            self.stats['trades_closed'] += 1
-
-                    # Check market state after closing hedges
-                    if symbol in self.market_data_cache:
-                        h1_data = self.market_data_cache[symbol]['h1']
-                        market_state = self.recovery_manager.check_market_state_for_hedge_close(
-                            symbol=symbol,
-                            current_data=h1_data
-                        )
-
-                        # Store market state for use in signal detection
-                        if not hasattr(self, 'market_trending_block'):
-                            self.market_trending_block = {}
-                        self.market_trending_block[symbol] = market_state.get('should_block_new_trades', False)
-
-                # 0.6. Check hedge DCA trigger (NEW - add DCA to underwater hedges)
-                # IMPORTANT: This is SEPARATE from initial trade DCA (check_all_recovery_triggers)
-                # Hedge DCA goes in ORIGINAL direction to help initial trade recovery
-                hedge_dca_action = self.recovery_manager.check_hedge_dca_trigger(
-                    ticket=ticket,
-                    mt5_positions=all_positions,
-                    pip_value=pip_value,
-                    m15_data=m15_data  # M15 safeguard: requires 3 consecutive candles
-                )
-                if hedge_dca_action:
-                    # Execute hedge DCA (separate from initial DCA)
-                    self._execute_recovery_action(hedge_dca_action)
-
-                # 0.7. Check hedge partial close (NEW - close hedge portions as original recovers)
-                # IMPORTANT: This is SEPARATE from profit target close
-                # Reduces hedge losses during recovery
-                hedge_partial_action = self.recovery_manager.check_hedge_partial_close(
-                    ticket=ticket,
-                    mt5_positions=all_positions,
-                    pip_value=pip_value
-                )
-                if hedge_partial_action:
-                    # Execute partial hedge close
-                    self._execute_hedge_partial_close(hedge_partial_action)
-
-                # 1. Check profit target (from config)
-                if account_info and self.recovery_manager.check_profit_target(
-                    ticket=ticket,
-                    mt5_positions=all_positions,
-                    account_balance=account_info['balance'],
-                    profit_percent=PROFIT_TARGET_PERCENT
-                ):
-                    profit = self.recovery_manager.calculate_net_profit(ticket, all_positions)
-                    target = account_info['balance'] * (PROFIT_TARGET_PERCENT / 100.0)
-                    self._close_recovery_stack(ticket, reason=f"Profit Target Reached (${profit:.2f} >= ${target:.2f} target)")
-                    continue
-
-                # 2. Check time limit (from config)
-                if self.recovery_manager.check_time_limit(ticket, hours_limit=MAX_POSITION_HOURS):
-                    self._close_recovery_stack(ticket, reason=f"Time Limit Exceeded (open > {MAX_POSITION_HOURS} hours)")
-                    continue
-
-            # 3. Check exit signal (VWAP reversion) - WITH FILTERING
-            if symbol in self.market_data_cache:
-                h1_data = self.market_data_cache[symbol]['h1']
-                should_exit = self.signal_detector.check_exit_signal(position, h1_data)
-
-                if should_exit:
-                    # VWAP EXIT FILTERING: Only allow if conditions met
-                    allow_vwap_exit = True
-
-                    # Get instrument VWAP exit settings
-                    from trading_bot.portfolio.instruments_config import INSTRUMENTS
-                    instrument_config = INSTRUMENTS.get(symbol, {})
-                    tp_settings = instrument_config.get('take_profit', {})
-                    vwap_exit_enabled = tp_settings.get('vwap_exit_enabled', True)
-                    vwap_exit_max_pips = tp_settings.get('vwap_exit_max_pips', 10)
-
-                    # Check if this is a tracked position
-                    if ticket in self.recovery_manager.tracked_positions:
-                        tracked_pos = self.recovery_manager.tracked_positions[ticket]
-                        pc1_closed = tracked_pos.get('partial_1_closed', False)
-
-                        # Check if recovery is active (DCA or Hedge present)
-                        has_dca = len(tracked_pos.get('dca_levels', [])) > 0
-                        has_hedge = len(tracked_pos.get('hedges', [])) > 0
-                        recovery_active = has_dca or has_hedge
-
-                        # Calculate current profit in pips
-                        entry_price = position['price_open']
-                        current_price = position['price_current']
-                        symbol_info = self.mt5.get_symbol_info(symbol)
-                        pip_value = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
-
-                        pos_type = 'buy' if position['type'] == 0 else 'sell'
-                        if pos_type == 'buy':
-                            profit_pips = (current_price - entry_price) / pip_value
-                        else:
-                            profit_pips = (entry_price - current_price) / pip_value
-
-                        # DISABLE VWAP exit if:
-                        # 1. PC1 already triggered (new exit strategy active) OR
-                        # 2. Profit >= max_pips (position should wait for PC1/PC2) OR
-                        # 3. VWAP exit disabled in config OR
-                        # 4. Recovery is active (DCA/Hedge working - let recovery finish)
-                        if pc1_closed:
-                            allow_vwap_exit = False
-                            print(f"[VWAP] Exit blocked for {ticket} - PC1 triggered (new exit strategy active)")
-                        elif profit_pips >= vwap_exit_max_pips:
-                            allow_vwap_exit = False
-                            print(f"[VWAP] Exit blocked for {ticket} - Profit {profit_pips:.1f} pips >= {vwap_exit_max_pips} (waiting for PC1)")
-                        elif not vwap_exit_enabled:
-                            allow_vwap_exit = False
-                        elif recovery_active:
-                            allow_vwap_exit = False
-                            dca_count = len(tracked_pos.get('dca_levels', []))
-                            hedge_count = len(tracked_pos.get('hedges', []))
-                            print(f"[VWAP] Exit blocked for {ticket} - Recovery active (DCA: {dca_count}, Hedge: {hedge_count}) - Let recovery work!")
-
-                    # Execute VWAP exit only if allowed
-                    if allow_vwap_exit:
-                        print(f"[VWAP] Exit signal detected for {ticket} - VWAP reversion")
-
-                        # Check if this is a tracked position with recovery stack
-                        if ticket in self.recovery_manager.tracked_positions:
-                            print(f"[VWAP] Closing entire recovery stack for {ticket}")
-                            entry_price = position['price_open']
-                            current_price = position['price_current']
-                            vwap_reason = f"VWAP Exit Signal (price reverted to VWAP: entry {entry_price:.5f} -> VWAP {current_price:.5f})"
-                            self._close_recovery_stack(ticket, reason=vwap_reason)
-                        else:
-                            # Standalone position (no recovery) - close normally
-                            if self.mt5.close_position(ticket):
-                                self.stats['trades_closed'] += 1
-
-        # Check for orphaned hedges (hedges whose original positions are gone)
-        self._check_orphaned_hedges()
-
-    def _check_orphaned_hedges(self):
-        """Check ALL positions for orphaned hedges and close if losing > $75"""
-        all_positions = self.mt5.get_positions()
-        if not all_positions:
+        if not symbol or not direction or not entry_price:
             return
 
-        for position in all_positions:
-            comment = position.get('comment', '')
+        # Calculate SL distance (same formula as _execute_signal)
+        symbol_info = self.mt5.get_symbol_info(symbol)
+        point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+        digits = symbol_info.get('digits', 5) if symbol_info else 5
+        pip_val = point * 10 if digits in (3, 5) else point
+        pip_value_dollar = 10.0 * volume
+        sl_pips = MAX_LOSS_PER_POSITION / pip_value_dollar if pip_value_dollar > 0 else 37.5
+        sl_distance = sl_pips * pip_val
 
-            # Check if this is a hedge position
-            if 'Hedge -' in comment:
-                ticket = position.get('ticket')
-                profit = position.get('profit', 0)
-                volume = position.get('volume', 0)
-                symbol = position.get('symbol', 'UNKNOWN')
+        # Trigger = BE price ± SL/3 pips in original direction
+        trigger_pips = sl_pips / 3.0
+        trigger_distance = trigger_pips * pip_val
 
-                # Check if hedge is losing > $75
-                if profit < -75.0:
-                    loss = abs(profit)
-                    print(f"[STOP] ORPHANED HEDGE DETECTED: {symbol} #{ticket}")
-                    print(f"   Loss: ${loss:.2f} (exceeds $75 threshold)")
-                    print(f"   Volume: {volume:.2f} lots")
-                    print(f"   Comment: {comment}")
-                    print(f"   Closing immediately for risk protection...")
+        if direction == 'buy':
+            trigger_price = entry_price + trigger_distance
+        else:
+            trigger_price = entry_price - trigger_distance
 
-                    if self.mt5.close_position(ticket):
-                        print(f"   [OK] Orphaned hedge {ticket} closed successfully")
-                        self.stats['trades_closed'] += 1
-                    else:
-                        print(f"   [ERROR] Failed to close orphaned hedge {ticket}")
+        expiry = get_current_time() + timedelta(hours=REENTRY_EXPIRY_HOURS)
+
+        self.pending_reentries[original_ticket] = {
+            'symbol': symbol,
+            'direction': direction,
+            'entry_price': entry_price,
+            'trigger_price': trigger_price,
+            'sl_pips': sl_pips,
+            'sl_distance': sl_distance,
+            'volume': volume,
+            'expiry': expiry,
+        }
+
+        print(f"[RE-ENTRY] Pending registered | #{original_ticket} {symbol} {direction.upper()}"
+              f" | Trigger: {trigger_price:.5f} ({trigger_pips:.1f}p from BE {entry_price:.5f})"
+              f" | Expires: {expiry.strftime('%H:%M')}")
+
+    def _check_pending_reentries(self, symbol: str):
+        """Each loop: check if any pending re-entry triggers have been crossed."""
+        from config.strategy_config import MAX_POSITIONS_PER_SYMBOL
+
+        now = get_current_time()
+        to_remove = []
+
+        for orig_ticket, reentry in list(self.pending_reentries.items()):
+            if reentry['symbol'] != symbol:
+                continue
+
+            # Expired?
+            if now >= reentry['expiry']:
+                print(f"[RE-ENTRY] Expired | #{orig_ticket} {symbol} — removing")
+                to_remove.append(orig_ticket)
+                continue
+
+            # Cascade blocked?
+            if symbol in self.cascade_blocks and now < self.cascade_blocks[symbol]:
+                print(f"[RE-ENTRY] Cascade block active for {symbol} — cancelling re-entry #{orig_ticket}")
+                to_remove.append(orig_ticket)
+                continue
+
+            # Position limit reached? Wait — don't cancel, just skip this iteration
+            existing = self.mt5.get_positions(symbol)
+            if len(existing) >= MAX_POSITIONS_PER_SYMBOL:
+                continue
+
+            # Get current price
+            tick = self.mt5.get_symbol_tick(symbol)
+            if not tick:
+                continue
+
+            direction = reentry['direction']
+            current_price = tick.get('ask') if direction == 'buy' else tick.get('bid')
+            trigger_price = reentry['trigger_price']
+
+            # Has price crossed the trigger in the original direction?
+            triggered = (direction == 'buy' and current_price >= trigger_price) or \
+                        (direction == 'sell' and current_price <= trigger_price)
+
+            if triggered:
+                self._execute_reentry(orig_ticket, reentry)
+                to_remove.append(orig_ticket)
+
+        for t in to_remove:
+            self.pending_reentries.pop(t, None)
+
+    def _execute_reentry(self, orig_ticket: int, reentry: dict):
+        """Execute a confirmed re-entry trade. Tracked normally through PC1/PC2/trail."""
+        symbol = reentry['symbol']
+        direction = reentry['direction']
+        volume = reentry['volume']
+        sl_distance = reentry['sl_distance']
+
+        tick = self.mt5.get_symbol_tick(symbol)
+        if not tick:
+            print(f"[RE-ENTRY] No tick for {symbol} — aborting #{orig_ticket}")
+            return
+
+        current_price = tick.get('ask') if direction == 'buy' else tick.get('bid')
+
+        hard_sl = (current_price - sl_distance) if direction == 'buy' else (current_price + sl_distance)
+
+        ticket = self.mt5.place_order(
+            symbol=symbol,
+            order_type=direction,
+            volume=volume,
+            sl=hard_sl,
+            tp=None,
+            comment=f"RE-ENTRY:{orig_ticket}"
+        )
+
+        if ticket:
+            self.stats['trades_opened'] += 1
+            # Get actual fill price
+            actual_entry = current_price
+            for pos in self.mt5.get_positions():
+                if pos['ticket'] == ticket:
+                    actual_entry = pos['price_open']
+                    break
+            # Track normally — PC1/PC2/trail applies as usual
+            self.recovery_manager.track_position(
+                ticket=ticket,
+                symbol=symbol,
+                entry_price=actual_entry,
+                position_type=direction,
+                volume=volume,
+                is_grid_child=False,
+                is_recovery_order=False,
+                open_adx=0.0
+            )
+            print(f"[RE-ENTRY] ✅ Opened #{ticket} | {symbol} {direction.upper()} {volume} lots"
+                  f" @ {actual_entry:.5f} | SL: {hard_sl:.5f} | Original: #{orig_ticket}")
+        else:
+            print(f"[RE-ENTRY] ❌ Failed to open re-entry for #{orig_ticket}")
+
+    def _check_pending_confirmation(self, symbol: str):
+        """
+        Check if a pending MR signal gets confirmed by the current bar.
+
+        Confirmation = the bar since the signal shows rejection from the level:
+          - For BUY: bar has a lower wick (low dipped toward level) but closed above open (bullish)
+          - For SELL: bar has an upper wick (high pushed toward level) but closed below open (bearish)
+
+        If no confirmation after CONFIRMATION_MAX_BARS, expire the signal.
+        """
+        pending = self.pending_signals.get(symbol)
+        if not pending:
+            return
+
+        signal = pending['signal']
+        direction = signal['direction']
+
+        # Get current H1 bar
+        cache = self.market_data_cache.get(symbol)
+        if not cache:
+            return
+        h1_data = cache.get('h1')
+        if h1_data is None or len(h1_data) < 2:
+            return
+
+        current_bar = h1_data.iloc[-1]
+        current_bar_time = h1_data.index[-1]
+
+        # Only process on NEW H1 bar (skip if same bar as last check)
+        if current_bar_time == pending.get('last_checked_bar'):
+            return  # Same bar, nothing new to check
+
+        pending['last_checked_bar'] = current_bar_time
+        pending['bars_waited'] += 1
+
+        bar_open = current_bar['open']
+        bar_close = current_bar['close']
+        bar_high = current_bar['high']
+        bar_low = current_bar['low']
+        bar_range = bar_high - bar_low
+
+        if bar_range == 0:
+            return  # Flat bar, wait
+
+        # Check confirmation
+        confirmed = False
+
+        if direction == 'buy':
+            # BUY confirmation: bar closed bullish (close > open)
+            # AND has meaningful lower wick (tested support and bounced)
+            lower_wick = min(bar_open, bar_close) - bar_low
+            wick_ratio = lower_wick / bar_range
+            is_bullish = bar_close > bar_open
+            confirmed = is_bullish and wick_ratio >= 0.25
+
+        elif direction == 'sell':
+            # SELL confirmation: bar closed bearish (close < open)
+            # AND has meaningful upper wick (tested resistance and rejected)
+            upper_wick = bar_high - max(bar_open, bar_close)
+            wick_ratio = upper_wick / bar_range
+            is_bearish = bar_close < bar_open
+            confirmed = is_bearish and wick_ratio >= 0.25
+
+        if confirmed:
+            # Update price to current (enter at confirmation bar close, not signal bar)
+            signal['price'] = bar_close
+            ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+            print(f"[CONFIRM] [{ts}] {symbol} {direction.upper()} CONFIRMED — rejection candle detected")
+            print(f"   O={bar_open:.5f} H={bar_high:.5f} L={bar_low:.5f} C={bar_close:.5f}")
+            del self.pending_signals[symbol]
+            self.save_signal_state()  # Persist state change
+            self._execute_signal(signal)
+            return
+
+        # Check expiry
+        if pending['bars_waited'] >= self.CONFIRMATION_MAX_BARS:
+            ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+            print(f"[CONFIRM] [{ts}] {symbol} {direction.upper()} EXPIRED — no rejection in {pending['bars_waited']} bars")
+            self.expired_signals[symbol] = datetime.utcnow()  # Start cooldown
+            print(f"   [COOLDOWN] {symbol}: {self.SIGNAL_COOLDOWN_BARS}h cooldown started")
+            del self.pending_signals[symbol]
+            self.save_signal_state()  # Persist state change
+            return
+
+        ts = datetime.utcnow().strftime("%H:%M UTC")
+        print(f"[CONFIRM] [{ts}] {symbol} {direction.upper()} waiting... bar {pending['bars_waited']}/{self.CONFIRMATION_MAX_BARS}")
 
     def _check_for_signals(self, symbol: str):
         """Check for new entry signals"""
@@ -1130,12 +1218,10 @@ class ConfluenceStrategy:
         # Track blocking reasons for visibility
         blocking_reasons = []
 
-        # Check if market is blocked due to trending (ADX > 40)
-        if hasattr(self, 'market_trending_block') and self.market_trending_block.get(symbol, False):
-            blocking_reasons.append("ADX > 40 (strong trend)")
+        # K+Q handle entry filtering — no ADX blocking
 
         # Check if symbol is tradeable based on portfolio trading windows (bypass in test mode)
-        if not self.test_mode and not self.portfolio_manager.is_symbol_tradeable(symbol):
+        if not self.test_mode and ENABLE_TIME_FILTERS and not self.portfolio_manager.is_symbol_tradeable(symbol):
             blocking_reasons.append("Outside trading window")
             # Show blocking summary
             print(f"   [BLOCKED] {symbol}: {', '.join(blocking_reasons)}", flush=True)
@@ -1164,9 +1250,14 @@ class ConfluenceStrategy:
         if not can_trade_bo:
             blocking_reasons.append("Breakout: outside allowed hours/days")
 
-        # Show blocking summary if any blocks
-        if blocking_reasons:
-            print(f"   [BLOCKED] {symbol}: {', '.join(blocking_reasons)}", flush=True)
+        # Show blocking summary only on state change (avoid log spam)
+        block_key = ', '.join(blocking_reasons)
+        if blocking_reasons and block_key != self._last_block_reason.get(symbol):
+            print(f"   [BLOCKED] {symbol}: {block_key}", flush=True)
+            self._last_block_reason[symbol] = block_key
+        elif not blocking_reasons and symbol in self._last_block_reason:
+            print(f"   [UNBLOCKED] {symbol}: Trading resumed", flush=True)
+            del self._last_block_reason[symbol]
 
         # Early return if ALL strategies are blocked (no point checking for signals)
         if not can_trade_mr and not can_trade_bo:
@@ -1199,84 +1290,41 @@ class ConfluenceStrategy:
             if self.debug:
                 print(f"   [PAUSE]  {symbol}: Mean reversion trading not allowed at this time", flush=True)
 
-        # Try breakout signal (if mean reversion found nothing and breakout is allowed)
+        # ── SMC Structural Breakout ───────────────────────────────────
+        # Always update the state machine (tracks compression/liquidity even outside BO hours)
+        if self.breakout_strategy:
+            try:
+                self.breakout_strategy.update_state(
+                    symbol=symbol,
+                    h1_data=h1_data,
+                    d1_data=d1_data,
+                    current_bar_index=len(h1_data) - 1,
+                )
+            except Exception as e:
+                if self.debug:
+                    print(f"   [WARN] {symbol}: Breakout state machine error: {e}", flush=True)
+
+        # Try structural breakout entry (if MR found nothing and BO window is active)
         if signal is None and can_trade_bo and self.breakout_strategy:
-            # FIXED: Check if h1_data is empty before accessing iloc
-            if len(h1_data) == 0:
-                print(f"[WARN] Empty H1 data for {symbol}, skipping breakout check")
-                return None
-
-            # Get current price and volume
-            latest_bar = h1_data.iloc[-1]
-            current_price = latest_bar['close']
-
-            # Get volume - handle both 'volume' and 'tick_volume' columns
-            if 'volume' in latest_bar:
-                current_volume = latest_bar['volume']
-            elif 'tick_volume' in latest_bar:
-                current_volume = latest_bar['tick_volume']
-            else:
-                current_volume = 0  # Default if no volume data
-                print(f"[WARN] Warning: No volume data for {symbol}, using 0")
-
-            # Calculate ATR
-            atr = h1_data['atr'].iloc[-1] if 'atr' in h1_data.columns else 0
-
-            # Calculate RSI and MACD for comprehensive breakout detection
-            from indicators.technical import add_indicators_to_dataframe
-            h1_with_indicators = add_indicators_to_dataframe(h1_data)
-            rsi = h1_with_indicators['rsi'].iloc[-1] if 'rsi' in h1_with_indicators.columns else 50.0
-            macd_histogram = h1_with_indicators['macd_histogram'].iloc[-1] if 'macd_histogram' in h1_with_indicators.columns else 0.0
-
-            # Calculate volume profile for LVN breakouts
-            volume_profile_data = self.signal_detector.volume_profile.get_signals(
-                h1_data, current_price, lookback=200
-            )
-            volume_profile = volume_profile_data.get('profile', {})
-
-            # Get weekly levels for weekly breakout detection
-            htf_levels = self.signal_detector.htf_levels.get_all_levels(d1_data, w1_data)
-            weekly_data = htf_levels.get('weekly', {})
-            # Map to format expected by breakout strategy
-            weekly_levels = {
-                'high': weekly_data.get('prev_week_high', current_price + 0.01),
-                'low': weekly_data.get('prev_week_low', current_price - 0.01)
-            }
-
-            # Prepare indicators dict for comprehensive breakout checker
-            indicators = {
-                'rsi': rsi,
-                'macd_histogram': macd_histogram,
-                'atr': atr,
-                'volume': current_volume
-            }
-
-            # Check for comprehensive breakout signals (range + LVN + weekly)
-            breakout_signal = self.breakout_strategy.check_breakout_signal(
-                data=h1_data,
-                current_price=current_price,
-                volume_profile=volume_profile,
-                weekly_levels=weekly_levels,
-                indicators=indicators,
-                current_time=current_time
-            )
-
-            if breakout_signal:
-                # Convert breakout signal to standard signal format
+            bo_signal = self.breakout_strategy.get_structural_entry(symbol)
+            if bo_signal:
                 signal = {
                     'symbol': symbol,
-                    'direction': breakout_signal['direction'],  # Now lowercase 'buy'/'sell'
-                    'price': current_price,
+                    'direction': bo_signal['direction'],
+                    'price': bo_signal['entry_price'],
                     'strategy_type': 'breakout',
-                    'confluence_score': breakout_signal.get('score', 3),
-                    'factors': breakout_signal.get('factors', []),
-                    'breakout_details': breakout_signal  # Store full breakout details
+                    'confluence_score': bo_signal.get('score', 5),
+                    'factors': bo_signal.get('factors', []),
+                    'breakout_details': bo_signal,
                 }
                 if self.debug:
-                    print(f"   [OK] {symbol}: Breakout signal found (Score: {signal.get('confluence_score', 0)})", flush=True)
+                    print(f"   [OK] {symbol}: Structural breakout signal — "
+                          f"{signal['direction'].upper()} (stage 5)", flush=True)
             else:
                 if self.debug:
-                    print(f"   [SKIP] {symbol}: No breakout signal detected", flush=True)
+                    state_info = self.breakout_strategy.get_state_summary(symbol)
+                    print(f"   [SKIP] {symbol}: No structural breakout — "
+                          f"stage {state_info.get('stage', 0)} ({state_info.get('stage_name', 'IDLE')})", flush=True)
 
         if signal is None:
             if self.debug:
@@ -1285,6 +1333,22 @@ class ConfluenceStrategy:
 
         # Signal detected!
         self.stats['signals_detected'] += 1
+
+        # DB: Log accepted signal
+        if self.trade_db:
+            try:
+                self.trade_db.log_signal(
+                    symbol=symbol,
+                    timestamp=datetime.utcnow().isoformat(),
+                    direction=signal.get('direction', 'unknown'),
+                    confluence_score=signal.get('confluence_score', 0),
+                    factors=signal.get('factors', []),
+                    accepted=True,
+                    q_trade=signal.get('q_trade'),
+                    q_skip=signal.get('q_skip'),
+                )
+            except Exception as e:
+                print(f"[DB WARN] Signal logging failed: {e}")
 
         # CRITICAL: Calculate ADX for conditional SL logic
         # If ADX > 30 (trending), apply hard SL at -50 pips
@@ -1300,27 +1364,69 @@ class ConfluenceStrategy:
         # Add breakout-specific logging
         if signal.get('strategy_type') == 'breakout' and signal.get('breakout_details'):
             details = signal['breakout_details']
-            breakout_type = details.get('type', 'unknown')
-            print(f"   Breakout Strategy: {breakout_type.upper()}")
-
-            if breakout_type == 'range_breakout':
-                print(f"   Range: {details.get('range_low', 0):.5f} - {details.get('range_high', 0):.5f}")
-                print(f"   Range Size: {details.get('range_size_pips', 0):.1f} pips")
-                print(f"   Logic: Price breaks {details.get('breakout_type', 'unknown').upper()} -> {signal['direction'].upper()} (ride momentum)")
-            elif breakout_type == 'lvn_breakout':
-                print(f"   LVN Level: {details.get('lvn_level', 0):.5f}")
-                print(f"   RSI: {details.get('rsi', 0):.1f}")
-                print(f"   Logic: Price breaks through Low Volume Node -> {signal['direction'].upper()} (fast move)")
-            elif breakout_type == 'weekly_breakout':
-                print(f"   Weekly High: {details.get('weekly_high', 0):.5f}")
-                print(f"   Weekly Low: {details.get('weekly_low', 0):.5f}")
-                print(f"   RSI: {details.get('rsi', 0):.1f}")
-                print(f"   Logic: Price breaks weekly level -> {signal['direction'].upper()} (continuation)")
+            print(f"   Structural Breakout: {details.get('type', 'unknown').upper()}")
+            print(f"   Direction: {signal['direction'].upper()}")
+            print(f"   Range: {details.get('range_low', 0):.5f} - {details.get('range_high', 0):.5f} "
+                  f"({details.get('range_size_pips', 0):.0f} pips)")
+            print(f"   Sweep: {details.get('sweep_direction', '?')} to {details.get('sweep_extreme', 0):.5f}")
+            print(f"   BOS level: {details.get('bos_level', 0):.5f}")
+            print(f"   Retest: {details.get('retest_type', '?')} at {details.get('entry_price', 0):.5f}")
+            print(f"   Sequence: {details.get('total_bars', 0)} bars")
+            if details.get('factors'):
+                for factor in details['factors']:
+                    print(f"     • {factor}")
 
         print()
 
-        # Execute trade
-        self._execute_signal(signal)
+        # ── Market State Alignment Check ────────────────────────────
+        # Score how well current environment aligns with proposed trade
+        scorer = self.alignment_scorers.get(symbol)
+        if scorer:
+            try:
+                strat_type = 'MR' if signal.get('strategy_type') == 'mean_reversion' else 'BO'
+                alignment = scorer.score_from_live_data(
+                    h1_data=h1_data,
+                    d1_data=d1_data,
+                    w1_data=w1_data,
+                    proposed_strategy=strat_type,
+                    proposed_direction=signal['direction'],
+                )
+                signal['alignment'] = alignment
+                score = alignment.get('alignment_score', 0)
+                cluster_id = alignment.get('cluster_id', -1)
+                cluster_strat = alignment.get('cluster_strategy', '?')
+
+                print(f"[ALIGNMENT] Score: {score:.3f} | Cluster: C{cluster_id} ({cluster_strat}) | "
+                      f"Threshold: {alignment.get('threshold', 0.55)}")
+
+                if not alignment.get('should_trade', False):
+                    # DISABLED: K+Q are sufficient. Log only, don't block.
+                    print(f"[ALIGNMENT] Info: score {score:.3f} < threshold (not blocking)")
+                    # return  # Skip trade — disabled, K+Q handle entry filtering
+                else:
+                    print(f"[ALIGNMENT] PASSED: Environment supports {strat_type} {signal['direction']}")
+            except Exception as e:
+                print(f"[ALIGNMENT] Error scoring alignment: {e}")
+                # Continue with trade on scoring error (fail-open)
+
+        # Entry confirmation: queue MR signals, execute BO signals directly
+        if signal.get('strategy_type') == 'breakout':
+            # Breakout has its own confirmation (retest stage) — execute now
+            self._execute_signal(signal)
+            if self.breakout_strategy:
+                self.breakout_strategy.on_trade_executed(signal['symbol'])
+        else:
+            # MR signals: queue as pending, wait for next-bar confirmation
+            bar_time = h1_data.index[-1] if hasattr(h1_data.index[-1], 'hour') else datetime.utcnow()
+            self.pending_signals[symbol] = {
+                'signal': signal,
+                'signal_bar_time': bar_time,
+                'last_checked_bar': bar_time,  # Track bar changes (not 60s scans)
+                'bars_waited': 0,
+            }
+            ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+            print(f"[CONFIRM] [{ts}] {symbol} {signal['direction'].upper()} queued — waiting for next-bar rejection")
+            self.save_signal_state()  # Persist across restarts
 
     def _execute_signal(self, signal: Dict):
         """
@@ -1364,14 +1470,7 @@ class ConfluenceStrategy:
                 del self.cascade_blocks[symbol]
                 print(f" Cascade block for {symbol} expired - resuming normal trading")
 
-        # Check if new trades are blocked due to trending market
-        # This is the "belt and braces" approach - prevent new trades when market is trending
-        # Recovery trades are still allowed (they are executed via _execute_recovery_action, not here)
-        if hasattr(self, 'market_trending_block') and self.market_trending_block.get(symbol, False):
-            print(f" New trade BLOCKED for {symbol} - Market is trending")
-            print(f"   This protection prevents opening new positions during strong trends")
-            print(f"   Recovery trades are still allowed to manage existing positions")
-            return
+        # K+Q handle entry filtering — no market trending block
 
         # Get account and symbol info
         account_info = self.mt5.get_account_info()
@@ -1422,39 +1521,30 @@ class ConfluenceStrategy:
             print(f"[ERROR] Cannot open {INITIAL_TRADE_COUNT} trades - would exceed MAX_TOTAL_LOTS limit")
             return
 
-        # ADX-CONDITIONAL HARD STOP LOGIC (CONFIGURABLE)
-        # When ENABLE_ADX_HARD_STOPS = True:
-        #   If ADX > threshold (trending market), apply hard SL to cut losses fast
-        #   If ADX <= threshold (ranging/moderate), allow recovery system to work
-        # When ENABLE_ADX_HARD_STOPS = False:
-        #   Normal recovery system behavior (current system)
-        from config.strategy_config import (
-            ENABLE_ADX_HARD_STOPS,
-            ADX_HARD_STOP_THRESHOLD,
-            ADX_HARD_STOP_PIPS
-        )
+        # HARDWARE STOP LOSS: Always set -$30 SL on MT5 at entry (survives crashes)
+        from config.strategy_config import MAX_LOSS_PER_POSITION
 
         current_adx = signal.get('adx', 0.0)
         hard_sl = None
 
-        if ENABLE_ADX_HARD_STOPS and current_adx > ADX_HARD_STOP_THRESHOLD:
-            # Calculate hard stop loss at configured pip distance
-            symbol_info = self.mt5.get_symbol_info(symbol)
-            point = symbol_info.get('point', 0.0001)
-            pip_distance = ADX_HARD_STOP_PIPS * point
+        # Calculate $30 hard SL in pips
+        # pip_value_per_lot = $10 for EURUSD/GBPUSD (standard lots)
+        # SL_pips = max_loss / (pip_value_per_lot * volume)
+        _point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+        _digits = symbol_info.get('digits', 5) if symbol_info else 5
+        pip_val = _point * 10 if _digits in (3, 5) else _point
+        pip_value_dollar = 10.0 * volume  # $10/pip/lot for EUR/GBP pairs
+        sl_pips = MAX_LOSS_PER_POSITION / pip_value_dollar if pip_value_dollar > 0 else 20
+        sl_distance = sl_pips * pip_val
 
-            # Get current price for SL calculation
-            tick = self.mt5.get_symbol_tick(symbol)
-            if tick:
-                current_price = tick.get('bid') if direction == 'sell' else tick.get('ask')
-                if direction == 'buy':
-                    hard_sl = current_price - pip_distance  # SL below entry for BUY
-                else:
-                    hard_sl = current_price + pip_distance  # SL above entry for SELL
-
-                print(f" [ADX HARD STOP] Trending market detected (ADX: {current_adx:.1f} > {ADX_HARD_STOP_THRESHOLD})")
-                print(f"   Applying HARD SL at -{ADX_HARD_STOP_PIPS} pips: {hard_sl:.5f}")
-                print(f"   Recovery (DCA/Hedge/Grid) will be BLOCKED for this position")
+        tick = self.mt5.get_symbol_tick(symbol)
+        if tick:
+            current_price = tick.get('bid') if direction == 'sell' else tick.get('ask')
+            if direction == 'buy':
+                hard_sl = current_price - sl_distance
+            else:
+                hard_sl = current_price + sl_distance
+            print(f"[SL] Hardware SL set: -{sl_pips:.0f} pips = -${MAX_LOSS_PER_POSITION:.0f} @ {hard_sl:.5f}")
 
         # Place order(s) - open multiple trades if INITIAL_TRADE_COUNT > 1
         # Include strategy type in comment for ML analysis
@@ -1470,7 +1560,7 @@ class ConfluenceStrategy:
                 symbol=symbol,
                 order_type=direction,
                 volume=volume,
-                sl=hard_sl,  # ADX > 30: -50 pips hard SL, ADX <= 30: None (recovery allowed)
+                sl=hard_sl,  # Always -$30 hardware SL (survives crashes)
                 tp=None,  # Using VWAP reversion instead
                 comment=trade_comment
             )
@@ -1490,6 +1580,37 @@ class ConfluenceStrategy:
                         print(f"[ENTRY] Signal: {price:.5f}, Fill: {actual_entry_price:.5f}, Slippage: {slippage_pips:.1f} pips")
                         break
 
+                # DB: Log trade entry with full context
+                if self.trade_db:
+                    try:
+                        strategy_type = signal.get('strategy_type', 'mr')
+                        self.trade_db.log_trade(
+                            ticket=ticket, symbol=symbol, direction=direction,
+                            strategy=strategy_type,
+                            entry_time=datetime.utcnow().isoformat(),
+                            entry_price=actual_entry_price, volume=volume,
+                            confluence_score=signal.get('confluence_score', 0),
+                            q_trade=signal.get('q_trade'),
+                            q_skip=signal.get('q_skip'),
+                        )
+                        self.trade_db.log_factors(ticket, signal.get('factors', []))
+                        # Log market conditions
+                        trend = signal.get('trend_filter', {})
+                        vwap_sigs = signal.get('vwap_signals', {})
+                        self.trade_db.log_market_conditions(
+                            ticket=ticket,
+                            hour_utc=datetime.utcnow().hour,
+                            day_of_week=datetime.utcnow().weekday(),
+                            adx=trend.get('adx', 0),
+                            plus_di=trend.get('plus_di', 0),
+                            minus_di=trend.get('minus_di', 0),
+                            vwap_value=vwap_sigs.get('vwap', 0),
+                            vwap_distance_pct=vwap_sigs.get('distance_pct', 0),
+                            vwap_direction=vwap_sigs.get('direction', ''),
+                        )
+                    except Exception as e:
+                        print(f"[DB WARN] Trade entry logging failed: {e}")
+
                 # Start tracking for recovery with ACTUAL fill price
                 # Pass ADX to determine if recovery is allowed
                 self.recovery_manager.track_position(
@@ -1503,15 +1624,24 @@ class ConfluenceStrategy:
                     open_adx=current_adx  # Store ADX at entry time
                 )
 
+                # Store Q-state for online learning (used when trade closes)
+                tracked_pos = self.recovery_manager.tracked_positions.get(ticket)
+                if tracked_pos:
+                    tracked_pos['q_state'] = signal.get('q_state')
+                    tracked_pos['q_visits'] = signal.get('q_visits', 0)
+
                 # ML LOGGING: Log trade entry with enhanced data
                 try:
                     # Get current spread
                     tick = self.mt5.get_symbol_tick(symbol)
                     spread_pips = 0
+                    # For 5-digit brokers: point=0.00001, pip=0.0001 = point*10
+                    _point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+                    _digits = symbol_info.get('digits', 5) if symbol_info else 5
+                    _pip_val = _point * 10 if _digits in (3, 5) else _point
                     if tick:
                         spread = tick.get('ask', 0) - tick.get('bid', 0)
-                        point = symbol_info.get('point', 0.0001)
-                        spread_pips = spread / point
+                        spread_pips = spread / _pip_val
 
                     # Get ATR from market data
                     atr_pips = 0
@@ -1519,7 +1649,7 @@ class ConfluenceStrategy:
                         h1_data = self.market_data_cache[symbol]['h1']
                         if 'atr' in h1_data.columns and len(h1_data) > 0:
                             atr = h1_data.iloc[-1]['atr']
-                            atr_pips = atr / symbol_info.get('point', 0.0001)
+                            atr_pips = atr / _pip_val
 
                     # Get confluence factors from signal
                     confluence_factors = signal.get('factors', [])
@@ -1579,10 +1709,15 @@ class ConfluenceStrategy:
         print(f"{'='*70}")
 
         closed_count = 0
+        # Q-learn on the original position (recovery children don't have q_state)
+        self._q_learn_on_exit(original_ticket,
+                              self.recovery_manager.tracked_positions.get(original_ticket, {}).get('symbol', ''),
+                              final_pnl or 0)
         for ticket in stack_tickets:
             if self.mt5.close_position(ticket):
                 closed_count += 1
                 self.stats['trades_closed'] += 1
+                self._db_log_exit(ticket, 0, 0, 0, f'recovery_stack_close: {reason}')
                 print(f"   [OK] Closed #{ticket}")
             else:
                 print(f"   [ERROR] Failed to close #{ticket}")
@@ -1621,7 +1756,10 @@ class ConfluenceStrategy:
                 if original_pos and original_ticket in self.recovery_manager.tracked_positions:
                     tracked_pos = self.recovery_manager.tracked_positions[original_ticket]
                     symbol_info = self.mt5.get_symbol_info(symbol)
-                    pip_value = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+                    # For 5-digit brokers: point=0.00001, pip=0.0001 = point*10
+                    _point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+                    _digits = symbol_info.get('digits', 5) if symbol_info else 5
+                    pip_value = _point * 10 if _digits in (3, 5) else _point
 
                     # Calculate pips underwater
                     entry_price = tracked_pos.get('entry_price', 0)
@@ -1766,7 +1904,10 @@ class ConfluenceStrategy:
 
                                         if original_pos and hedge_pos:
                                             symbol_info = self.mt5.get_symbol_info(symbol)
-                                            pip_value = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+                                            # For 5-digit brokers: point=0.00001, pip=0.0001 = point*10
+                                            _point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
+                                            _digits = symbol_info.get('digits', 5) if symbol_info else 5
+                                            pip_value = _point * 10 if _digits in (3, 5) else _point
 
                                             # Calculate pips
                                             original_entry = position.get('entry_price', 0)
@@ -1817,149 +1958,7 @@ class ConfluenceStrategy:
                 elif action_type == 'dca':
                     self.stats['dca_levels_added'] += 1
 
-    def _execute_hedge_partial_close(self, action: Dict):
-        """
-        Execute partial close of hedge position + its DCAs.
-
-        Args:
-            action: Partial close action dict with:
-                - hedge_ticket: Hedge position to partially close
-                - hedge_info: Full hedge info dict (contains dca_levels)
-                - close_percent: Percentage to close (0.5, 0.75, 1.0)
-                - reason: Why closing (e.g., "Original recovered 50%")
-        """
-        hedge_ticket = action['hedge_ticket']
-        hedge_info = action['hedge_info']
-        close_percent = action['close_percent']
-        reason = action['reason']
-        symbol = action['symbol']
-
-        print(f"\n{'='*70}")
-        print(f"[PARTIAL] PARTIAL HEDGE CLOSE #{hedge_ticket}")
-        print(f"{'='*70}")
-        print(f"   Reason: {reason}")
-        print(f"   Close: {close_percent*100:.0f}%")
-
-        # Get all positions for this hedge (hedge + hedge DCAs)
-        all_positions = self.mt5.get_positions()
-        positions_to_close = []
-
-        # Find the main hedge position
-        hedge_pos = None
-        for pos in all_positions:
-            if pos.get('ticket') == hedge_ticket:
-                hedge_pos = pos
-                positions_to_close.append({
-                    'ticket': hedge_ticket,
-                    'volume': pos.get('volume', 0),
-                    'type': 'hedge'
-                })
-                break
-
-        # Find all hedge DCA positions (if any)
-        hedge_dca_levels = hedge_info.get('dca_levels', [])
-        for dca_info in hedge_dca_levels:
-            dca_ticket = dca_info.get('ticket')
-            if dca_ticket:
-                for pos in all_positions:
-                    if pos.get('ticket') == dca_ticket:
-                        positions_to_close.append({
-                            'ticket': dca_ticket,
-                            'volume': pos.get('volume', 0),
-                            'type': 'hedge_dca'
-                        })
-                        break
-
-        print(f"   Positions to close: {len(positions_to_close)} (1 hedge + {len(positions_to_close)-1} hedge DCAs)")
-
-        # Close positions
-        if close_percent == 1.0:
-            # Close 100% - close entire positions
-            closed_count = 0
-            for pos_info in positions_to_close:
-                ticket = pos_info['ticket']
-                if self.mt5.close_position(ticket):
-                    closed_count += 1
-                    self.stats['trades_closed'] += 1
-                    print(f"   [OK] Closed {pos_info['type']} #{ticket} (100%)")
-                else:
-                    print(f"   [ERROR] Failed to close #{ticket}")
-
-            # Clear hedge DCAs from tracking if 100% closed
-            if closed_count > 0:
-                hedge_info['dca_levels'] = []
-
-        else:
-            # Partial close - close percentage of volume
-            closed_count = 0
-            for pos_info in positions_to_close:
-                ticket = pos_info['ticket']
-                current_volume = pos_info['volume']
-                close_volume = current_volume * close_percent
-
-                # Round to broker step size
-                from utils.helpers import round_volume_to_step
-                close_volume = round_volume_to_step(close_volume)
-
-                if close_volume > 0:
-                    if self.mt5.close_position_partial(ticket, close_volume):
-                        closed_count += 1
-                        self.stats['trades_closed'] += 1
-                        print(f"   [OK] Closed {pos_info['type']} #{ticket} ({close_percent*100:.0f}% = {close_volume:.2f} lots)")
-                    else:
-                        print(f"   [ERROR] Failed to partially close #{ticket}")
-
-        # ML LOGGING: Log hedge partial close event
-        if self.ml_logger and closed_count > 0:
-            # Get final data for logging
-            original_ticket = action['original_ticket']
-            if original_ticket in self.recovery_manager.tracked_positions:
-                position = self.recovery_manager.tracked_positions[original_ticket]
-                all_positions_now = self.mt5.get_positions()
-
-                # Find original position
-                original_pos = None
-                for pos in all_positions_now:
-                    if pos.get('ticket') == original_ticket:
-                        original_pos = pos
-                        break
-
-                if original_pos:
-                    symbol_info = self.mt5.get_symbol_info(symbol)
-                    pip_value = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
-
-                    # Calculate original pips
-                    original_entry = position.get('entry_price', 0)
-                    original_current = original_pos.get('price_current', 0)
-                    original_type = position.get('type')
-
-                    if original_type == 'buy':
-                        original_pips = (original_current - original_entry) / pip_value
-                    else:
-                        original_pips = (original_entry - original_current) / pip_value
-
-                    # Get hedge profit (if still exists, else 0)
-                    hedge_profit = 0
-                    if hedge_pos:
-                        hedge_profit = hedge_pos.get('profit', 0)
-
-                    hedge_dca_count = len(hedge_dca_levels)
-
-                    self.ml_logger.log_hedge_partial_close(
-                        original_ticket=original_ticket,
-                        hedge_ticket=hedge_ticket,
-                        symbol=symbol,
-                        close_percent=close_percent,
-                        reason=reason,
-                        original_pips=original_pips,
-                        hedge_profit=hedge_profit,
-                        positions_closed=closed_count,
-                        hedge_dca_count=hedge_dca_count
-                    )
-
-        print(f"{'='*70}")
-        print(f"   Closed: {closed_count}/{len(positions_to_close)} positions")
-        print(f"{'='*70}\n")
+    # _execute_hedge_partial_close REMOVED — no hedging in simplified model
 
     def _can_open_new_position(self, symbol: str) -> bool:
         """Check if we can open a new position"""
@@ -2025,7 +2024,7 @@ class ConfluenceStrategy:
 
     def save_blocking_state(self, state_file: str = "data/recovery_state.json"):
         """
-        Save blocking state (cascade_blocks, market_trending_block) to recovery state file.
+        Save blocking state (cascade_blocks) to recovery state file.
         This is merged with position tracking state from RecoveryManager.
 
         Args:
@@ -2045,7 +2044,6 @@ class ConfluenceStrategy:
 
             # Add blocking state
             existing_state['cascade_blocks'] = {}
-            existing_state['market_trending_block'] = {}
             existing_state['last_block_update'] = datetime.now().isoformat()
 
             # Convert cascade blocks (datetime to ISO string)
@@ -2054,10 +2052,6 @@ class ConfluenceStrategy:
                     existing_state['cascade_blocks'][symbol] = block_until.isoformat()
                 else:
                     existing_state['cascade_blocks'][symbol] = None
-
-            # Save market trending blocks (boolean)
-            for symbol, blocked in self.market_trending_block.items():
-                existing_state['market_trending_block'][symbol] = blocked
 
             # Write atomically
             temp_path = state_path.with_suffix('.json.tmp')
@@ -2073,7 +2067,7 @@ class ConfluenceStrategy:
 
     def load_blocking_state(self, state_file: str = "data/recovery_state.json") -> bool:
         """
-        Load blocking state (cascade_blocks, market_trending_block) from recovery state file.
+        Load blocking state (cascade_blocks) from recovery state file.
 
         Args:
             state_file: Path to state file
@@ -2104,25 +2098,182 @@ class ConfluenceStrategy:
                         self.cascade_blocks[symbol] = None
                 print(f"[OK] Loaded cascade blocks: {len(self.cascade_blocks)} symbols")
 
-            # Load market trending blocks (boolean)
-            if 'market_trending_block' in state:
-                self.market_trending_block = state['market_trending_block']
-                print(f"[OK] Loaded market trending blocks: {len(self.market_trending_block)} symbols")
-
             # Check if blocks have expired
             if 'last_block_update' in state:
                 last_update = datetime.fromisoformat(state['last_block_update'])
                 age = datetime.now() - last_update
-                print(f"[INFO] Blocking state age: {age.total_seconds() / 60:.1f} minutes")
 
                 # Auto-expire old cascade blocks (older than 2 hours)
                 if age.total_seconds() > 7200:
-                    print("[INFO] Blocking state is stale (>2h) - will re-evaluate on startup")
+                    print("[INFO] Cascade blocks stale (>2h) - cleared")
                     self.cascade_blocks = {}
-                    self.market_trending_block = {}
 
             return True
 
         except Exception as e:
             print(f"[WARN] Failed to load blocking state: {e}")
             return False
+
+    def save_signal_state(self):
+        """
+        Persist pending_signals and expired_signals (cooldowns) to disk.
+        Survives bot restarts/crashes. Uses atomic write (temp + rename).
+        """
+        from pathlib import Path
+        import json
+
+        try:
+            state_path = Path(self.SIGNAL_STATE_FILE)
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+
+            state = {
+                'saved_at': datetime.utcnow().isoformat(),
+                'pending_signals': {},
+                'expired_signals': {},
+            }
+
+            def _sanitize(obj):
+                """Convert numpy/pandas types to JSON-safe Python types."""
+                if hasattr(obj, 'isoformat'):
+                    return obj.isoformat()
+                if hasattr(obj, 'item'):  # numpy int64, float64 etc
+                    return obj.item()
+                if isinstance(obj, dict):
+                    return {str(k): _sanitize(v) for k, v in obj.items()}
+                if isinstance(obj, (list, tuple)):
+                    return [_sanitize(v) for v in obj]
+                return obj
+
+            # Serialize pending signals
+            for symbol, pending in self.pending_signals.items():
+                signal_copy = _sanitize(pending['signal'])
+
+                # Convert bar timestamps
+                bar_time = pending.get('signal_bar_time')
+                last_bar = pending.get('last_checked_bar')
+
+                state['pending_signals'][symbol] = {
+                    'signal': signal_copy,
+                    'signal_bar_time': bar_time.isoformat() if hasattr(bar_time, 'isoformat') else str(bar_time),
+                    'last_checked_bar': last_bar.isoformat() if hasattr(last_bar, 'isoformat') else str(last_bar),
+                    'bars_waited': pending.get('bars_waited', 0),
+                }
+
+            # Serialize expired signals (cooldowns)
+            for symbol, expiry_time in self.expired_signals.items():
+                state['expired_signals'][symbol] = expiry_time.isoformat() if hasattr(expiry_time, 'isoformat') else str(expiry_time)
+
+            # Atomic write
+            temp_path = state_path.with_suffix('.json.tmp')
+            with open(temp_path, 'w', encoding='utf-8') as f:
+                json.dump(state, f, indent=2, ensure_ascii=False, default=str)
+
+            if state_path.exists():
+                state_path.unlink()
+            temp_path.rename(state_path)
+
+        except Exception as e:
+            print(f"[WARN] Failed to save signal state: {e}")
+
+    def load_signal_state(self):
+        """
+        Restore pending_signals and expired_signals from disk on startup.
+        Validates that signals/cooldowns haven't expired while bot was down.
+        """
+        from pathlib import Path
+        import json
+
+        try:
+            state_path = Path(self.SIGNAL_STATE_FILE)
+
+            if not state_path.exists():
+                print("[LOAD] No saved signal state found")
+                return
+
+            with open(state_path, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+
+            now = datetime.utcnow()
+            restored_pending = 0
+            restored_cooldowns = 0
+
+            # Restore pending signals
+            for symbol, data in state.get('pending_signals', {}).items():
+                bars_waited = data.get('bars_waited', 0)
+
+                # Parse signal_bar_time to check age
+                try:
+                    signal_bar_time = datetime.fromisoformat(data['signal_bar_time'])
+                except (ValueError, KeyError):
+                    signal_bar_time = now
+
+                age_seconds = (now - signal_bar_time).total_seconds()
+                max_age = self.CONFIRMATION_MAX_BARS * 3600  # e.g. 4 bars * 1h
+
+                # Discard if already expired or too old
+                if bars_waited >= self.CONFIRMATION_MAX_BARS:
+                    print(f"[LOAD] Discarding {symbol} pending signal — already expired ({bars_waited}/{self.CONFIRMATION_MAX_BARS} bars)")
+                    continue
+                if age_seconds > max_age:
+                    hours_old = age_seconds / 3600
+                    print(f"[LOAD] Discarding {symbol} pending signal — too old ({hours_old:.1f}h > {self.CONFIRMATION_MAX_BARS}h)")
+                    continue
+
+                # Reconstruct the signal
+                signal = data['signal']
+                # Restore timestamp if present
+                if 'timestamp' in signal and isinstance(signal['timestamp'], str):
+                    try:
+                        signal['timestamp'] = datetime.fromisoformat(signal['timestamp'])
+                    except ValueError:
+                        signal['timestamp'] = now
+
+                # Parse bar timestamps
+                try:
+                    bar_time = datetime.fromisoformat(data['signal_bar_time'])
+                except (ValueError, KeyError):
+                    bar_time = now
+                try:
+                    last_bar = datetime.fromisoformat(data['last_checked_bar'])
+                except (ValueError, KeyError):
+                    last_bar = bar_time
+
+                self.pending_signals[symbol] = {
+                    'signal': signal,
+                    'signal_bar_time': bar_time,
+                    'last_checked_bar': last_bar,
+                    'bars_waited': bars_waited,
+                }
+                direction = signal.get('direction', '?').upper()
+                print(f"[LOAD] Restored pending signal: {symbol} {direction} bar {bars_waited}/{self.CONFIRMATION_MAX_BARS}")
+                restored_pending += 1
+
+            # Restore expired signals (cooldowns)
+            for symbol, expiry_str in state.get('expired_signals', {}).items():
+                try:
+                    expiry_time = datetime.fromisoformat(expiry_str)
+                except ValueError:
+                    continue
+
+                elapsed = (now - expiry_time).total_seconds()
+                cooldown_seconds = self.SIGNAL_COOLDOWN_BARS * 3600
+
+                if elapsed >= cooldown_seconds:
+                    print(f"[LOAD] Discarding {symbol} cooldown — already elapsed ({elapsed/3600:.1f}h)")
+                    continue
+
+                self.expired_signals[symbol] = expiry_time
+                hours_left = (cooldown_seconds - elapsed) / 3600
+                print(f"[LOAD] Restored cooldown: {symbol} ({hours_left:.1f}h remaining)")
+                restored_cooldowns += 1
+
+            # Clean up state file after loading
+            state_path.unlink()
+
+            if restored_pending == 0 and restored_cooldowns == 0:
+                print("[LOAD] Signal state file found but all entries expired — clean slate")
+            else:
+                print(f"[LOAD] Restored {restored_pending} pending signal(s), {restored_cooldowns} cooldown(s)")
+
+        except Exception as e:
+            print(f"[WARN] Failed to load signal state: {e}")
