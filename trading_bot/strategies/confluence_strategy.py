@@ -984,7 +984,7 @@ class ConfluenceStrategy:
         from config.strategy_config import MAX_LOSS_PER_POSITION
 
         symbol = tracked_pos.get('symbol', '')
-        direction = tracked_pos.get('position_type', '')
+        direction = tracked_pos.get('type', '')
         entry_price = tracked_pos.get('entry_price', 0.0)
         volume = tracked_pos.get('volume', 0.16)
 
