@@ -986,7 +986,7 @@ class ConfluenceStrategy:
         symbol = tracked_pos.get('symbol', '')
         direction = tracked_pos.get('type', '')
         entry_price = tracked_pos.get('entry_price', 0.0)
-        volume = tracked_pos.get('volume', 0.16)
+        volume = tracked_pos.get('initial_volume', tracked_pos.get('volume', 0.16))
 
         if not symbol or not direction or not entry_price:
             return
