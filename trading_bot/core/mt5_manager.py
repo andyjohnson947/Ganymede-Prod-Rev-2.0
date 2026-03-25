@@ -57,11 +57,7 @@ class MT5Manager:
 
         self.connected = True
         account_info = mt5.account_info()
-        print(f"[OK] Connected to MT5")
-        print(f"   Account: {account_info.login}")
-        print(f"   Balance: ${account_info.balance:.2f}")
-        print(f"   Equity: ${account_info.equity:.2f}")
-        print(f"   Server: {account_info.server}")
+        print(f"[OK] MT5 Connected | #{account_info.login} | ${account_info.balance:.2f} | {account_info.server}")
 
         return True
 
@@ -172,7 +168,6 @@ class MT5Manager:
             'real_volume': 'real_volume'
         }, inplace=True)
 
-        print(f"[OK] Fetched {len(df)} bars for {symbol} {timeframe}")
         return df
 
     def get_positions(self, symbol: Optional[str] = None) -> List[Dict]:
@@ -230,7 +225,8 @@ class MT5Manager:
         sl: Optional[float] = None,
         tp: Optional[float] = None,
         comment: str = "",
-        order_mode: str = "market"
+        order_mode: str = "market",
+        expiry=None  # datetime: expiry time for pending orders (ORDER_TIME_SPECIFIED)
     ) -> Optional[int]:
         """
         Place a market or limit order
@@ -280,6 +276,21 @@ class MT5Manager:
 
             action = mt5.TRADE_ACTION_PENDING
 
+        elif order_mode.lower() == 'stop':
+            # STOP ORDER: Pending order that executes when price breaks THROUGH specified level
+            # BUY_STOP: placed ABOVE current price — triggers when price rises to that level
+            # SELL_STOP: placed BELOW current price — triggers when price falls to that level
+            if price is None:
+                print("[ERROR] Stop orders require a price to be specified")
+                return None
+
+            if order_type.lower() == 'buy':
+                order_type_mt5 = mt5.ORDER_TYPE_BUY_STOP
+            else:
+                order_type_mt5 = mt5.ORDER_TYPE_SELL_STOP
+
+            action = mt5.TRADE_ACTION_PENDING
+
         else:
             # MARKET ORDER: Immediate execution at current market price
             if order_type.lower() == 'buy':
@@ -308,6 +319,14 @@ class MT5Manager:
         # Determine supported filling mode
         filling_type = self._get_filling_mode(symbol_info)
 
+        # Set time-in-force: use ORDER_TIME_SPECIFIED if expiry provided, else GTC
+        if expiry is not None:
+            type_time = mt5.ORDER_TIME_SPECIFIED
+            expiration_ts = int(expiry.timestamp())
+        else:
+            type_time = mt5.ORDER_TIME_GTC
+            expiration_ts = None
+
         request = {
             "action": action,
             "symbol": symbol,
@@ -317,10 +336,12 @@ class MT5Manager:
             "deviation": 20,
             "magic": self.magic_number,
             "comment": comment,
-            "type_time": mt5.ORDER_TIME_GTC,
+            "type_time": type_time,
             "type_filling": filling_type,
         }
 
+        if expiration_ts is not None:
+            request["expiration"] = expiration_ts
         if sl:
             request["sl"] = sl
         if tp:
@@ -349,7 +370,7 @@ class MT5Manager:
 
             if result.retcode == mt5.TRADE_RETCODE_DONE:
                 # Success!
-                order_mode_str = "LIMIT" if order_mode.lower() == 'limit' else "MARKET"
+                order_mode_str = order_mode.upper() if order_mode.lower() in ('limit', 'stop') else "MARKET"
                 print(f"[OK] {order_mode_str} order placed: {order_type.upper()} {volume} {symbol} @ {price:.5f}")
                 print(f"   Ticket: {result.order}")
                 if attempt > 0:
@@ -363,7 +384,8 @@ class MT5Manager:
                 mt5.TRADE_RETCODE_TIMEOUT,  # Timeout
                 mt5.TRADE_RETCODE_CONNECTION,  # Connection error
                 mt5.TRADE_RETCODE_PRICE_CHANGED,  # Price changed
-                mt5.TRADE_RETCODE_NO_CONNECTION,  # No connection
+                mt5.TRADE_RETCODE_TOO_MANY_REQUESTS,  # Rate limited
+                10018,  # TRADE_RETCODE_TRADE_CONTEXT_BUSY — broker processing previous order
             ]
 
             if result.retcode in retryable_codes and attempt < max_retries - 1:
@@ -381,12 +403,13 @@ class MT5Manager:
 
         return None
 
-    def close_position(self, ticket: int) -> bool:
+    def close_position(self, ticket: int, comment: str = "Close by bot") -> bool:
         """
         Close an open position
 
         Args:
             ticket: Position ticket number
+            comment: Close reason comment (e.g. "4HDDTO", "VWAP_EXIT", "TRAIL_STOP")
 
         Returns:
             bool: True if closed successfully
@@ -433,7 +456,7 @@ class MT5Manager:
             "price": price,
             "deviation": 20,
             "magic": self.magic_number,
-            "comment": "Close by bot",
+            "comment": comment,
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": filling_type,
         }
@@ -574,12 +597,19 @@ class MT5Manager:
 
         position = position[0]
 
+        new_sl = sl if sl is not None else position.sl
+        new_tp = tp if tp is not None else position.tp
+
+        # Skip if nothing actually changed (avoids "No changes" spam from MT5)
+        if abs(new_sl - position.sl) < 1e-6 and abs(new_tp - position.tp) < 1e-6:
+            return True  # Already set, nothing to do
+
         request = {
             "action": mt5.TRADE_ACTION_SLTP,
             "symbol": position.symbol,
             "position": ticket,
-            "sl": sl if sl is not None else position.sl,
-            "tp": tp if tp is not None else position.tp,
+            "sl": new_sl,
+            "tp": new_tp,
         }
 
         result = mt5.order_send(request)
@@ -654,3 +684,45 @@ class MT5Manager:
             'volume_max': info.volume_max,
             'volume_step': info.volume_step,
         }
+
+    def get_symbol_tick(self, symbol: str) -> Optional[Dict]:
+        """
+        Get current tick data for a symbol
+
+        Args:
+            symbol: Trading symbol
+
+        Returns:
+            Dict with tick data (bid, ask, last, time) or None
+        """
+        tick = mt5.symbol_info_tick(symbol)
+        if tick is None:
+            return None
+
+        return {
+            'bid': tick.bid,
+            'ask': tick.ask,
+            'last': tick.last,
+            'time': tick.time,
+            'volume': tick.volume,
+        }
+
+    def get_server_time(self) -> datetime:
+        """
+        Get current MT5 server time from tick data.
+
+        ICMarkets uses UTC (no offset). The tick.time is a UTC timestamp.
+        We use utcfromtimestamp() to get UTC time matching Market Watch.
+
+        Returns:
+            datetime: Current MT5 server time (UTC)
+        """
+        # Try EURUSD first (most liquid, always active)
+        for symbol in ['EURUSD', 'GBPUSD'] + SYMBOLS:
+            tick = mt5.symbol_info_tick(symbol)
+            if tick and tick.time:
+                return datetime.utcfromtimestamp(tick.time)
+
+        # Fallback to UTC if no tick data available
+        print("[WARN] Could not get MT5 server time from tick data, using UTC")
+        return datetime.utcnow()

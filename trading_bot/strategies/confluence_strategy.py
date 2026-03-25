@@ -637,6 +637,9 @@ class ConfluenceStrategy:
                 # Block trading for 60 minutes to avoid re-entering during strong trend
                 self.trade_block_until = get_current_time() + timedelta(minutes=60)
 
+                # Cancel any pending RE-ENTRY STOP orders for this symbol (trend invalidates them)
+                self._cancel_reentry_orders(symbol)
+
                 # Save recovery state
                 self.recovery_manager.save_state()
 
@@ -662,6 +665,7 @@ class ConfluenceStrategy:
                 # Position had PC1, no PC2, and just disappeared — BE stop-out detected
                 self._register_pending_reentry(ticket, tracked_pos)
                 tracked_pos['reentry_used'] = True
+                self.recovery_manager.save_state()  # Persist immediately so restart won't re-register
 
         for position in positions:
             ticket = position['ticket']
@@ -979,9 +983,11 @@ class ConfluenceStrategy:
         """Register a pending confirmation re-entry after a BE stop-out.
 
         Called when a position that hit PC1 (but not PC2) disappears from MT5.
-        Places a pending trigger SL/3 pips in the original direction from BE price.
+        Places an actual MT5 BUY_STOP/SELL_STOP order SL/3 pips beyond BE in the
+        original direction — visible in MT5 terminal and requires no bot monitoring.
+        The pending order auto-executes when price resumes, then tracked for PC1/PC2/trail.
         """
-        from config.strategy_config import MAX_LOSS_PER_POSITION
+        from config.strategy_config import MAX_LOSS_PER_POSITION, MAX_POSITIONS_PER_SYMBOL
 
         symbol = tracked_pos.get('symbol', '')
         direction = tracked_pos.get('type', '')
@@ -989,6 +995,18 @@ class ConfluenceStrategy:
         volume = tracked_pos.get('initial_volume', tracked_pos.get('volume', 0.16))
 
         if not symbol or not direction or not entry_price:
+            print(f"[RE-ENTRY] Skipping #{original_ticket} — missing symbol/direction/entry")
+            return
+
+        # Don't place re-entry if already at max positions for this symbol
+        existing = self.mt5.get_positions(symbol)
+        if len(existing) >= MAX_POSITIONS_PER_SYMBOL:
+            print(f"[RE-ENTRY] Skipping #{original_ticket} — {symbol} at max positions ({len(existing)}/{MAX_POSITIONS_PER_SYMBOL})")
+            return
+
+        # Don't place re-entry if cascade block is active
+        if symbol in self.cascade_blocks and get_current_time() < self.cascade_blocks[symbol]:
+            print(f"[RE-ENTRY] Skipping #{original_ticket} — {symbol} cascade blocked")
             return
 
         # Calculate SL distance (same formula as _execute_signal)
@@ -1001,127 +1019,76 @@ class ConfluenceStrategy:
         sl_distance = sl_pips * pip_val
 
         # Trigger = BE price ± SL/3 pips in original direction
+        # SELL: price must drop SL/3 below BE → SELL_STOP below entry price
+        # BUY:  price must rise SL/3 above BE → BUY_STOP above entry price
         trigger_pips = sl_pips / 3.0
         trigger_distance = trigger_pips * pip_val
 
         if direction == 'buy':
-            trigger_price = entry_price + trigger_distance
+            trigger_price = round(entry_price + trigger_distance, digits)
+            pending_sl = round(trigger_price - sl_distance, digits)  # SL below trigger for BUY
         else:
-            trigger_price = entry_price - trigger_distance
+            trigger_price = round(entry_price - trigger_distance, digits)
+            pending_sl = round(trigger_price + sl_distance, digits)  # SL above trigger for SELL
 
         expiry = get_current_time() + timedelta(hours=REENTRY_EXPIRY_HOURS)
 
-        self.pending_reentries[original_ticket] = {
-            'symbol': symbol,
-            'direction': direction,
-            'entry_price': entry_price,
-            'trigger_price': trigger_price,
-            'sl_pips': sl_pips,
-            'sl_distance': sl_distance,
-            'volume': volume,
-            'expiry': expiry,
-        }
+        # Place actual MT5 STOP pending order (visible in terminal, no bot monitoring needed)
+        order_ticket = self.mt5.place_order(
+            symbol=symbol,
+            order_type=direction,
+            volume=volume,
+            price=trigger_price,
+            sl=pending_sl,
+            comment=f"RE-ENTRY:{original_ticket}",
+            order_mode='stop',
+            expiry=expiry,
+        )
 
-        print(f"[RE-ENTRY] Pending registered | #{original_ticket} {symbol} {direction.upper()}"
-              f" | Trigger: {trigger_price:.5f} ({trigger_pips:.1f}p from BE {entry_price:.5f})"
-              f" | Expires: {expiry.strftime('%H:%M')}")
+        if order_ticket:
+            print(f"[RE-ENTRY] ✅ STOP order placed | #{original_ticket} -> pending #{order_ticket}"
+                  f" | {symbol} {direction.upper()}_STOP @ {trigger_price:.5f}"
+                  f" ({trigger_pips:.1f}p from BE {entry_price:.5f})"
+                  f" | SL: {pending_sl:.5f} | Expires: {expiry.strftime('%H:%M UTC')}")
+        else:
+            print(f"[RE-ENTRY] ❌ Failed to place STOP order for #{original_ticket} {symbol} {direction.upper()}"
+                  f" @ {trigger_price:.5f}")
+
+    def _cancel_reentry_orders(self, symbol: str):
+        """Cancel all pending RE-ENTRY STOP orders for a symbol (e.g. on cascade protection)."""
+        import MetaTrader5 as mt5_lib
+        orders = mt5_lib.orders_get(symbol=symbol)
+        if not orders:
+            return
+        cancelled = 0
+        for order in orders:
+            if str(order.comment).startswith('RE-ENTRY:'):
+                req = {
+                    "action": mt5_lib.TRADE_ACTION_REMOVE,
+                    "order": order.ticket,
+                }
+                res = mt5_lib.order_send(req)
+                if res and res.retcode == mt5_lib.TRADE_RETCODE_DONE:
+                    cancelled += 1
+                    print(f"[RE-ENTRY] Cancelled pending STOP #{order.ticket} ({symbol}) — cascade block")
+                else:
+                    err = res.comment if res else mt5_lib.last_error()
+                    print(f"[RE-ENTRY] Failed to cancel #{order.ticket}: {err}")
+        if cancelled:
+            print(f"[RE-ENTRY] Cancelled {cancelled} pending STOP order(s) for {symbol}")
 
     def _check_pending_reentries(self, symbol: str):
-        """Each loop: check if any pending re-entry triggers have been crossed."""
-        from config.strategy_config import MAX_POSITIONS_PER_SYMBOL
-
-        now = get_current_time()
-        to_remove = []
-
-        for orig_ticket, reentry in list(self.pending_reentries.items()):
-            if reentry['symbol'] != symbol:
-                continue
-
-            # Expired?
-            if now >= reentry['expiry']:
-                print(f"[RE-ENTRY] Expired | #{orig_ticket} {symbol} — removing")
-                to_remove.append(orig_ticket)
-                continue
-
-            # Cascade blocked?
-            if symbol in self.cascade_blocks and now < self.cascade_blocks[symbol]:
-                print(f"[RE-ENTRY] Cascade block active for {symbol} — cancelling re-entry #{orig_ticket}")
-                to_remove.append(orig_ticket)
-                continue
-
-            # Position limit reached? Wait — don't cancel, just skip this iteration
-            existing = self.mt5.get_positions(symbol)
-            if len(existing) >= MAX_POSITIONS_PER_SYMBOL:
-                continue
-
-            # Get current price
-            tick = self.mt5.get_symbol_tick(symbol)
-            if not tick:
-                continue
-
-            direction = reentry['direction']
-            current_price = tick.get('ask') if direction == 'buy' else tick.get('bid')
-            trigger_price = reentry['trigger_price']
-
-            # Has price crossed the trigger in the original direction?
-            triggered = (direction == 'buy' and current_price >= trigger_price) or \
-                        (direction == 'sell' and current_price <= trigger_price)
-
-            if triggered:
-                self._execute_reentry(orig_ticket, reentry)
-                to_remove.append(orig_ticket)
-
+        """No-op: re-entry pending orders are now placed directly as MT5 STOP orders.
+        MT5 monitors the trigger price and executes automatically — no bot loop needed.
+        Legacy in-memory entries are cleared here on any remaining state."""
+        # Clear any leftover in-memory entries (migration cleanup)
+        to_remove = [t for t, r in self.pending_reentries.items() if r.get('symbol') == symbol]
         for t in to_remove:
             self.pending_reentries.pop(t, None)
 
     def _execute_reentry(self, orig_ticket: int, reentry: dict):
-        """Execute a confirmed re-entry trade. Tracked normally through PC1/PC2/trail."""
-        symbol = reentry['symbol']
-        direction = reentry['direction']
-        volume = reentry['volume']
-        sl_distance = reentry['sl_distance']
-
-        tick = self.mt5.get_symbol_tick(symbol)
-        if not tick:
-            print(f"[RE-ENTRY] No tick for {symbol} — aborting #{orig_ticket}")
-            return
-
-        current_price = tick.get('ask') if direction == 'buy' else tick.get('bid')
-
-        hard_sl = (current_price - sl_distance) if direction == 'buy' else (current_price + sl_distance)
-
-        ticket = self.mt5.place_order(
-            symbol=symbol,
-            order_type=direction,
-            volume=volume,
-            sl=hard_sl,
-            tp=None,
-            comment=f"RE-ENTRY:{orig_ticket}"
-        )
-
-        if ticket:
-            self.stats['trades_opened'] += 1
-            # Get actual fill price
-            actual_entry = current_price
-            for pos in self.mt5.get_positions():
-                if pos['ticket'] == ticket:
-                    actual_entry = pos['price_open']
-                    break
-            # Track normally — PC1/PC2/trail applies as usual
-            self.recovery_manager.track_position(
-                ticket=ticket,
-                symbol=symbol,
-                entry_price=actual_entry,
-                position_type=direction,
-                volume=volume,
-                is_grid_child=False,
-                is_recovery_order=False,
-                open_adx=0.0
-            )
-            print(f"[RE-ENTRY] ✅ Opened #{ticket} | {symbol} {direction.upper()} {volume} lots"
-                  f" @ {actual_entry:.5f} | SL: {hard_sl:.5f} | Original: #{orig_ticket}")
-        else:
-            print(f"[RE-ENTRY] ❌ Failed to open re-entry for #{orig_ticket}")
+        """No-op: replaced by MT5 STOP pending orders placed in _register_pending_reentry."""
+        pass
 
     def _check_pending_confirmation(self, symbol: str):
         """
@@ -1555,6 +1522,10 @@ class ConfluenceStrategy:
 
         for i in range(INITIAL_TRADE_COUNT):
             trade_comment = comment if INITIAL_TRADE_COUNT == 1 else f"{comment} #{i+1}"
+
+            # Small delay between batch orders to avoid MT5 trade context busy (10018)
+            if i > 0:
+                time.sleep(0.5)
 
             ticket = self.mt5.place_order(
                 symbol=symbol,
