@@ -47,6 +47,8 @@ from config.strategy_config import (
     ENABLE_TIME_FILTERS,        # Startup diagnostics
     ENABLE_CONFIRMATION_REENTRY,  # Confirmation re-entry add-on
     REENTRY_EXPIRY_HOURS,          # Pending re-entry expiry window
+    ENABLE_TIME_EXIT,              # 2-hour no-progress exit
+    TIME_EXIT_MINUTES,             # Minutes before closing stale no-PC1 positions
 )
 
 # Module-level logger
@@ -713,6 +715,30 @@ class ConfluenceStrategy:
                 prev_mae = tracked_pos.get('mae_pips', 0.0)
                 if live_pips < prev_mae:
                     tracked_pos['mae_pips'] = live_pips
+
+            # 2-HOUR NO-PROGRESS EXIT: close any position that has never hit PC1
+            # after TIME_EXIT_MINUTES. Data shows zero recoveries past this point.
+            # Only applies to original VWAP/signal positions, not recovery orders.
+            if ENABLE_TIME_EXIT and not is_recovery_order:
+                tracked_pos_te = self.recovery_manager.tracked_positions.get(ticket)
+                if tracked_pos_te and not tracked_pos_te.get('partial_1_closed', False):
+                    open_time = tracked_pos_te.get('open_time')
+                    if open_time:
+                        age_mins = (get_current_time() - open_time).total_seconds() / 60
+                        if age_mins >= TIME_EXIT_MINUTES:
+                            entry_p = position['price_open']
+                            cur_p   = position['price_current']
+                            pos_dir = position['type']
+                            pips_now = (cur_p - entry_p) / pip_value if pos_dir == 'buy' else (entry_p - cur_p) / pip_value
+                            print(f"\n[TIME EXIT] #{ticket} {symbol} — {age_mins:.0f}min open, "
+                                  f"no PC1, {pips_now:+.1f}p — closing")
+                            if self.mt5.close_position(ticket, comment=f"TIME-EXIT-{TIME_EXIT_MINUTES}min"):
+                                self.stats['trades_closed'] += 1
+                                self._q_learn_on_exit(ticket, symbol, position['profit'])
+                                self.recovery_manager.untrack_position(ticket)
+                                self._db_log_exit(ticket, cur_p, position['profit'], 0, 'time_exit')
+                                print(f"[TIME EXIT] Closed #{ticket} @ {cur_p:.5f} | P&L: ${position['profit']:.2f}")
+                            continue  # Skip remaining checks for this position
 
             # PC1/PC2/TRAILING STOP: ONLY for profitable ORIGINAL positions
             # NOT for recovery orders (grid/DCA/hedge) or positions in active recovery
