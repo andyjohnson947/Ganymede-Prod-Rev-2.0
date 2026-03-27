@@ -794,6 +794,13 @@ class ConfluenceStrategy:
                                 self._db_log_exit(ticket, cur_p, position['profit'], 0, 'q_exit')
                                 print(f"[EXIT-Q] Closed #{ticket} @ {cur_p:.5f} | "
                                       f"P&L: ${position['profit']:.2f}")
+                                # Trigger cooldown — same mechanism as expired confirmation
+                                # Prevents re-entering the same symbol immediately after exit
+                                if symbol not in self.expired_signals:
+                                    self.expired_signals[symbol] = datetime.utcnow()
+                                    self.save_signal_state()
+                                    print(f"[EXIT-Q] {symbol} cooldown started — "
+                                          f"{self.SIGNAL_COOLDOWN_BARS}h block on new signals")
                             continue  # Skip remaining checks for this position
 
             # PC1/PC2/TRAILING STOP: ONLY for profitable ORIGINAL positions
