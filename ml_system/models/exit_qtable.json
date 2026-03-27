@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "built_at": "2026-03-27 04:35",
+  "built_at": "2026-03-27 05:55",
   "description": "Exit Q-table: state = (elapsed_bucket, pip_bucket, mae_bucket). Q(HOLD) = probability of reaching PC1 if held. Action = CLOSE if Q(HOLD) < 0.30.",
   "buckets": {
     "elapsed": [
@@ -67,357 +67,269 @@
   },
   "threshold": 0.3,
   "states": {
-    "0-60m|deep_neg|deep": {
-      "q_hold": 0.3453,
-      "action": "HOLD",
-      "n_total": 4014,
-      "n_pc1": 1386,
-      "n_sl": 1998,
-      "n_timeout": 630
-    },
-    "0-60m|deep_neg|moderate": {
-      "q_hold": 0.3946,
-      "action": "HOLD",
-      "n_total": 1855,
-      "n_pc1": 732,
-      "n_sl": 624,
-      "n_timeout": 499
-    },
-    "0-60m|near_zero|deep": {
-      "q_hold": 0.72,
-      "action": "HOLD",
-      "n_total": 275,
-      "n_pc1": 198,
-      "n_sl": 52,
-      "n_timeout": 25
-    },
-    "0-60m|near_zero|mild": {
-      "q_hold": 0.5963,
-      "action": "HOLD",
-      "n_total": 24233,
-      "n_pc1": 14450,
-      "n_sl": 2275,
-      "n_timeout": 7508
-    },
-    "0-60m|near_zero|moderate": {
-      "q_hold": 0.6452,
-      "action": "HOLD",
-      "n_total": 6897,
-      "n_pc1": 4450,
-      "n_sl": 1097,
-      "n_timeout": 1350
-    },
-    "0-60m|positive|deep": {
-      "q_hold": 0.8587,
-      "action": "HOLD",
-      "n_total": 92,
-      "n_pc1": 79,
-      "n_sl": 6,
-      "n_timeout": 7
-    },
-    "0-60m|positive|mild": {
-      "q_hold": 0.7981,
-      "action": "HOLD",
-      "n_total": 11491,
-      "n_pc1": 9171,
-      "n_sl": 674,
-      "n_timeout": 1646
-    },
-    "0-60m|positive|moderate": {
-      "q_hold": 0.8361,
-      "action": "HOLD",
-      "n_total": 1953,
-      "n_pc1": 1633,
-      "n_sl": 175,
-      "n_timeout": 145
-    },
-    "0-60m|shallow_neg|deep": {
-      "q_hold": 0.5407,
-      "action": "HOLD",
-      "n_total": 860,
-      "n_pc1": 465,
-      "n_sl": 259,
-      "n_timeout": 136
-    },
-    "0-60m|shallow_neg|mild": {
-      "q_hold": 0.4962,
-      "action": "HOLD",
-      "n_total": 1985,
-      "n_pc1": 985,
-      "n_sl": 259,
-      "n_timeout": 741
-    },
-    "0-60m|shallow_neg|moderate": {
-      "q_hold": 0.5064,
-      "action": "HOLD",
-      "n_total": 12797,
-      "n_pc1": 6480,
-      "n_sl": 2712,
-      "n_timeout": 3605
-    },
     "120-240m|deep_neg|deep": {
-      "q_hold": 0.2081,
+      "q_hold": 0.2276,
       "action": "CLOSE",
-      "n_total": 35513,
-      "n_pc1": 7390,
-      "n_sl": 14050,
-      "n_timeout": 14073
+      "n_total": 17709,
+      "n_pc1": 4030,
+      "n_sl": 7420,
+      "n_timeout": 6259
     },
     "120-240m|deep_neg|moderate": {
-      "q_hold": 0.2556,
+      "q_hold": 0.2596,
       "action": "CLOSE",
-      "n_total": 5685,
-      "n_pc1": 1453,
-      "n_sl": 1118,
-      "n_timeout": 3114
+      "n_total": 2669,
+      "n_pc1": 693,
+      "n_sl": 565,
+      "n_timeout": 1411
     },
     "120-240m|near_zero|deep": {
-      "q_hold": 0.6109,
+      "q_hold": 0.5978,
       "action": "HOLD",
-      "n_total": 4986,
-      "n_pc1": 3046,
-      "n_sl": 532,
-      "n_timeout": 1408
+      "n_total": 2618,
+      "n_pc1": 1565,
+      "n_sl": 393,
+      "n_timeout": 660
     },
     "120-240m|near_zero|mild": {
-      "q_hold": 0.4703,
+      "q_hold": 0.4635,
       "action": "HOLD",
-      "n_total": 16896,
-      "n_pc1": 7947,
-      "n_sl": 715,
-      "n_timeout": 8234
+      "n_total": 10020,
+      "n_pc1": 4644,
+      "n_sl": 623,
+      "n_timeout": 4753
     },
     "120-240m|near_zero|moderate": {
-      "q_hold": 0.5003,
+      "q_hold": 0.5093,
       "action": "HOLD",
-      "n_total": 24074,
-      "n_pc1": 12044,
-      "n_sl": 1753,
-      "n_timeout": 10277
+      "n_total": 13027,
+      "n_pc1": 6634,
+      "n_sl": 1263,
+      "n_timeout": 5130
     },
     "120-240m|positive|deep": {
-      "q_hold": 0.7825,
+      "q_hold": 0.7881,
       "action": "HOLD",
-      "n_total": 2041,
-      "n_pc1": 1597,
-      "n_sl": 136,
-      "n_timeout": 308
+      "n_total": 977,
+      "n_pc1": 770,
+      "n_sl": 82,
+      "n_timeout": 125
     },
     "120-240m|positive|mild": {
-      "q_hold": 0.7227,
+      "q_hold": 0.7103,
       "action": "HOLD",
-      "n_total": 13529,
-      "n_pc1": 9777,
-      "n_sl": 323,
-      "n_timeout": 3429
+      "n_total": 7515,
+      "n_pc1": 5338,
+      "n_sl": 273,
+      "n_timeout": 1904
     },
     "120-240m|positive|moderate": {
-      "q_hold": 0.7456,
+      "q_hold": 0.741,
       "action": "HOLD",
-      "n_total": 10107,
-      "n_pc1": 7536,
-      "n_sl": 405,
-      "n_timeout": 2166
+      "n_total": 5066,
+      "n_pc1": 3754,
+      "n_sl": 276,
+      "n_timeout": 1036
     },
     "120-240m|shallow_neg|deep": {
-      "q_hold": 0.4133,
+      "q_hold": 0.4329,
       "action": "HOLD",
-      "n_total": 11169,
-      "n_pc1": 4616,
-      "n_sl": 2056,
-      "n_timeout": 4497
+      "n_total": 5819,
+      "n_pc1": 2519,
+      "n_sl": 1259,
+      "n_timeout": 2041
     },
     "120-240m|shallow_neg|mild": {
-      "q_hold": 0.3367,
+      "q_hold": 0.3394,
       "action": "HOLD",
-      "n_total": 1271,
-      "n_pc1": 428,
-      "n_sl": 83,
-      "n_timeout": 760
+      "n_total": 763,
+      "n_pc1": 259,
+      "n_sl": 69,
+      "n_timeout": 435
     },
     "120-240m|shallow_neg|moderate": {
-      "q_hold": 0.332,
+      "q_hold": 0.3502,
       "action": "HOLD",
-      "n_total": 30826,
-      "n_pc1": 10234,
-      "n_sl": 3719,
-      "n_timeout": 16873
+      "n_total": 15499,
+      "n_pc1": 5428,
+      "n_sl": 2231,
+      "n_timeout": 7840
     },
     "240m+|deep_neg|deep": {
-      "q_hold": 0.0759,
+      "q_hold": 0.0742,
       "action": "CLOSE",
-      "n_total": 56359,
-      "n_pc1": 4280,
-      "n_sl": 12226,
-      "n_timeout": 39853
+      "n_total": 36513,
+      "n_pc1": 2708,
+      "n_sl": 7484,
+      "n_timeout": 26321
     },
     "240m+|deep_neg|moderate": {
-      "q_hold": 0.0952,
+      "q_hold": 0.0827,
       "action": "CLOSE",
-      "n_total": 5232,
-      "n_pc1": 498,
-      "n_sl": 340,
-      "n_timeout": 4394
+      "n_total": 2831,
+      "n_pc1": 234,
+      "n_sl": 218,
+      "n_timeout": 2379
     },
     "240m+|near_zero|deep": {
-      "q_hold": 0.3554,
+      "q_hold": 0.309,
       "action": "HOLD",
-      "n_total": 9384,
-      "n_pc1": 3335,
-      "n_sl": 384,
-      "n_timeout": 5665
+      "n_total": 6747,
+      "n_pc1": 2085,
+      "n_sl": 285,
+      "n_timeout": 4377
     },
     "240m+|near_zero|mild": {
-      "q_hold": 0.2843,
+      "q_hold": 0.2361,
       "action": "CLOSE",
-      "n_total": 6656,
-      "n_pc1": 1892,
-      "n_sl": 79,
-      "n_timeout": 4685
+      "n_total": 4821,
+      "n_pc1": 1138,
+      "n_sl": 81,
+      "n_timeout": 3602
     },
     "240m+|near_zero|moderate": {
-      "q_hold": 0.28,
+      "q_hold": 0.2498,
       "action": "CLOSE",
-      "n_total": 22085,
-      "n_pc1": 6184,
-      "n_sl": 481,
-      "n_timeout": 15420
+      "n_total": 15325,
+      "n_pc1": 3828,
+      "n_sl": 484,
+      "n_timeout": 11013
     },
     "240m+|positive|deep": {
-      "q_hold": 0.5605,
+      "q_hold": 0.4943,
       "action": "HOLD",
-      "n_total": 4030,
-      "n_pc1": 2259,
-      "n_sl": 102,
-      "n_timeout": 1669
+      "n_total": 2731,
+      "n_pc1": 1350,
+      "n_sl": 77,
+      "n_timeout": 1304
     },
     "240m+|positive|mild": {
-      "q_hold": 0.5611,
+      "q_hold": 0.473,
       "action": "HOLD",
-      "n_total": 6541,
-      "n_pc1": 3670,
-      "n_sl": 63,
-      "n_timeout": 2808
+      "n_total": 4683,
+      "n_pc1": 2215,
+      "n_sl": 52,
+      "n_timeout": 2416
     },
     "240m+|positive|moderate": {
-      "q_hold": 0.5355,
+      "q_hold": 0.4742,
       "action": "HOLD",
-      "n_total": 10685,
-      "n_pc1": 5722,
-      "n_sl": 111,
-      "n_timeout": 4852
+      "n_total": 7528,
+      "n_pc1": 3570,
+      "n_sl": 138,
+      "n_timeout": 3820
     },
     "240m+|shallow_neg|deep": {
-      "q_hold": 0.2031,
+      "q_hold": 0.1781,
       "action": "CLOSE",
-      "n_total": 18899,
-      "n_pc1": 3838,
-      "n_sl": 1402,
-      "n_timeout": 13659
+      "n_total": 13613,
+      "n_pc1": 2424,
+      "n_sl": 970,
+      "n_timeout": 10219
     },
     "240m+|shallow_neg|mild": {
-      "q_hold": 0.1485,
+      "q_hold": 0.1333,
       "action": "CLOSE",
-      "n_total": 485,
-      "n_pc1": 72,
-      "n_sl": 15,
-      "n_timeout": 398
+      "n_total": 330,
+      "n_pc1": 44,
+      "n_sl": 7,
+      "n_timeout": 279
     },
     "240m+|shallow_neg|moderate": {
-      "q_hold": 0.1484,
+      "q_hold": 0.1295,
       "action": "CLOSE",
-      "n_total": 25206,
-      "n_pc1": 3740,
-      "n_sl": 923,
-      "n_timeout": 20543
+      "n_total": 16172,
+      "n_pc1": 2095,
+      "n_sl": 822,
+      "n_timeout": 13255
     },
     "60-120m|deep_neg|deep": {
-      "q_hold": 0.2869,
-      "action": "CLOSE",
-      "n_total": 14701,
-      "n_pc1": 4218,
-      "n_sl": 6795,
-      "n_timeout": 3688
+      "q_hold": 0.3027,
+      "action": "HOLD",
+      "n_total": 7272,
+      "n_pc1": 2201,
+      "n_sl": 3625,
+      "n_timeout": 1446
     },
     "60-120m|deep_neg|moderate": {
-      "q_hold": 0.3361,
+      "q_hold": 0.3656,
       "action": "HOLD",
-      "n_total": 3782,
-      "n_pc1": 1271,
-      "n_sl": 1037,
-      "n_timeout": 1474
+      "n_total": 1934,
+      "n_pc1": 707,
+      "n_sl": 563,
+      "n_timeout": 664
     },
     "60-120m|near_zero|deep": {
-      "q_hold": 0.6831,
+      "q_hold": 0.7052,
       "action": "HOLD",
-      "n_total": 1464,
-      "n_pc1": 1000,
-      "n_sl": 230,
-      "n_timeout": 234
+      "n_total": 814,
+      "n_pc1": 574,
+      "n_sl": 147,
+      "n_timeout": 93
     },
     "60-120m|near_zero|mild": {
-      "q_hold": 0.5534,
+      "q_hold": 0.5506,
       "action": "HOLD",
-      "n_total": 22974,
-      "n_pc1": 12713,
-      "n_sl": 1633,
-      "n_timeout": 8628
+      "n_total": 13634,
+      "n_pc1": 7507,
+      "n_sl": 1243,
+      "n_timeout": 4884
     },
     "60-120m|near_zero|moderate": {
-      "q_hold": 0.5907,
+      "q_hold": 0.5982,
       "action": "HOLD",
-      "n_total": 15297,
-      "n_pc1": 9036,
-      "n_sl": 1854,
-      "n_timeout": 4407
+      "n_total": 8160,
+      "n_pc1": 4881,
+      "n_sl": 1204,
+      "n_timeout": 2075
     },
     "60-120m|positive|deep": {
-      "q_hold": 0.835,
+      "q_hold": 0.7986,
       "action": "HOLD",
-      "n_total": 594,
-      "n_pc1": 496,
-      "n_sl": 49,
-      "n_timeout": 49
+      "n_total": 293,
+      "n_pc1": 234,
+      "n_sl": 37,
+      "n_timeout": 22
     },
     "60-120m|positive|mild": {
-      "q_hold": 0.7781,
+      "q_hold": 0.7642,
       "action": "HOLD",
-      "n_total": 14958,
-      "n_pc1": 11639,
-      "n_sl": 645,
-      "n_timeout": 2674
+      "n_total": 7900,
+      "n_pc1": 6037,
+      "n_sl": 485,
+      "n_timeout": 1378
     },
     "60-120m|positive|moderate": {
-      "q_hold": 0.8096,
+      "q_hold": 0.7936,
       "action": "HOLD",
-      "n_total": 5453,
-      "n_pc1": 4415,
-      "n_sl": 355,
-      "n_timeout": 683
+      "n_total": 2544,
+      "n_pc1": 2019,
+      "n_sl": 214,
+      "n_timeout": 311
     },
     "60-120m|shallow_neg|deep": {
-      "q_hold": 0.5098,
+      "q_hold": 0.5336,
       "action": "HOLD",
-      "n_total": 4129,
-      "n_pc1": 2105,
-      "n_sl": 981,
-      "n_timeout": 1043
+      "n_total": 2142,
+      "n_pc1": 1143,
+      "n_sl": 580,
+      "n_timeout": 419
     },
     "60-120m|shallow_neg|mild": {
-      "q_hold": 0.4057,
+      "q_hold": 0.4564,
       "action": "HOLD",
-      "n_total": 1733,
-      "n_pc1": 703,
-      "n_sl": 200,
-      "n_timeout": 830
+      "n_total": 1089,
+      "n_pc1": 497,
+      "n_sl": 128,
+      "n_timeout": 464
     },
     "60-120m|shallow_neg|moderate": {
-      "q_hold": 0.4348,
+      "q_hold": 0.4612,
       "action": "HOLD",
-      "n_total": 22573,
-      "n_pc1": 9814,
-      "n_sl": 3891,
-      "n_timeout": 8868
+      "n_total": 11907,
+      "n_pc1": 5492,
+      "n_sl": 2374,
+      "n_timeout": 4041
     }
   }
 }
