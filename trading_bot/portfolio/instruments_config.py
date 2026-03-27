@@ -30,12 +30,14 @@ INSTRUMENTS = {
             'max_grid_levels': 2,         # Max 2 grid children = 3 total positions (pyramid)
             'max_dca_levels': 2,          # REDUCED: 4 -> 2 (limits cascade depth after $500 loss)
         },
-        # Take profit settings - Hybrid Partial + Trailing Stop Strategy
+        # Take profit settings - 4 batch trades x 0.04 = 0.16 total
+        # PC1: close 50% (0.08), PC2: close 25% (0.04), remaining 25% (0.04) trails
         'take_profit': {
-            'partial_1_pips': 10,         # 25% close at 10 pips
-            'partial_1_percent': 0.25,
-            'partial_2_pips': 20,         # 25% close at 20 pips (50% trails)
-            'partial_2_percent': 0.25,    # Changed from 0.50 to 0.25
+            'partial_1_pips': 10,         # PC1: 50% close at 10 pips + SL→BE
+            'partial_1_percent': 0.50,    # Close half the position at PC1
+            'partial_2_pips': 20,         # PC2: 25% close at 20 pips, trail remainder
+            'partial_2_percent': 0.25,    # 25% of original position
+            'full_tp_pips': 40,           # Full TP: close 100% if still open at 40 pips
             # Trailing stop (activated after PC2)
             'trailing_stop_enabled': True,
             'trailing_stop_atr_multiplier': 2.0,  # 2.0 × ATR(14)
@@ -72,12 +74,14 @@ INSTRUMENTS = {
             'max_grid_levels': 2,         # Max 2 grid children = 3 total positions (pyramid)
             'max_dca_levels': 2,          # REDUCED: 4 -> 2 (limits cascade depth after $500 loss)
         },
-        # Take profit settings - Hybrid Partial + Trailing Stop Strategy
+        # Take profit settings - 4 batch trades x 0.04 = 0.16 total
+        # PC1: close 50% (0.08), PC2: close 25% (0.04), remaining 25% (0.04) trails
         'take_profit': {
-            'partial_1_pips': 12,         # 25% close at 12 pips
-            'partial_1_percent': 0.25,
-            'partial_2_pips': 25,         # 25% close at 25 pips (50% trails)
-            'partial_2_percent': 0.25,    # Changed from 0.50 to 0.25
+            'partial_1_pips': 12,         # PC1: 50% close at 12 pips + SL→BE
+            'partial_1_percent': 0.50,    # Close half the position at PC1
+            'partial_2_pips': 25,         # PC2: 25% close at 25 pips, trail remainder
+            'partial_2_percent': 0.25,    # 25% of original position
+            'full_tp_pips': 50,           # Full TP: close 100% if still open at 50 pips
             # Trailing stop (activated after PC2)
             'trailing_stop_enabled': True,
             'trailing_stop_atr_multiplier': 2.0,  # 2.0 × ATR(14)
@@ -116,12 +120,13 @@ INSTRUMENTS = {
             'max_grid_levels': 2,         # Max 2 grid children = 3 total positions (pyramid)
             'max_dca_levels': 2,          # REDUCED: 4 -> 2 (limits cascade depth after $500 loss)
         },
-        # Take profit settings - Hybrid Partial + Trailing Stop Strategy
+        # Take profit settings - 50/25/25 PC structure
         'take_profit': {
-            'partial_1_pips': 12,         # 25% close at 12 pips
-            'partial_1_percent': 0.25,
-            'partial_2_pips': 22,         # 25% close at 22 pips (50% trails)
-            'partial_2_percent': 0.25,    # Changed from 0.50 to 0.25
+            'partial_1_pips': 12,         # PC1: 50% close at 12 pips + SL→BE
+            'partial_1_percent': 0.50,    # Close half the position at PC1
+            'partial_2_pips': 22,         # PC2: 25% close at 22 pips, trail remainder
+            'partial_2_percent': 0.25,    # 25% of original position
+            'full_tp_pips': 45,           # Full TP: close 100% if still open at 45 pips
             # Trailing stop (activated after PC2)
             'trailing_stop_enabled': True,
             'trailing_stop_atr_multiplier': 2.0,  # 2.0 × ATR(14)

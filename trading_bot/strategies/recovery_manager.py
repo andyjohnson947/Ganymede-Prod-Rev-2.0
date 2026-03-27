@@ -114,12 +114,8 @@ class StopOutTracker:
         self._cleanup_old_events()
         self._log_to_file(event)
 
-        print(f"\n[STOP-OUT] Event #{ticket} recorded:")
-        print(f"   Symbol: {symbol}")
-        print(f"   Loss: ${loss:.2f}")
-        print(f"   ADX: {adx_value:.1f}" if adx_value else "   ADX: N/A")
-        print(f"   Stack: {stack_type}")
-        print(f"   Recent stops (30min): {len(self.stop_outs)}")
+        adx_str = f"ADX={adx_value:.1f}" if adx_value else "ADX=N/A"
+        print(f"[STOP-OUT] #{ticket} {symbol} ${loss:.2f} {stack_type} {adx_str} (recent: {len(self.stop_outs)})")
 
     def _cleanup_old_events(self):
         """Remove events outside the time window"""
@@ -299,7 +295,8 @@ class RecoveryManager:
             'trailing_stop_active': False,
             'trailing_stop_distance_pips': 0,
             'trailing_stop_price': 0.0,
-            'highest_profit_price': entry_price,  # Track highest price for trailing
+            'highest_profit_price': entry_price,  # Track highest price for trailing (MFE)
+            'lowest_profit_price': entry_price,   # Track lowest price for MAE analysis
         }
 
     def untrack_position(self, ticket: int):
@@ -541,9 +538,7 @@ class RecoveryManager:
             Dict with reconstruction stats
         """
         if not silent:
-            print("\n" + "="*60)
-            print("[SYNC] RECOVERY STACK RECONSTRUCTION")
-            print("="*60)
+            pass  # Reconstruction starting silently
 
         # Track reconstruction statistics
         stats = {
@@ -586,7 +581,7 @@ class RecoveryManager:
                         stats['orphaned_recovery_orders'] += 1
                         if ticket not in self.tracked_positions:
                             symbol = pos.get('symbol', 'UNKNOWN')
-                            pos_type = 'buy' if pos.get('type') == 0 else 'sell'
+                            pos_type = pos.get('type') if isinstance(pos.get('type'), str) else ('buy' if pos.get('type') == 0 else 'sell')
                             self.tracked_positions[ticket] = {
                                 'ticket': ticket,
                                 'symbol': symbol,
@@ -655,7 +650,7 @@ class RecoveryManager:
                         stats['orphaned_recovery_orders'] += 1
                         if ticket not in self.tracked_positions:
                             symbol = pos.get('symbol', 'UNKNOWN')
-                            pos_type = 'buy' if pos.get('type') == 0 else 'sell'
+                            pos_type = pos.get('type') if isinstance(pos.get('type'), str) else ('buy' if pos.get('type') == 0 else 'sell')
                             self.tracked_positions[ticket] = {
                                 'ticket': ticket,
                                 'symbol': symbol,
@@ -724,7 +719,7 @@ class RecoveryManager:
                         stats['orphaned_recovery_orders'] += 1
                         if ticket not in self.tracked_positions:
                             symbol = pos.get('symbol', 'UNKNOWN')
-                            pos_type = 'buy' if pos.get('type') == 0 else 'sell'
+                            pos_type = pos.get('type') if isinstance(pos.get('type'), str) else ('buy' if pos.get('type') == 0 else 'sell')
                             self.tracked_positions[ticket] = {
                                 'ticket': ticket,
                                 'symbol': symbol,
@@ -815,12 +810,7 @@ class RecoveryManager:
 
                 # Log reconstruction
                 if not silent:
-                    print(f"\n[OK] Reconstructed stack for position #{original_ticket}:")
-                    print(f"   Symbol: {position['symbol']}")
-                    print(f"   Grid levels: {len(position['grid_levels'])}")
-                    print(f"   Hedges: {len(position['hedge_tickets'])}")
-                    print(f"   DCA levels: {len(position['dca_levels'])}")
-                    print(f"   Total volume: {position['total_volume']:.2f} lots")
+                    print(f"   [SYNC] #{original_ticket} {position['symbol']}: {len(position['grid_levels'])}G {len(position['hedge_tickets'])}H {len(position['dca_levels'])}D = {position['total_volume']:.2f} lots")
 
             else:
                 # Original position not tracked - ADOPT orphaned recovery orders!
@@ -856,7 +846,7 @@ class RecoveryManager:
 
                     # Get symbol and type from MT5 position
                     symbol = grid_pos.get('symbol', 'UNKNOWN')
-                    pos_type = 'buy' if grid_pos.get('type') == 0 else 'sell'
+                    pos_type = grid_pos.get('type') if isinstance(grid_pos.get('type'), str) else ('buy' if grid_pos.get('type') == 0 else 'sell')
 
                     # Create tracking entry for orphaned grid
                     self.tracked_positions[ticket] = {
@@ -892,7 +882,7 @@ class RecoveryManager:
                     hedge_pos = next((p for p in mt5_positions if p.get('ticket') == hedge_ticket), None)
                     if hedge_pos:
                         symbol = hedge_pos.get('symbol', 'UNKNOWN')
-                        pos_type = 'buy' if hedge_pos.get('type') == 0 else 'sell'
+                        pos_type = hedge_pos.get('type') if isinstance(hedge_pos.get('type'), str) else ('buy' if hedge_pos.get('type') == 0 else 'sell')
 
                         self.tracked_positions[hedge_ticket] = {
                             'ticket': hedge_ticket,
@@ -930,7 +920,7 @@ class RecoveryManager:
                         continue
 
                     symbol = dca_pos.get('symbol', 'UNKNOWN')
-                    pos_type = 'buy' if dca_pos.get('type') == 0 else 'sell'
+                    pos_type = dca_pos.get('type') if isinstance(dca_pos.get('type'), str) else ('buy' if dca_pos.get('type') == 0 else 'sell')
 
                     self.tracked_positions[ticket] = {
                         'ticket': ticket,
@@ -961,18 +951,21 @@ class RecoveryManager:
 
         # Summary
         if not silent:
-            print("\n" + "-"*60)
-            print("RECONSTRUCTION SUMMARY:")
-            print(f"  Total MT5 positions: {stats['total_positions']}")
-            print(f"  Stacks reconstructed: {stats['stacks_reconstructed']}")
-            print(f"  Grid levels found: {stats['grid_levels_found']}")
-            print(f"  Hedges found: {stats['hedges_found']}")
-            print(f"  DCA levels found: {stats['dca_levels_found']}")
-
+            parts = []
+            if stats['stacks_reconstructed'] > 0:
+                parts.append(f"{stats['stacks_reconstructed']} stacks")
+            if stats['grid_levels_found'] > 0:
+                parts.append(f"{stats['grid_levels_found']} grids")
+            if stats['hedges_found'] > 0:
+                parts.append(f"{stats['hedges_found']} hedges")
+            if stats['dca_levels_found'] > 0:
+                parts.append(f"{stats['dca_levels_found']} DCAs")
             if stats['orphaned_recovery_orders'] > 0:
-                print(f"  [WARN]  Orphaned orders: {stats['orphaned_recovery_orders']}")
-
-            print("="*60 + "\n")
+                parts.append(f"{stats['orphaned_recovery_orders']} orphaned")
+            if parts:
+                print(f"[SYNC] Recovery reconstruction: {', '.join(parts)} from {stats['total_positions']} positions")
+            else:
+                print(f"[SYNC] Recovery reconstruction: clean ({stats['total_positions']} positions, no recovery stacks)")
 
         return stats
 
@@ -1130,8 +1123,7 @@ class RecoveryManager:
             age = datetime.now() - state_time
             age_hours = age.total_seconds() / 3600
 
-            print(f"\n[LOAD] Loading recovery state from {state['timestamp']}")
-            print(f"   State age: {age_hours:.1f} hours")
+            pass  # Loading recovery state silently
 
             if age_hours > 24:
                 print(f"[WARN]  State is over 24 hours old - may be stale")
@@ -1213,10 +1205,8 @@ class RecoveryManager:
                 self.archived_positions = state['archived_positions']
                 archived_count = len(self.archived_positions)
 
-            print(f"[OK] Restored {restored_count} tracked positions from state file")
-            if archived_count > 0:
-                print(f"[OK] Loaded {archived_count} archived closed positions")
-            print()
+            if restored_count > 0 or archived_count > 0:
+                print(f"[OK] Recovery state loaded: {restored_count} tracked, {archived_count} archived ({age_hours:.0f}h old)")
 
             return True
 
@@ -1394,7 +1384,6 @@ class RecoveryManager:
             # SPREAD HOUR RECOVERY BLOCKING (CONFIGURABLE)
             # Block recovery during spread hours to avoid cascade during spread widening
             if BLOCK_RECOVERY_SPREAD_HOURS:
-                from trading_bot.utils.timezone_manager import get_current_time
                 current_hour = get_current_time().hour
                 if current_hour in SPREAD_HOURS:
                     logger.info(f"[GRID BLOCKED] Spread hour blocking enabled - Current hour {current_hour} is a spread hour - NO recovery allowed")
@@ -1657,7 +1646,6 @@ class RecoveryManager:
             # SPREAD HOUR RECOVERY BLOCKING (CONFIGURABLE)
             # Block recovery during spread hours to avoid cascade during spread widening
             if BLOCK_RECOVERY_SPREAD_HOURS:
-                from trading_bot.utils.timezone_manager import get_current_time
                 current_hour = get_current_time().hour
                 if current_hour in SPREAD_HOURS:
                     logger.info(f"[HEDGE BLOCKED] Spread hour blocking enabled - Current hour {current_hour} is a spread hour - NO recovery allowed")
@@ -1946,7 +1934,6 @@ class RecoveryManager:
         # SPREAD HOUR RECOVERY BLOCKING (CONFIGURABLE)
         # Block recovery during spread hours to avoid cascade during spread widening
         if BLOCK_RECOVERY_SPREAD_HOURS:
-            from trading_bot.utils.timezone_manager import get_current_time
             current_hour = get_current_time().hour
             if current_hour in SPREAD_HOURS:
                 logger.info(f"[DCA BLOCKED] Spread hour blocking enabled - Current hour {current_hour} is a spread hour - NO recovery allowed")
@@ -2842,12 +2829,12 @@ class RecoveryManager:
 
             # Convert ATR to pips (multiply by 10000 for most pairs, 100 for JPY pairs)
             symbol_info = self.mt5.get_symbol_info(symbol)
-            point = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+            point = symbol_info.get('point', 0.00001) if symbol_info else 0.00001
 
-            # FIXED: Simple ATR to pips conversion without extra division
-            # For EUR/USD: point=0.0001, so atr_pips = atr_14 / 0.0001 (e.g., 0.0050 / 0.0001 = 50 pips)
-            # For JPY: point=0.01, so atr_pips = atr_14 / 0.01 (e.g., 0.50 / 0.01 = 50 pips)
-            atr_pips = atr_14 / point
+            # ATR to pips: 1 pip = 10 points for 5-digit brokers
+            # For EUR/USD: point=0.00001, pip=0.0001, so atr_pips = atr_14 / 0.0001
+            pip_value = point * 10 if point < 0.001 else point
+            atr_pips = atr_14 / pip_value
 
             # Calculate trailing distance: ATR × multiplier, bounded by min/max
             trailing_pips = atr_pips * atr_multiplier
@@ -2878,12 +2865,12 @@ class RecoveryManager:
         # Calculate trailing distance using ATR
         trailing_pips = self.calculate_atr_trailing_distance(symbol, tp_settings)
 
-        # Get point value for symbol
+        # Convert pips to price distance
+        # point = 0.00001 on 5-digit brokers, but 1 pip = 0.0001 for forex pairs
         symbol_info = self.mt5.get_symbol_info(symbol)
         point = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
-
-        # FIXED: Removed * 10 - trailing_pips is already in pips, multiply by point to get price distance
-        trailing_distance = trailing_pips * point
+        pip_value = point * 10 if point < 0.001 else point  # 5-digit: 0.00001*10=0.0001, JPY: 0.001 stays
+        trailing_distance = trailing_pips * pip_value
 
         # Set trailing stop
         if position['type'] == 'buy':
@@ -2924,17 +2911,16 @@ class RecoveryManager:
                 position['highest_profit_price'] = current_price
                 symbol_info = self.mt5.get_symbol_info(symbol)
                 point = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+                pip_value = point * 10 if point < 0.001 else point
 
-                # FIXED: Removed * 10 from trailing distance calculation
-                trailing_distance = position['trailing_stop_distance_pips'] * point
+                trailing_distance = position['trailing_stop_distance_pips'] * pip_value
                 new_stop = current_price - trailing_distance
 
                 if new_stop > position['trailing_stop_price']:
                     old_stop = position['trailing_stop_price']
                     position['trailing_stop_price'] = new_stop
 
-                    # FIXED: Removed * 10 from pips calculation
-                    pips_moved = (new_stop - old_stop) / point
+                    pips_moved = (new_stop - old_stop) / pip_value
                     logger.debug(f"[TRAIL] #{ticket} stop moved UP {pips_moved:.1f} pips to {new_stop:.5f}")
         else:  # sell
             if current_price < position['highest_profit_price']:
@@ -2942,17 +2928,16 @@ class RecoveryManager:
                 position['highest_profit_price'] = current_price
                 symbol_info = self.mt5.get_symbol_info(symbol)
                 point = symbol_info.get('point', 0.0001) if symbol_info else 0.0001
+                pip_value = point * 10 if point < 0.001 else point
 
-                # FIXED: Removed * 10 from trailing distance calculation
-                trailing_distance = position['trailing_stop_distance_pips'] * point
+                trailing_distance = position['trailing_stop_distance_pips'] * pip_value
                 new_stop = current_price + trailing_distance
 
                 if new_stop < position['trailing_stop_price']:
                     old_stop = position['trailing_stop_price']
                     position['trailing_stop_price'] = new_stop
 
-                    # FIXED: Removed * 10 from pips calculation
-                    pips_moved = (old_stop - new_stop) / point
+                    pips_moved = (old_stop - new_stop) / pip_value
                     logger.debug(f"[TRAIL] #{ticket} stop moved DOWN {pips_moved:.1f} pips to {new_stop:.5f}")
 
     def check_trailing_stop(self, ticket: int, current_price: float) -> bool:
@@ -3272,7 +3257,7 @@ class RecoveryManager:
                 # CRITICAL FIX: Force save tracked_positions state immediately
                 # This ensures the pending entry persists until _execute_recovery_action() runs
                 # Without this, the next iteration won't see the pending entry and triggers again
-                self._save_state()
+                self.save_state()
 
                 print(f"[SYNC] [HEDGE DCA] Hedge #{hedge_ticket} needs DCA L{current_dca_count + 1}")
                 print(f"   Hedge: {hedge_type.upper()} at {hedge_entry_price:.5f} (losing ${abs(hedge_profit):.2f})")
@@ -3511,7 +3496,7 @@ class RecoveryManager:
             if len(current_data) > 0:
                 last_close = current_data['close'].iloc[-1]
                 last_time = current_data.index[-1] if hasattr(current_data.index[-1], 'strftime') else str(current_data.index[-1])
-                print(f"   [DEBUG] {symbol}: Last close={last_close:.5f}, Time={last_time}, Data rows={len(current_data)}")
+                pass  # Debug: last_close, time, data rows (quiet in production)
 
             data_with_adx = calculate_adx(current_data.copy(), period=14)
             if data_with_adx is None or data_with_adx.empty:
@@ -3567,12 +3552,13 @@ class RecoveryManager:
                 'reason': block_reason
             }
 
-            print(f" Market State Analysis for {symbol}:")
-            print(f"   ADX: {adx_value:.1f} ({adx_info['market_type']})")
-            print(f"   Direction: {adx_info['direction']}")
-            print(f"   Candles: {candle_info.get('alignment', 'unknown')}")
-            print(f"   Block new trades: {should_block}")
-            print(f"   Reason: {block_reason}")
+            if self.debug if hasattr(self, 'debug') else False:
+                print(f" Market State Analysis for {symbol}:")
+                print(f"   ADX: {adx_value:.1f} ({adx_info['market_type']})")
+                print(f"   Direction: {adx_info['direction']}")
+                print(f"   Candles: {candle_info.get('alignment', 'unknown')}")
+                print(f"   Block new trades: {should_block}")
+                print(f"   Reason: {block_reason}")
 
             return market_state
 

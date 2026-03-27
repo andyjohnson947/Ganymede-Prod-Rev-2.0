@@ -53,6 +53,10 @@ class TradingLogger:
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
+        # Prevent propagation to root logger (avoids duplicate output when
+        # ml_system modules call logging.basicConfig which adds a root StreamHandler)
+        self.logger.propagate = False
+
         # Configure stdout to use UTF-8 on Windows
         if sys.platform == 'win32':
             try:

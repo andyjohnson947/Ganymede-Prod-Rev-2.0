@@ -176,6 +176,97 @@ def analyze_candle_direction(data: pd.DataFrame, lookback: int = 5) -> dict:
     }
 
 
+def analyze_candle_momentum(
+    data: pd.DataFrame,
+    direction: str,
+    lookback: int = 4,
+    shrink_ratio: float = 0.85
+) -> dict:
+    """
+    Measure whether recent H1 candle bodies are GROWING or SHRINKING.
+
+    Used by both strategies with opposite meaning:
+      - BO: Shrinking bodies in BO direction = momentum fading = BLOCK (late entry)
+      - MR: Shrinking bodies against MR direction = trend exhausting = BOOST (reversion)
+
+    Analyses absolute body sizes of the last N closed candles (skipping the
+    current forming candle at index -1). A pair "shrinks" when the later body
+    is smaller than the earlier body times shrink_ratio.
+
+    Args:
+        data: DataFrame with 'open' and 'close' columns (H1 candle data)
+        direction: Trade direction to analyse ('buy' or 'sell')
+        lookback: Number of closed candles to analyse (default 4)
+        shrink_ratio: Threshold — body[i+1] < body[i] * ratio = shrinking (default 0.85)
+
+    Returns:
+        Dict with:
+            body_sizes: list of absolute body sizes [lookback floats]
+            shrinking_pairs: count of consecutive pairs where body decreased
+            growing_pairs: count of consecutive pairs where body increased
+            total_pairs: total pairs compared (lookback - 1)
+            momentum: 'fading' | 'building' | 'weakening' | 'strengthening' | 'mixed'
+            is_fading: True if shrinking_pairs >= total_pairs - 1
+            direction_analyzed: the direction that was checked
+    """
+    # Need at least lookback + 1 rows (lookback closed candles + current forming)
+    if len(data) < lookback + 1:
+        return {
+            'body_sizes': [],
+            'shrinking_pairs': 0,
+            'growing_pairs': 0,
+            'total_pairs': 0,
+            'momentum': 'insufficient_data',
+            'is_fading': False,
+            'direction_analyzed': direction
+        }
+
+    # Get closed candles only (exclude current forming candle at -1)
+    # For lookback=4: iloc[-5], iloc[-4], iloc[-3], iloc[-2]
+    closed = data.iloc[-(lookback + 1):-1]
+
+    # Calculate absolute body sizes
+    body_sizes = np.abs(closed['close'].values - closed['open'].values)
+
+    # Count shrinking vs growing consecutive pairs
+    shrinking_pairs = 0
+    growing_pairs = 0
+    total_pairs = len(body_sizes) - 1
+
+    for i in range(total_pairs):
+        prev_body = body_sizes[i]
+        curr_body = body_sizes[i + 1]
+
+        if prev_body > 0 and curr_body < prev_body * shrink_ratio:
+            shrinking_pairs += 1
+        elif curr_body > prev_body:
+            growing_pairs += 1
+
+    # Classify momentum state
+    if shrinking_pairs >= total_pairs:
+        momentum = 'fading'
+    elif growing_pairs >= total_pairs:
+        momentum = 'building'
+    elif shrinking_pairs > growing_pairs:
+        momentum = 'weakening'
+    elif growing_pairs > shrinking_pairs:
+        momentum = 'strengthening'
+    else:
+        momentum = 'mixed'
+
+    is_fading = shrinking_pairs >= max(total_pairs - 1, 1)
+
+    return {
+        'body_sizes': body_sizes.tolist(),
+        'shrinking_pairs': int(shrinking_pairs),
+        'growing_pairs': int(growing_pairs),
+        'total_pairs': int(total_pairs),
+        'momentum': momentum,
+        'is_fading': is_fading,
+        'direction_analyzed': direction
+    }
+
+
 def should_trade_based_on_trend(
     adx_value: float,
     plus_di: float,
@@ -183,7 +274,8 @@ def should_trade_based_on_trend(
     candle_data: pd.DataFrame,
     candle_lookback: int = 5,
     adx_threshold: float = 25,
-    allow_weak_trends: bool = True
+    allow_weak_trends: bool = True,
+    max_adx: float = 40.0
 ) -> tuple[bool, str]:
     """
     Determine if we should trade based on trend analysis
@@ -196,6 +288,7 @@ def should_trade_based_on_trend(
         candle_lookback: Number of candles to analyze
         adx_threshold: ADX threshold for "trending" market
         allow_weak_trends: Allow trading in weak trends (ADX 20-25)
+        max_adx: Maximum ADX for MR trading (per-symbol, ML-tunable)
 
     Returns:
         Tuple of (should_trade, reason)
@@ -206,8 +299,8 @@ def should_trade_based_on_trend(
     # Get candle alignment
     candle_info = analyze_candle_direction(candle_data, candle_lookback)
 
-    # Rule 1: Strong trend (ADX > 40) = NO TRADE
-    if adx_value > 40:
+    # Rule 1: Strong trend (ADX > max_adx) = NO TRADE
+    if adx_value > max_adx:
         return False, f"Strong trend detected (ADX: {adx_value:.1f}) - Mean reversion unsafe"
 
     # Rule 2: Moderate trend (ADX 25-40) + aligned candles = NO TRADE

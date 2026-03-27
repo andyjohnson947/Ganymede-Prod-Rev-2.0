@@ -1,7 +1,11 @@
 """
 Time Filter Module
 Manages trading time windows for mean reversion and breakout strategies
-Handles automatic timezone conversion between broker time and GMT/UTC
+
+TIMEZONE: All trading hours are defined in TRUE GMT (Europe/London winter time).
+The bot passes datetime.now(UK_TIMEZONE) to these filters — this is GMT in winter,
+BST (GMT+1) in summer. ICMarkets MT5 server runs on EET (GMT+2 winter / GMT+3 summer),
+but the bot does NOT use broker time for filtering. Config hours are in GMT.
 """
 
 from datetime import datetime, time, timedelta
@@ -13,7 +17,10 @@ class TimeFilter:
     """
     Time-based trading window filter
     Determines which strategy (if any) can trade at current time
-    Automatically converts broker time to GMT/UTC for filtering
+
+    All times are in TRUE GMT (Europe/London winter). The bot passes
+    datetime.now(UK_TIMEZONE) which is GMT in winter, BST in summer.
+    NOT MT5 server time (which is EET/GMT+2 for ICMarkets).
     """
 
     def __init__(self, broker_gmt_offset: Optional[int] = None):
@@ -21,18 +28,18 @@ class TimeFilter:
         Initialize time filter
 
         Args:
-            broker_gmt_offset: Broker's GMT offset in hours (e.g., +2, -5)
-                              If None, uses cfg.BROKER_GMT_OFFSET
+            broker_gmt_offset: Legacy parameter, no longer used.
+                              Bot now uses MT5 server time directly.
         """
         self.enable_filters = cfg.ENABLE_TIME_FILTERS
         self.broker_offset = broker_gmt_offset if broker_gmt_offset is not None else cfg.BROKER_GMT_OFFSET
 
-        # Mean reversion windows
+        # Mean reversion windows (MT5 server time)
         self.mr_hours = set(cfg.MEAN_REVERSION_HOURS)
         self.mr_days = set(cfg.MEAN_REVERSION_DAYS)
         self.mr_sessions = set(cfg.MEAN_REVERSION_SESSIONS)
 
-        # Breakout windows
+        # Breakout windows (MT5 server time)
         self.bo_hours = set(cfg.BREAKOUT_HOURS)
         self.bo_days = set(cfg.BREAKOUT_DAYS)
         self.bo_sessions = set(cfg.BREAKOUT_SESSIONS)
@@ -87,49 +94,27 @@ class TimeFilter:
 
         return 'unknown'
 
-    def can_trade_mean_reversion(self, broker_time: datetime) -> bool:
+    def _get_symbol_overrides(self, symbol: Optional[str] = None):
+        """Get per-symbol hour/day/session overrides if configured"""
+        if symbol and hasattr(cfg, 'SYMBOL_TRADING_HOURS'):
+            return cfg.SYMBOL_TRADING_HOURS.get(symbol)
+        return None
+
+    def can_trade_mean_reversion(self, mt5_server_time: datetime, symbol: Optional[str] = None) -> bool:
         """
-        Check if mean reversion strategy can trade now
-
-        Args:
-            broker_time: Current datetime in broker timezone (from MT5)
-
-        Returns:
-            True if mean reversion can trade
+        MR trades any time — Q-table and confluences decide, not the clock.
         """
-        if not self.enable_filters:
-            return True
-
         if not cfg.MEAN_REVERSION_ENABLED:
             return False
+        return True
 
-        # Convert broker time to GMT for filtering
-        gmt_time = self.broker_time_to_gmt(broker_time)
-
-        hour = gmt_time.hour
-        day = gmt_time.weekday()
-        session = self.get_session(gmt_time)
-
-        # Check hour filter
-        in_hours = hour in self.mr_hours
-
-        # Check day filter
-        in_days = day in self.mr_days
-
-        # Check session filter
-        in_session = session in self.mr_sessions
-
-        return in_hours and in_days and in_session
-
-    def can_trade_breakout(self, broker_time: datetime) -> bool:
+    def can_trade_breakout(self, mt5_server_time: datetime, symbol: Optional[str] = None) -> bool:
         """
         Check if breakout strategy can trade now
 
         Args:
-            broker_time: Current datetime in broker timezone (from MT5)
-
-        Returns:
-            True if breakout can trade
+            mt5_server_time: Current time
+            symbol: Optional symbol for per-symbol hour overrides
         """
         if not self.enable_filters:
             return True
@@ -137,71 +122,66 @@ class TimeFilter:
         if not cfg.BREAKOUT_ENABLED:
             return False
 
-        # Convert broker time to GMT for filtering
-        gmt_time = self.broker_time_to_gmt(broker_time)
+        hour = mt5_server_time.hour
+        day = mt5_server_time.weekday()
+        session = self.get_session(mt5_server_time)
 
-        hour = gmt_time.hour
-        day = gmt_time.weekday()
-        session = self.get_session(gmt_time)
+        # Use per-symbol overrides if configured, else defaults
+        overrides = self._get_symbol_overrides(symbol)
+        if overrides:
+            bo_hours = set(overrides.get('bo_hours', cfg.BREAKOUT_HOURS))
+            bo_days = set(overrides.get('bo_days', cfg.BREAKOUT_DAYS))
+            bo_sessions = set(overrides.get('bo_sessions', cfg.BREAKOUT_SESSIONS))
+        else:
+            bo_hours = self.bo_hours
+            bo_days = self.bo_days
+            bo_sessions = self.bo_sessions
 
-        # Check hour filter
-        in_hours = hour in self.bo_hours
+        return hour in bo_hours and day in bo_days and session in bo_sessions
 
-        # Check day filter
-        in_days = day in self.bo_days
-
-        # Check session filter
-        in_session = session in self.bo_sessions
-
-        return in_hours and in_days and in_session
-
-    def get_active_strategy(self, broker_time: datetime) -> Optional[str]:
+    def get_active_strategy(self, mt5_server_time: datetime) -> Optional[str]:
         """
         Determine which strategy should be active now
 
         Args:
-            broker_time: Current datetime in broker timezone (from MT5)
+            mt5_server_time: Current MT5 server time (UTC+2/EET)
 
         Returns:
             'mean_reversion', 'breakout', or None
         """
         # Check mean reversion first (higher priority if both active)
-        if self.can_trade_mean_reversion(broker_time):
+        if self.can_trade_mean_reversion(mt5_server_time):
             return 'mean_reversion'
 
         # Then check breakout
-        if self.can_trade_breakout(broker_time):
+        if self.can_trade_breakout(mt5_server_time):
             return 'breakout'
 
         return None
 
-    def get_time_status(self, broker_time: datetime) -> Dict:
+    def get_time_status(self, mt5_server_time: datetime) -> Dict:
         """
         Get comprehensive time filter status
 
         Args:
-            broker_time: Current datetime in broker timezone (from MT5)
+            mt5_server_time: Current MT5 server time (UTC+2/EET)
 
         Returns:
             Dict with detailed status information
         """
-        # Convert to GMT for checking
-        gmt_time = self.broker_time_to_gmt(broker_time)
+        # Use MT5 server time directly (no conversion)
+        hour = mt5_server_time.hour
+        day = mt5_server_time.weekday()
+        day_name = mt5_server_time.strftime('%A')
+        session = self.get_session(mt5_server_time)
 
-        hour = gmt_time.hour
-        day = gmt_time.weekday()
-        day_name = gmt_time.strftime('%A')
-        session = self.get_session(gmt_time)
-
-        can_mr = self.can_trade_mean_reversion(broker_time)
-        can_bo = self.can_trade_breakout(broker_time)
-        active_strategy = self.get_active_strategy(broker_time)
+        can_mr = self.can_trade_mean_reversion(mt5_server_time)
+        can_bo = self.can_trade_breakout(mt5_server_time)
+        active_strategy = self.get_active_strategy(mt5_server_time)
 
         return {
-            'broker_time': broker_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'gmt_time': gmt_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'broker_offset': self.broker_offset,
-            'hour_gmt': hour,
+            'mt5_server_time': mt5_server_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'hour': hour,
             'day': day,
             'day_name': day_name,
             'session': session,

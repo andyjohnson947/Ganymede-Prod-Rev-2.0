@@ -12,7 +12,9 @@ from config.strategy_config import (
     VP_BINS,
     HVN_LEVELS,
     LVN_LEVELS,
-    SWING_LOOKBACK
+    SWING_LOOKBACK,
+    LEVEL_TOLERANCE_PCT,
+    SWING_TOLERANCE_PCT
 )
 
 
@@ -223,14 +225,14 @@ class VolumeProfile:
             'swing_lows': [s['price'] for s in swing_lows]
         }
 
-    def check_at_level(self, price: float, level: float, tolerance_pct: float = 0.003) -> bool:
+    def check_at_level(self, price: float, level: float, tolerance_pct: float = 0.001) -> bool:
         """
         Check if price is at a specific level
 
         Args:
             price: Current price
             level: Level to check
-            tolerance_pct: Tolerance as percentage (default 0.3%)
+            tolerance_pct: Tolerance as percentage (default 0.1% = ~10 pips)
 
         Returns:
             bool: True if price is at level
@@ -285,17 +287,17 @@ class VolumeProfile:
                 at_lvn = True
                 break
 
-        # Check swing levels (mutually exclusive - check low only if high not hit)
+        # Check swing levels (tighter tolerance than HTF — must be near actual swing point)
         at_swing_high = False
         for swing_high in swing_levels['swing_highs']:
-            if self.check_at_level(price, swing_high):
+            if self.check_at_level(price, swing_high, tolerance_pct=SWING_TOLERANCE_PCT):
                 at_swing_high = True
                 break
 
         at_swing_low = False
         if not at_swing_high:  # Only check swing lows if NOT at swing high
             for swing_low in swing_levels['swing_lows']:
-                if self.check_at_level(price, swing_low):
+                if self.check_at_level(price, swing_low, tolerance_pct=SWING_TOLERANCE_PCT):
                     at_swing_low = True
                     break
 

@@ -191,14 +191,14 @@ class HTFLevels:
 
         return levels
 
-    def check_confluence(self, price: float, all_levels: Dict, tolerance_pct: float = 0.003) -> Dict:
+    def check_confluence(self, price: float, all_levels: Dict, tolerance_pct: float = 0.001) -> Dict:
         """
         Check price against all HTF levels for confluence
 
         Args:
             price: Current price
             all_levels: Dict from get_all_levels()
-            tolerance_pct: Price tolerance (default 0.3%)
+            tolerance_pct: Price tolerance (default 0.1% = ~10 pips)
 
         Returns:
             Dict with confluence factors and score

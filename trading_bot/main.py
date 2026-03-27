@@ -40,6 +40,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 # Disable Python bytecode generation (optional - prevents .pyc creation)
 sys.dont_write_bytecode = True
 
+# Force unbuffered stdout so trade signals print in real-time (not buffered until exit)
+import os
+os.environ['PYTHONUNBUFFERED'] = '1'
+
 from core.mt5_manager import MT5Manager
 from strategies.confluence_strategy import ConfluenceStrategy
 from utils.logger import logger
@@ -49,6 +53,7 @@ from config.strategy_config import SYMBOLS
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Add project root to path
 from ml_system.ml_system_startup import start_ml_system, stop_ml_system
 from ml_system.continuous_logger import ContinuousMLLogger
+from ml_system.auto_tuner import get_live_tuner
 import threading
 
 # Global variables for continuous logger
@@ -76,13 +81,12 @@ def start_continuous_logger_with_backfill(login, password, server):
             logger.warning("Failed to connect continuous logger to MT5")
             return False
 
-        logger.info("[OK] Continuous logger connected")
-        logger.info("[INFO] Tracking: Entry + Recovery (DCA/Hedge) + Grid + Partials")
-
-        # SKIP BACKFILL: Causes hanging issue with MT5 API on Windows
-        # Backfill will happen automatically in background thread (slower but safer)
-        logger.info("[INFO] Skipping backfill (will happen in background)")
-        logger.info("[OK] Backfill skipped - continuing to startup")
+        # One-time: Import existing JSONL data into SQLite mirror
+        if _logger_instance.trade_db:
+            try:
+                _logger_instance.trade_db.migrate_from_jsonl(str(_logger_instance.continuous_log))
+            except Exception as e:
+                logger.warning(f"[WARN] SQLite migration failed (non-critical): {e}")
 
         # Start continuous monitoring in background thread
         _logger_running = True
@@ -93,8 +97,6 @@ def start_continuous_logger_with_backfill(login, password, server):
                 # CRITICAL: Wait 30 seconds before first check to let main thread fully initialize
                 # This prevents deadlock during startup when both threads try to access MT5 simultaneously
                 threading.Event().wait(30)
-                print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [ML LOGGER] Background thread starting first check...", flush=True)
-
                 while _logger_running:
                     try:
                         # Logger methods use internal _with_lock(), no outer lock needed
@@ -109,8 +111,6 @@ def start_continuous_logger_with_backfill(login, password, server):
 
         _logger_thread = threading.Thread(target=logger_worker, daemon=True)
         _logger_thread.start()
-        logger.info("[OK] Continuous monitoring started (60s interval)")
-
         return True
     except Exception as e:
         logger.error(f"Failed to initialize continuous logger: {e}")
@@ -194,36 +194,9 @@ def main():
 
     # Print banner
     print()
-    print("=" * 80)
-    print("     CONFLUENCE TRADING BOT - UPGRADED + ML AUTOMATION")
-    print("     Timezone-Aware | Instrument-Specific Trading Windows | ML System")
-    print("=" * 80)
-    print()
-    print("[OK] Cache Status: CLEARED (Fresh imports enabled)")
-    print()
-    print("Strategy Parameters:")
-    print("  * Win Rate: 64.3%")
-    print("  * Minimum Confluence Score: 4")
-    print("  * Base Lot Size: 0.04 (updated)")
-    print("  * Grid Spacing: 8 pips")
-    print("  * Hedge Trigger: 8 pips (5x ratio)")
-    print()
-    print("FEATURES:")
-    print("  [+] Timezone: GMT/GMT+1 with automatic DST handling")
-    print("  [+] Trading Windows: Instrument-specific entry/exit times")
-    print("  [+] Restrictions: No bank holidays, weekends, Friday afternoons")
-    print("  [+] Auto-close negative positions at window end")
-    print("  [+] Auto cache clearing: Code changes always picked up")
-    print()
-    print("ML SYSTEM (Automated):")
-    print("  [+] Trade Logger: 60s check interval (Entry + Recovery + Grid + Partials)")
-    print("  [+] Model Retraining: Every 8 hours")
-    print("  [+] Daily Reports: 8:00 AM (with email delivery)")
-    print("  [+] Performance Tracking: Automatic profile building")
-    print("  [+] Shadow Mode: ML observes, bot controls trades")
-    print()
-    print("=" * 80)
-    print()
+    print("=" * 60)
+    print("  GANYMEDE ROBOTIC TRADING SYSTEM")
+    print("=" * 60)
 
     # Check if GUI mode
     if args.gui:
@@ -264,49 +237,77 @@ def main():
 
     if ml_enabled:
         try:
-            logger.info("Starting ML System automation...")
             start_ml_system()
-            logger.info("[OK] ML System started (retraining every 8h, reports daily at 8 AM)")
 
-            # Start Continuous Logger with timeout protection
-            logger.info("Starting Continuous Trade Logger...")
             try:
                 if start_continuous_logger_with_backfill(args.login, args.password, args.server):
                     ml_logger_instance = _logger_instance
-                    logger.info("[OK] ML continuous logger started")
                 else:
-                    logger.warning("[WARN] ML logger failed to start - continuing without it")
+                    logger.warning("[WARN] ML logger failed to start")
             except Exception as e:
-                logger.warning(f"[WARN] ML logger startup error: {e} - continuing without it")
+                logger.warning(f"[WARN] ML logger startup error: {e}")
+
+            try:
+                live_tuner = get_live_tuner()
+                live_tuner.force_tune()
+            except Exception as e:
+                logger.warning(f"[WARN] Auto-Tuner startup error: {e}")
+
+            print("[OK] ML System ready (logger + auto-tuner + retraining)")
 
         except Exception as e:
             logger.warning(f"[WARN] ML System startup failed: {e}")
-            logger.warning("[WARN] Continuing in TRADING-ONLY mode (no ML)")
             ml_enabled = False
     else:
-        logger.info("[INFO] ML System DISABLED (--disable-ml flag) - Trading-only mode")
+        print("[INFO] ML System disabled")
 
     # Verify MT5 connection is still valid
-    logger.info("[DEBUG] Verifying MT5 connection...")
     test_account = mt5_manager.get_account_info()
-    if test_account:
-        logger.info(f"[DEBUG] MT5 connection OK - Balance: ${test_account['balance']:.2f}")
-    else:
-        logger.error("[DEBUG] MT5 connection FAILED - reconnecting...")
+    if not test_account:
+        logger.error("MT5 connection lost - reconnecting...")
         mt5_manager.disconnect()
         if not mt5_manager.connect():
             logger.error("Failed to reconnect to MT5")
             sys.exit(1)
 
     try:
-        # Initialize strategy with optional ML logger for trailing stop monitoring
-        logger.info("[DEBUG] Creating ConfluenceStrategy instance...")
         strategy = ConfluenceStrategy(mt5_manager, test_mode=args.test_mode, ml_logger=ml_logger_instance, debug=args.debug)
-        logger.info("[DEBUG] ConfluenceStrategy created successfully")
-        if ml_logger_instance:
-            logger.info("[DEBUG] Strategy using ML logger for event tracking")
-        else:
-            logger.info("[DEBUG] Strategy running WITHOUT ML logger")
+
+        # Market snapshot at startup
+        try:
+            import MetaTrader5 as mt5
+            import pandas as pd
+            from indicators.adx import calculate_adx
+
+            print()
+            print("=" * 60)
+            print("  MARKET SNAPSHOT")
+            print("=" * 60)
+
+            for sym in symbols:
+                rates = mt5.copy_rates_from_pos(sym, mt5.TIMEFRAME_H1, 0, 50)
+                if rates is not None and len(rates) >= 20:
+                    df = pd.DataFrame(rates)
+                    df_adx = calculate_adx(df.copy(), period=14)
+                    latest = df_adx.iloc[-1]
+                    adx = latest['adx']
+                    plus_di = latest['plus_di']
+                    minus_di = latest['minus_di']
+
+                    direction = "+DI dominant" if plus_di > minus_di else "-DI dominant"
+
+                    tick = mt5.symbol_info_tick(sym)
+                    price = tick.bid if tick else latest['close']
+
+                    print(f"  {sym}: {price:.5f} | ADX={adx:.0f} {direction}")
+                else:
+                    print(f"  {sym}: No data available")
+
+            print("=" * 60)
+            print()
+        except Exception as e:
+            print(f"  [WARN] Market snapshot unavailable: {e}")
+            print()
 
         # Show test mode warning if enabled
         if args.test_mode:
@@ -315,10 +316,7 @@ def main():
             print("=" * 80)
             print()
 
-        # Start trading
-        logger.info(f"[DEBUG] Calling strategy.start() with symbols: {symbols}")
         strategy.start(symbols)
-        logger.info("[DEBUG] strategy.start() returned")
 
     except KeyboardInterrupt:
         print("\n\n[WARN]  Interrupted by user")
