@@ -260,18 +260,44 @@ def main():
         sl_pips   = cfg['sl_pips']
         pip_value = cfg['pip_value']
 
-        print(f"\n[{symbol}] Pulling M15 bars {FROM_DATE.date()} -> {TO_DATE.date()} ...")
-        bars_raw = mt5.copy_rates_range(symbol, mt5.TIMEFRAME_M15, FROM_DATE, TO_DATE)
+        print(f"\n[{symbol}] Pulling M15 bars {FROM_DATE.date()} -> {TO_DATE.date()} in yearly chunks ...")
+        all_bars_raw = []
+        chunk_start = FROM_DATE
+        while chunk_start < TO_DATE:
+            chunk_end = min(chunk_start + timedelta(days=365), TO_DATE)
+            chunk = mt5.copy_rates_range(symbol, mt5.TIMEFRAME_M15, chunk_start, chunk_end)
+            if chunk is not None and len(chunk) > 0:
+                all_bars_raw.extend(chunk)
+                oldest = datetime.utcfromtimestamp(chunk[0]['time'])
+                newest = datetime.utcfromtimestamp(chunk[-1]['time'])
+                print(f"  {oldest.date()} -> {newest.date()}: {len(chunk):,} bars")
+            else:
+                print(f"  {chunk_start.date()} -> {chunk_end.date()}: no data")
+            chunk_start = chunk_end
 
-        if bars_raw is None or len(bars_raw) == 0:
+        if not all_bars_raw:
             print(f"[{symbol}] No bars returned — skipping")
             continue
 
-        print(f"[{symbol}] {len(bars_raw):,} bars received")
+        # Deduplicate by timestamp (chunks may overlap at boundaries)
+        seen = set()
+        bars_raw = []
+        for b in all_bars_raw:
+            if b['time'] not in seen:
+                seen.add(b['time'])
+                bars_raw.append(b)
+        bars_raw.sort(key=lambda b: b['time'])
 
-        # Convert to list of dicts for easier access
-        bars = [{'time': b[0], 'open': b[1], 'high': b[2], 'low': b[3], 'close': b[4]}
-                for b in bars_raw]
+        print(f"[{symbol}] {len(bars_raw):,} bars total")
+
+        # Convert to list of dicts (bars_raw may be numpy records or plain dicts)
+        bars = []
+        for b in bars_raw:
+            if isinstance(b, dict):
+                bars.append(b)
+            else:
+                bars.append({'time': b['time'], 'open': b['open'],
+                             'high': b['high'],  'low': b['low'], 'close': b['close']})
 
         # Detect entry signals
         print(f"[{symbol}] Scanning for entry signals ...")
