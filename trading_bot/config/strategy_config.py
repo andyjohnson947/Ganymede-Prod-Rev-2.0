@@ -292,7 +292,7 @@ REENTRY_EXPIRY_HOURS = 4             # Cancel pending re-entry after this many h
 # hit PC1 (still fully in drawdown), close it. Data shows zero cases where a
 # trade recovered to PC1 after 2 hours without any upward progress.
 ENABLE_TIME_EXIT = True              # Kill trades with no PC1 progress after timeout
-TIME_EXIT_MINUTES = 120              # 2 hours — 2 complete H1 bars with zero progress
+TIME_EXIT_MINUTES = 360              # 6 hours — only fires if still negative after 6h
 
 # =============================================================================
 # RISK MANAGEMENT (AGGRESSIVE SETTINGS)

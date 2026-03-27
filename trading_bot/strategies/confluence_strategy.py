@@ -730,6 +730,10 @@ class ConfluenceStrategy:
                             cur_p   = position['price_current']
                             pos_dir = position['type']
                             pips_now = (cur_p - entry_p) / pip_value if pos_dir == 'buy' else (entry_p - cur_p) / pip_value
+                            # Only exit if in drawdown — positive positions are still making
+                            # progress toward PC1 and should be left to run
+                            if pips_now >= 0:
+                                continue
                             print(f"\n[TIME EXIT] #{ticket} {symbol} — {age_mins:.0f}min open, "
                                   f"no PC1, {pips_now:+.1f}p — closing")
                             if self.mt5.close_position(ticket, comment=f"TIME-EXIT-{TIME_EXIT_MINUTES}min"):
