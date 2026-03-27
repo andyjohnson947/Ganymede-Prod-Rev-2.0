@@ -458,10 +458,12 @@ class RecoveryManager:
                     logger.warning(f"[RECONCILE] Unexpected volume increase for {ticket}: tracked {tracked_initial_volume:.2f}, MT5 {mt5_volume:.2f}")
                 else:
                     # Expected: Partial close reduced volume (PC1/PC2)
-                    # Silently update initial_volume to match MT5 (MT5 is source of truth)
+                    # IMPORTANT: Do NOT overwrite initial_volume — it must stay as the
+                    # original position size so PC2 can close 25% of the original lot.
+                    # Track the current MT5 volume separately for monitoring only.
                     if not silent:
-                        logger.debug(f"[RECONCILE] Volume reduced for {ticket} (partial close): {tracked_initial_volume:.2f} -> {mt5_volume:.2f}")
-                    tracked['initial_volume'] = mt5_volume
+                        logger.debug(f"[RECONCILE] Volume reduced for {ticket} (partial close): {tracked_initial_volume:.2f} -> {mt5_volume:.2f} (initial_volume preserved)")
+                    tracked['current_volume'] = mt5_volume
                     stats['auto_corrected'] += 1
 
             # Check entry price matches (within 10 pip tolerance for slippage)
