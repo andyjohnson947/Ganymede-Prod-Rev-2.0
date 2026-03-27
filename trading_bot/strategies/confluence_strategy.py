@@ -4,6 +4,8 @@ Orchestrates signal detection, position management, and recovery
 """
 
 import sys
+import json
+import os
 from pathlib import Path
 
 # Add project root to path for ml_system imports
@@ -125,6 +127,23 @@ class ConfluenceStrategy:
         # Confirmation re-entry: pending re-entries after BE stop-outs (add-on)
         # {original_ticket: {symbol, direction, entry_price, trigger_price, sl_distance, volume, expiry}}
         self.pending_reentries = {}
+
+        # Exit Q-table: loaded from ml_system/models/exit_qtable.json
+        # Keys are "elapsed_bucket|pip_bucket|mae_bucket" — action = CLOSE or HOLD
+        self._exit_qtable = {}
+        self._exit_qtable_threshold = 0.30
+        _qtable_path = project_root / 'ml_system' / 'models' / 'exit_qtable.json'
+        if _qtable_path.exists():
+            try:
+                _qt = json.loads(_qtable_path.read_text(encoding='utf-8'))
+                self._exit_qtable = _qt.get('states', {})
+                self._exit_qtable_threshold = _qt.get('threshold', 0.30)
+                print(f"[EXIT-Q] Loaded Q-table: {len(self._exit_qtable)} states, "
+                      f"threshold={self._exit_qtable_threshold}")
+            except Exception as e:
+                print(f"[EXIT-Q] Failed to load Q-table: {e} — flat time rule only")
+        else:
+            print(f"[EXIT-Q] Q-table not found at {_qtable_path} — flat time rule only")
 
         # Crash recovery tracking
         self.recovery_stacks_reconstructed = False
@@ -716,32 +735,65 @@ class ConfluenceStrategy:
                 if live_pips < prev_mae:
                     tracked_pos['mae_pips'] = live_pips
 
-            # 2-HOUR NO-PROGRESS EXIT: close any position that has never hit PC1
-            # after TIME_EXIT_MINUTES. Data shows zero recoveries past this point.
-            # Only applies to original VWAP/signal positions, not recovery orders.
+            # EXIT Q-TABLE: for positions that have never hit PC1, look up the
+            # (elapsed, pips, mae) state and close if Q(HOLD) < threshold.
+            # Falls back to flat TIME_EXIT_MINUTES rule when Q-table has no entry.
+            # Only applies to original signal positions, not recovery orders.
             if ENABLE_TIME_EXIT and not is_recovery_order:
                 tracked_pos_te = self.recovery_manager.tracked_positions.get(ticket)
                 if tracked_pos_te and not tracked_pos_te.get('partial_1_closed', False):
                     open_time = tracked_pos_te.get('open_time')
                     if open_time:
                         age_mins = (get_current_time() - open_time).total_seconds() / 60
-                        if age_mins >= TIME_EXIT_MINUTES:
-                            entry_p = position['price_open']
-                            cur_p   = position['price_current']
-                            pos_dir = position['type']
-                            pips_now = (cur_p - entry_p) / pip_value if pos_dir == 'buy' else (entry_p - cur_p) / pip_value
-                            # Only exit if in drawdown — positive positions are still making
-                            # progress toward PC1 and should be left to run
-                            if pips_now >= 0:
-                                continue
-                            print(f"\n[TIME EXIT] #{ticket} {symbol} — {age_mins:.0f}min open, "
-                                  f"no PC1, {pips_now:+.1f}p — closing")
-                            if self.mt5.close_position(ticket, comment=f"TIME-EXIT-{TIME_EXIT_MINUTES}min"):
+                        entry_p  = position['price_open']
+                        cur_p    = position['price_current']
+                        pos_dir  = position['type']
+                        pips_now = (cur_p - entry_p) / pip_value if pos_dir == 'buy' \
+                                   else (entry_p - cur_p) / pip_value
+                        mae_now  = tracked_pos_te.get('mae_pips', 0.0)
+
+                        # --- Q-table lookup ---
+                        def _bucket(val, ranges):
+                            for lo, hi, label in ranges:
+                                if lo <= val < hi:
+                                    return label
+                            return ranges[-1][2]
+
+                        e_ranges = [(0,60,'0-60m'),(60,120,'60-120m'),(120,240,'120-240m'),(240,9999,'240m+')]
+                        p_ranges = [(-9999,-10,'deep_neg'),(-10,-3,'shallow_neg'),(-3,3,'near_zero'),(3,9999,'positive')]
+                        m_ranges = [(0,5,'mild'),(5,15,'moderate'),(15,9999,'deep')]
+
+                        e_b = _bucket(age_mins, e_ranges)
+                        p_b = _bucket(pips_now, p_ranges)
+                        m_b = _bucket(abs(mae_now), m_ranges)
+                        state_key = f"{e_b}|{p_b}|{m_b}"
+
+                        qt_entry   = self._exit_qtable.get(state_key)
+                        should_close = False
+                        close_reason = ''
+
+                        if qt_entry:
+                            q_hold = qt_entry.get('q_hold', 1.0)
+                            if q_hold < self._exit_qtable_threshold:
+                                should_close = True
+                                close_reason = (f"Q-EXIT [{state_key}] "
+                                                f"PC1={q_hold:.0%} < {self._exit_qtable_threshold:.0%} threshold")
+                        else:
+                            # Fallback: flat time rule when Q-table has no entry for this state
+                            if age_mins >= TIME_EXIT_MINUTES and pips_now < 0:
+                                should_close = True
+                                close_reason = f"TIME-EXIT-{TIME_EXIT_MINUTES}min (no Q-entry for {state_key})"
+
+                        if should_close:
+                            print(f"\n[EXIT-Q] #{ticket} {symbol} — {age_mins:.0f}min, "
+                                  f"{pips_now:+.1f}p, MAE={mae_now:.1f}p | {close_reason}")
+                            if self.mt5.close_position(ticket, comment=close_reason[:28]):
                                 self.stats['trades_closed'] += 1
                                 self._q_learn_on_exit(ticket, symbol, position['profit'])
                                 self.recovery_manager.untrack_position(ticket)
-                                self._db_log_exit(ticket, cur_p, position['profit'], 0, 'time_exit')
-                                print(f"[TIME EXIT] Closed #{ticket} @ {cur_p:.5f} | P&L: ${position['profit']:.2f}")
+                                self._db_log_exit(ticket, cur_p, position['profit'], 0, 'q_exit')
+                                print(f"[EXIT-Q] Closed #{ticket} @ {cur_p:.5f} | "
+                                      f"P&L: ${position['profit']:.2f}")
                             continue  # Skip remaining checks for this position
 
             # PC1/PC2/TRAILING STOP: ONLY for profitable ORIGINAL positions
