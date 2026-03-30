@@ -39,10 +39,12 @@ INSTRUMENTS = {
             'partial_2_percent': 0.25,    # 25% of original position
             'full_tp_pips': 40,           # Full TP: close 100% if still open at 40 pips
             # Trailing stop (activated after PC2)
+            # Backtest (16yr H1): 15p = 1.25×ATR optimal for EURUSD runner
+            # 87% of runners stop near BE regardless; tighter trail captures the 13% that run
             'trailing_stop_enabled': True,
-            'trailing_stop_atr_multiplier': 2.0,  # 2.0 × ATR(14)
-            'trailing_stop_min_pips': 25,         # Minimum trail distance
-            'trailing_stop_max_pips': 50,         # Maximum trail distance
+            'trailing_stop_atr_multiplier': 1.25, # 1.25 × ATR(14) ~15p at typical EURUSD ATR
+            'trailing_stop_min_pips': 15,         # Minimum trail distance (was 25)
+            'trailing_stop_max_pips': 30,         # Maximum trail distance (was 50)
             # VWAP exits only for quick scalps (<10 pips), disabled after PC1
             'vwap_exit_enabled': True,
             'vwap_exit_max_pips': 10,     # Only use VWAP if profit < 10 pips
@@ -83,10 +85,12 @@ INSTRUMENTS = {
             'partial_2_percent': 0.25,    # 25% of original position
             'full_tp_pips': 50,           # Full TP: close 100% if still open at 50 pips
             # Trailing stop (activated after PC2)
+            # Backtest (16yr H1): 18p = 1.1×ATR optimal for GBPUSD runner
+            # GBPUSD has wider ATR (~16p) so needs slightly more room than EURUSD
             'trailing_stop_enabled': True,
-            'trailing_stop_atr_multiplier': 2.0,  # 2.0 × ATR(14)
-            'trailing_stop_min_pips': 25,         # Minimum trail distance
-            'trailing_stop_max_pips': 50,         # Maximum trail distance
+            'trailing_stop_atr_multiplier': 1.1,  # 1.1 × ATR(14) ~18p at typical GBPUSD ATR
+            'trailing_stop_min_pips': 18,         # Minimum trail distance (was 25)
+            'trailing_stop_max_pips': 35,         # Maximum trail distance (was 50)
             # VWAP exits only for quick scalps (<12 pips), disabled after PC1
             'vwap_exit_enabled': True,
             'vwap_exit_max_pips': 12,     # Only use VWAP if profit < 12 pips
