@@ -1114,22 +1114,22 @@ class ConfluenceStrategy:
         sl_pips = MAX_LOSS_PER_POSITION / pip_value_dollar if pip_value_dollar > 0 else 37.5
         sl_distance = sl_pips * pip_val
 
-        # Trigger = BE price ± SL/3 pips in original direction
-        # SELL: price must drop SL/3 below BE → SELL_STOP below entry price
-        # BUY:  price must rise SL/3 above BE → BUY_STOP above entry price
+        # Trigger = SL/3 pips BELOW entry for BUY (catch the deeper dip at better price)
+        #          SL/3 pips ABOVE entry for SELL (catch the higher bounce at better price)
+        # Uses LIMIT order — fires when price pulls back to the trigger level
         trigger_pips = sl_pips / 3.0
         trigger_distance = trigger_pips * pip_val
 
         if direction == 'buy':
-            trigger_price = round(entry_price + trigger_distance, digits)
-            pending_sl = round(trigger_price - sl_distance, digits)  # SL below trigger for BUY
+            trigger_price = round(entry_price - trigger_distance, digits)  # Below entry
+            pending_sl = round(trigger_price - sl_distance, digits)        # SL below trigger
         else:
-            trigger_price = round(entry_price - trigger_distance, digits)
-            pending_sl = round(trigger_price + sl_distance, digits)  # SL above trigger for SELL
+            trigger_price = round(entry_price + trigger_distance, digits)  # Above entry
+            pending_sl = round(trigger_price + sl_distance, digits)        # SL above trigger
 
         expiry = get_current_time() + timedelta(hours=REENTRY_EXPIRY_HOURS)
 
-        # Place actual MT5 STOP pending order (visible in terminal, no bot monitoring needed)
+        # Place MT5 LIMIT pending order — fires when price pulls back to trigger level
         order_ticket = self.mt5.place_order(
             symbol=symbol,
             order_type=direction,
@@ -1137,14 +1137,14 @@ class ConfluenceStrategy:
             price=trigger_price,
             sl=pending_sl,
             comment=f"RE-ENTRY:{original_ticket}",
-            order_mode='stop',
+            order_mode='limit',
             expiry=expiry,
         )
 
         if order_ticket:
-            print(f"[RE-ENTRY] ✅ STOP order placed | #{original_ticket} -> pending #{order_ticket}"
-                  f" | {symbol} {direction.upper()}_STOP @ {trigger_price:.5f}"
-                  f" ({trigger_pips:.1f}p from BE {entry_price:.5f})"
+            print(f"[RE-ENTRY] ✅ LIMIT order placed | #{original_ticket} -> pending #{order_ticket}"
+                  f" | {symbol} {direction.upper()}_LIMIT @ {trigger_price:.5f}"
+                  f" ({trigger_pips:.1f}p below BE {entry_price:.5f})"
                   f" | SL: {pending_sl:.5f} | Expires: {expiry.strftime('%H:%M UTC')}")
         else:
             print(f"[RE-ENTRY] ❌ Failed to place STOP order for #{original_ticket} {symbol} {direction.upper()}"
