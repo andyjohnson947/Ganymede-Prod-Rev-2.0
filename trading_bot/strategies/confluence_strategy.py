@@ -1045,8 +1045,8 @@ class ConfluenceStrategy:
                     trailing_stop_price = tracked_pos.get('trailing_stop_price')
                     current_hw_sl = position.get('sl', 0)
                     trail_improves_sl = (
-                        position['type'] == 'buy'  and trailing_stop_price > current_hw_sl or
-                        position['type'] == 'sell' and trailing_stop_price < current_hw_sl
+                        (position['type'] == 'buy'  and trailing_stop_price > current_hw_sl) or
+                        (position['type'] == 'sell' and trailing_stop_price < current_hw_sl)
                     )
                     if trailing_stop_price and new_stop != old_stop and trail_improves_sl:
                         self.mt5.modify_position(ticket, sl=trailing_stop_price)
