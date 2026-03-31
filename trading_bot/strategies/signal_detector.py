@@ -483,8 +483,16 @@ class SignalDetector:
         # 8. Q-TABLE GATE: Check if this state/pattern historically loses
         if signal['should_trade'] and self.state_encoder and symbol in self.q_tables:
             try:
-                # Get ADX values (may already be calculated from trend filter)
+                # Get ADX — calculate directly from H1 data regardless of TREND_FILTER_ENABLED
+                # (trend filter may be disabled but Q-table still needs real ADX for state)
                 adx_val = signal.get('trend_filter', {}).get('adx', 0)
+                if not adx_val and current_data is not None and len(current_data) >= 15:
+                    try:
+                        from indicators.adx import calculate_adx
+                        adx_result = calculate_adx(current_data, period=14)
+                        adx_val = float(adx_result.iloc[-1]) if adx_result is not None and len(adx_result) > 0 else 0
+                    except Exception:
+                        adx_val = 0
                 vwap_dist = vwap_signals.get('distance_pct', 0) or 0
 
                 # Compute real ATR percentile from H1 data
