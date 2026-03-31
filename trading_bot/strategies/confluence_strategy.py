@@ -669,6 +669,31 @@ class ConfluenceStrategy:
 
         # Window close REMOVED — hardware SL handles losses, PC/trail handles profits
 
+        # RE-ENTRY FILL DETECTION: Scan for filled RE-ENTRY LIMIT orders not yet tracked
+        # When a pending BUY_LIMIT/SELL_LIMIT fires automatically, the bot must pick it up
+        # and register it into tracked_positions so PC1/PC2/trail management applies.
+        if ENABLE_CONFIRMATION_REENTRY:
+            tracked_tickets = set(self.recovery_manager.tracked_positions.keys())
+            for pos in all_positions:
+                pos_ticket  = pos['ticket']
+                pos_comment = pos.get('comment', '')
+                if not str(pos_comment).startswith('RE-ENTRY:'):
+                    continue
+                if pos_ticket in tracked_tickets:
+                    continue  # Already tracked
+                # New filled re-entry — register for full PC1/PC2/trail management
+                print(f"\n[RE-ENTRY] Filled order detected: #{pos_ticket} {pos['symbol']} "
+                      f"{pos['type'].upper()} @ {pos['price_open']:.5f} vol={pos['volume']} [{pos_comment}]")
+                self.recovery_manager.track_position(
+                    ticket=pos_ticket,
+                    symbol=pos['symbol'],
+                    entry_price=pos['price_open'],
+                    position_type=pos['type'],
+                    volume=pos['volume'],
+                )
+                print(f"[RE-ENTRY] Registered #{pos_ticket} into tracked_positions — PC1/PC2/trail now active")
+                self.recovery_manager.save_state()
+
         # CONFIRMATION RE-ENTRY: Detect BE stop-outs (PC1 hit, PC2 not hit, position gone)
         if ENABLE_CONFIRMATION_REENTRY:
             current_tickets = {p['ticket'] for p in positions}
