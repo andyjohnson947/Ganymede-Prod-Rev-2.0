@@ -200,29 +200,94 @@ class ConfluenceStrategy:
                 print(f"[DB WARN] Exit logging failed for {ticket}: {e}")
 
     def _q_learn_on_exit(self, ticket: int, symbol: str, profit: float):
-        """Online Q-table learning: update Q-table when a trade closes.
+        """Online Q-table learning: update BOTH Q-tables when a trade closes.
 
-        Called at every exit point. Reads q_state from tracked_pos (stored at entry),
-        calculates reward from profit, and updates the Q-table in place.
+        Entry Q-table: updated with win/loss reward for the entry state.
+        Exit Q-table:  updated with outcome at each elapsed-time snapshot
+                       so the HOLD/CLOSE thresholds refine over time.
         Also logs MAE (Maximum Adverse Excursion) for SL optimization.
         """
         tracked_pos = self.recovery_manager.tracked_positions.get(ticket)
         if not tracked_pos:
             return
 
-        # Log MAE at exit for SL optimization analysis
+        # Log MAE at exit
         mae_pips = tracked_pos.get('mae_pips', 0.0)
         result = "WIN" if profit > 0 else "LOSS"
         print(f"[MAE] #{ticket} {symbol} {result} ${profit:.2f} | worst drawdown: {mae_pips:.1f} pips")
 
+        # ── Entry Q-table online update ──────────────────────────────────
         q_state = tracked_pos.get('q_state')
-        if not q_state:
-            return
-        if not hasattr(self, 'signal_detector') or not self.signal_detector:
-            return
+        if q_state and hasattr(self, 'signal_detector') and self.signal_detector:
+            reward = 1.0 if profit > 0 else -1.0
+            self.signal_detector.update_q_table_online(symbol, q_state, reward)
 
-        reward = 1.0 if profit > 0 else -1.0
-        self.signal_detector.update_q_table_online(symbol, q_state, reward)
+        # ── Exit Q-table online update ───────────────────────────────────
+        # Reconstruct the state snapshot this position was in at each elapsed
+        # hour and update the Q-table: pc1_hit → HOLD was right; full_sl → CLOSE earlier
+        if not self._exit_qtable:
+            return
+        try:
+            open_time = tracked_pos.get('open_time')
+            if not open_time:
+                return
+            if isinstance(open_time, str):
+                from datetime import datetime, timezone
+                open_time = datetime.fromisoformat(open_time)
+
+            pc1_hit   = tracked_pos.get('partial_1_closed', False)
+            mae       = tracked_pos.get('mae_pips', 0.0)
+            elapsed   = (get_current_time() - open_time).total_seconds() / 60
+
+            def _elapsed_bucket(m):
+                if m < 60:   return '0-60m'
+                if m < 120:  return '60-120m'
+                if m < 240:  return '120-240m'
+                return '240m+'
+
+            def _pip_bucket(p):
+                if p < -10: return 'deep_neg'
+                if p < -3:  return 'shallow_neg'
+                if p < 3:   return 'near_zero'
+                return 'positive'
+
+            def _mae_bucket(m):
+                a = abs(m)
+                if a < 5:   return 'mild'
+                if a < 15:  return 'moderate'
+                return 'deep'
+
+            # Use final pip position as proxy for the state at close time
+            entry_p   = tracked_pos.get('entry_price', 0)
+            pip_value = 0.0001
+            cur_pips  = profit / (tracked_pos.get('initial_volume', 0.16) * 10) if entry_p else 0
+
+            state_key = f"{_elapsed_bucket(elapsed)}|{_pip_bucket(cur_pips)}|{_mae_bucket(mae)}"
+
+            if state_key in self._exit_qtable:
+                entry = self._exit_qtable[state_key]
+                old_pc1 = entry.get('pc1_prob', 0.5)
+                # Soft update: nudge pc1_prob toward actual outcome (learning rate 0.05)
+                actual  = 1.0 if pc1_hit else 0.0
+                new_pc1 = round(old_pc1 + 0.05 * (actual - old_pc1), 4)
+                entry['pc1_prob'] = new_pc1
+                entry['action']   = 'HOLD' if new_pc1 >= self._exit_qtable_threshold else 'CLOSE'
+                entry['live_updates'] = entry.get('live_updates', 0) + 1
+
+                # Persist updated Q-table to disk every 10 live updates
+                if entry['live_updates'] % 10 == 0:
+                    try:
+                        from pathlib import Path
+                        qt_path = Path(__file__).resolve().parents[2] / 'ml_system' / 'models' / 'exit_qtable.json'
+                        import json as _json
+                        existing = _json.loads(qt_path.read_text(encoding='utf-8'))
+                        existing['states'][state_key] = entry
+                        qt_path.write_text(_json.dumps(existing, indent=2), encoding='utf-8')
+                        print(f"[EXIT-Q] State '{state_key}' updated: pc1_prob={new_pc1:.3f} ({entry['live_updates']} live updates)")
+                    except Exception as e:
+                        print(f"[EXIT-Q] Save error: {e}")
+        except Exception as e:
+            print(f"[EXIT-Q] Online update error: {e}")
 
     def _db_log_recovery(self, original_ticket: int, recovery_type: str, recovery_ticket: int,
                          level: int, entry_price: float, volume: float, pips_underwater: float):
@@ -669,40 +734,72 @@ class ConfluenceStrategy:
 
         # Window close REMOVED — hardware SL handles losses, PC/trail handles profits
 
-        # RE-ENTRY FILL DETECTION: Scan for filled RE-ENTRY LIMIT orders not yet tracked
-        # When a pending BUY_LIMIT/SELL_LIMIT fires automatically, the bot must pick it up
-        # and register it into tracked_positions so PC1/PC2/trail management applies.
-        # Uses BOTH current comment AND persistent known_reentry_tickets (survives comment
-        # changes caused by broker updating position comment on partial close).
+        # RE-ENTRY FILL DETECTION: Scan for filled RE-ENTRY LIMIT orders not yet tracked.
+        # Primary source: pending_reentry_orders dict (keyed by MT5 order ticket, stored at
+        # placement time). Matches via deal history — deal.order == stored order ticket.
+        # This survives any comment changes the broker makes on partial close.
+        # Secondary fallback: comment still starts with 'RE-ENTRY:' (fresh fills).
         if ENABLE_CONFIRMATION_REENTRY:
-            tracked_tickets  = set(self.recovery_manager.tracked_positions.keys())
-            known_reentries  = self.recovery_manager.state.get('known_reentry_tickets', {})
+            tracked_tickets   = set(self.recovery_manager.tracked_positions.keys())
+            pending_orders    = self.recovery_manager.state.get('pending_reentry_orders', {})
+
             for pos in all_positions:
                 pos_ticket  = pos['ticket']
-                pos_comment = str(pos.get('comment', ''))
-                is_reentry  = (pos_comment.startswith('RE-ENTRY:') or
-                               str(pos_ticket) in known_reentries)
-                if not is_reentry:
-                    continue
                 if pos_ticket in tracked_tickets:
-                    continue  # Already tracked
-                # Persist ticket so future restarts recognise it even after comment changes
-                known_reentries[str(pos_ticket)] = {
-                    'symbol':           pos['symbol'],
-                    'original_comment': pos_comment,
-                }
-                self.recovery_manager.state['known_reentry_tickets'] = known_reentries
-                # New filled re-entry — register for full PC1/PC2/trail management
-                print(f"\n[RE-ENTRY] Filled order detected: #{pos_ticket} {pos['symbol']} "
-                      f"{pos['type'].upper()} @ {pos['price_open']:.5f} vol={pos['volume']} [{pos_comment}]")
+                    continue
+
+                pos_comment = str(pos.get('comment', ''))
+                meta        = None
+
+                # Primary: match via deal history (order ticket → position ticket)
+                if pending_orders:
+                    try:
+                        from datetime import timedelta
+                        import MetaTrader5 as _mt5
+                        deals = _mt5.history_deals_get(
+                            get_current_time() - timedelta(days=7),
+                            get_current_time(),
+                            position=pos_ticket,
+                        )
+                        if deals:
+                            for deal in deals:
+                                order_key = str(deal.order)
+                                if order_key in pending_orders:
+                                    meta = pending_orders[order_key]
+                                    meta['_matched_order'] = order_key
+                                    break
+                    except Exception as e:
+                        print(f"[RE-ENTRY] Deal history lookup error: {e}")
+
+                # Secondary fallback: comment still carries RE-ENTRY: prefix
+                if meta is None and pos_comment.startswith('RE-ENTRY:'):
+                    meta = {
+                        'symbol':         pos['symbol'],
+                        'direction':      pos['type'],
+                        'initial_volume': pos['volume'],  # Best guess if no stored meta
+                    }
+
+                if meta is None:
+                    continue
+
+                # Register with correct initial_volume from placement metadata
+                initial_vol = meta.get('initial_volume', pos['volume'])
+                print(f"\n[RE-ENTRY] Fill detected: #{pos_ticket} {pos['symbol']} "
+                      f"{pos['type'].upper()} @ {pos['price_open']:.5f} "
+                      f"vol={pos['volume']} initial={initial_vol} [{pos_comment}]")
                 self.recovery_manager.track_position(
                     ticket=pos_ticket,
                     symbol=pos['symbol'],
                     entry_price=pos['price_open'],
                     position_type=pos['type'],
-                    volume=pos['volume'],
+                    volume=initial_vol,
                 )
-                print(f"[RE-ENTRY] Registered #{pos_ticket} into tracked_positions — PC1/PC2/trail now active")
+                # Remove from pending_orders — it has filled
+                matched_key = meta.get('_matched_order')
+                if matched_key and matched_key in pending_orders:
+                    del pending_orders[matched_key]
+                    self.recovery_manager.state['pending_reentry_orders'] = pending_orders
+                print(f"[RE-ENTRY] #{pos_ticket} tracked with initial_volume={initial_vol} — PC1/PC2/trail active")
                 self.recovery_manager.save_state()
 
         # CONFIRMATION RE-ENTRY: Detect BE stop-outs (PC1 hit, PC2 not hit, position gone)
@@ -1182,8 +1279,20 @@ class ConfluenceStrategy:
                   f" | {symbol} {direction.upper()}_LIMIT @ {trigger_price:.5f}"
                   f" ({trigger_pips:.1f}p below BE {entry_price:.5f})"
                   f" | SL: {pending_sl:.5f} | Expires: {expiry.strftime('%H:%M UTC')}")
+            # Store order metadata at placement time — survives comment changes on partial close
+            # Key = MT5 order ticket (str), value = metadata needed to initialise tracking on fill
+            pending_orders = self.recovery_manager.state.setdefault('pending_reentry_orders', {})
+            pending_orders[str(order_ticket)] = {
+                'symbol':           symbol,
+                'direction':        direction,
+                'initial_volume':   volume,   # Always the full original lot size (e.g. 0.16)
+                'trigger_price':    trigger_price,
+                'pending_sl':       pending_sl,
+                'original_ticket':  original_ticket,
+            }
+            self.recovery_manager.save_state()
         else:
-            print(f"[RE-ENTRY] ❌ Failed to place STOP order for #{original_ticket} {symbol} {direction.upper()}"
+            print(f"[RE-ENTRY] ❌ Failed to place LIMIT order for #{original_ticket} {symbol} {direction.upper()}"
                   f" @ {trigger_price:.5f}")
 
     def _cancel_reentry_orders(self, symbol: str):
