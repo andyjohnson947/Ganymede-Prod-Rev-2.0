@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "timestamp": "2026-03-31T13:03:10.710633",
+  "timestamp": "2026-03-31T13:13:32.482106",
   "tracked_positions": {
     "1567559760": {
       "ticket": 1567559760,
@@ -26,8 +26,8 @@
       "pc2_trigger_time": "2026-03-31T17:41:58.936670+01:00",
       "trailing_stop_active": true,
       "trailing_stop_distance_pips": 32.56000000000029,
-      "trailing_stop_price": 1.320084,
-      "highest_profit_price": 1.32334,
+      "trailing_stop_price": 1.3201340000000001,
+      "highest_profit_price": 1.32339,
       "lowest_profit_price": 1.31891,
       "q_state": "('overlap', 1, 'weak', 'normal', 'below', 'medium', 'mixed', 'buy', 'upper')",
       "q_visits": 0,
@@ -58,8 +58,8 @@
       "pc2_trigger_time": "2026-03-31T17:41:59.218848+01:00",
       "trailing_stop_active": true,
       "trailing_stop_distance_pips": 32.56000000000029,
-      "trailing_stop_price": 1.320084,
-      "highest_profit_price": 1.32334,
+      "trailing_stop_price": 1.3201340000000001,
+      "highest_profit_price": 1.32339,
       "lowest_profit_price": 1.3189,
       "q_state": "('overlap', 1, 'weak', 'normal', 'below', 'medium', 'mixed', 'buy', 'upper')",
       "q_visits": 0,
@@ -90,8 +90,8 @@
       "pc2_trigger_time": "2026-03-31T17:41:59.611366+01:00",
       "trailing_stop_active": true,
       "trailing_stop_distance_pips": 32.56000000000029,
-      "trailing_stop_price": 1.320084,
-      "highest_profit_price": 1.32334,
+      "trailing_stop_price": 1.3201340000000001,
+      "highest_profit_price": 1.32339,
       "lowest_profit_price": 1.3189,
       "q_state": "('overlap', 1, 'weak', 'normal', 'below', 'medium', 'mixed', 'buy', 'upper')",
       "q_visits": 0,
@@ -122,8 +122,8 @@
       "pc2_trigger_time": "2026-03-31T17:41:59.877978+01:00",
       "trailing_stop_active": true,
       "trailing_stop_distance_pips": 32.56000000000029,
-      "trailing_stop_price": 1.320084,
-      "highest_profit_price": 1.32334,
+      "trailing_stop_price": 1.3201340000000001,
+      "highest_profit_price": 1.32339,
       "lowest_profit_price": 1.3189,
       "q_state": "('overlap', 1, 'weak', 'normal', 'below', 'medium', 'mixed', 'buy', 'upper')",
       "q_visits": 0,
@@ -135,14 +135,14 @@
       "type": "buy",
       "entry_price": 1.31897,
       "initial_volume": 0.16,
-      "open_time": "2026-03-31T17:05:28.758182+00:00",
+      "open_time": "2026-03-31T17:20:23.791070+00:00",
       "partial_1_closed": true,
-      "partial_2_closed": false,
+      "partial_2_closed": true,
       "reentry_used": false,
-      "trailing_stop_active": false,
-      "trailing_stop_price": 0.0,
-      "trailing_stop_distance_pips": 0,
-      "highest_profit_price": 1.32275,
+      "trailing_stop_active": true,
+      "trailing_stop_distance_pips": 18,
+      "trailing_stop_price": 1.32163,
+      "highest_profit_price": 1.32343,
       "mae_pips": 0.0
     },
     "1566660604": {
@@ -150,14 +150,14 @@
       "type": "buy",
       "entry_price": 1.31897,
       "initial_volume": 0.16,
-      "open_time": "2026-03-31T17:05:28.758182+00:00",
+      "open_time": "2026-03-31T17:20:23.792076+00:00",
       "partial_1_closed": true,
-      "partial_2_closed": false,
+      "partial_2_closed": true,
       "reentry_used": false,
-      "trailing_stop_active": false,
-      "trailing_stop_price": 0.0,
-      "trailing_stop_distance_pips": 0,
-      "highest_profit_price": 1.32275,
+      "trailing_stop_active": true,
+      "trailing_stop_distance_pips": 18,
+      "trailing_stop_price": 1.32163,
+      "highest_profit_price": 1.32343,
       "mae_pips": 0.0
     },
     "1566660616": {
@@ -165,14 +165,14 @@
       "type": "buy",
       "entry_price": 1.31897,
       "initial_volume": 0.16,
-      "open_time": "2026-03-31T17:05:28.758182+00:00",
+      "open_time": "2026-03-31T17:20:23.792076+00:00",
       "partial_1_closed": true,
-      "partial_2_closed": false,
+      "partial_2_closed": true,
       "reentry_used": false,
-      "trailing_stop_active": false,
-      "trailing_stop_price": 0.0,
-      "trailing_stop_distance_pips": 0,
-      "highest_profit_price": 1.32275,
+      "trailing_stop_active": true,
+      "trailing_stop_distance_pips": 18,
+      "trailing_stop_price": 1.32163,
+      "highest_profit_price": 1.32343,
       "mae_pips": 0.0
     },
     "1566660630": {
@@ -180,14 +180,14 @@
       "type": "buy",
       "entry_price": 1.31897,
       "initial_volume": 0.16,
-      "open_time": "2026-03-31T17:05:28.758182+00:00",
+      "open_time": "2026-03-31T17:20:23.792076+00:00",
       "partial_1_closed": true,
-      "partial_2_closed": false,
+      "partial_2_closed": true,
       "reentry_used": false,
-      "trailing_stop_active": false,
-      "trailing_stop_price": 0.0,
-      "trailing_stop_distance_pips": 0,
-      "highest_profit_price": 1.32275,
+      "trailing_stop_active": true,
+      "trailing_stop_distance_pips": 18,
+      "trailing_stop_price": 1.32163,
+      "highest_profit_price": 1.32343,
       "mae_pips": 0.0
     }
   },
@@ -2936,5 +2936,23 @@
       "closed_time": "2026-03-24T14:19:08.744877+00:00",
       "status": "closed"
     }
-  ]
+  ],
+  "known_reentry_tickets": {
+    "1566660586": {
+      "original_comment": "RE-ENTRY:1565984",
+      "symbol": "GBPUSD"
+    },
+    "1566660604": {
+      "original_comment": "RE-ENTRY:1565984",
+      "symbol": "GBPUSD"
+    },
+    "1566660616": {
+      "original_comment": "RE-ENTRY:1565984",
+      "symbol": "GBPUSD"
+    },
+    "1566660630": {
+      "original_comment": "RE-ENTRY:1565984",
+      "symbol": "GBPUSD"
+    }
+  }
 }

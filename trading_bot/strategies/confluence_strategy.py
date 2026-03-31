@@ -672,15 +672,26 @@ class ConfluenceStrategy:
         # RE-ENTRY FILL DETECTION: Scan for filled RE-ENTRY LIMIT orders not yet tracked
         # When a pending BUY_LIMIT/SELL_LIMIT fires automatically, the bot must pick it up
         # and register it into tracked_positions so PC1/PC2/trail management applies.
+        # Uses BOTH current comment AND persistent known_reentry_tickets (survives comment
+        # changes caused by broker updating position comment on partial close).
         if ENABLE_CONFIRMATION_REENTRY:
-            tracked_tickets = set(self.recovery_manager.tracked_positions.keys())
+            tracked_tickets  = set(self.recovery_manager.tracked_positions.keys())
+            known_reentries  = self.recovery_manager.state.get('known_reentry_tickets', {})
             for pos in all_positions:
                 pos_ticket  = pos['ticket']
-                pos_comment = pos.get('comment', '')
-                if not str(pos_comment).startswith('RE-ENTRY:'):
+                pos_comment = str(pos.get('comment', ''))
+                is_reentry  = (pos_comment.startswith('RE-ENTRY:') or
+                               str(pos_ticket) in known_reentries)
+                if not is_reentry:
                     continue
                 if pos_ticket in tracked_tickets:
                     continue  # Already tracked
+                # Persist ticket so future restarts recognise it even after comment changes
+                known_reentries[str(pos_ticket)] = {
+                    'symbol':           pos['symbol'],
+                    'original_comment': pos_comment,
+                }
+                self.recovery_manager.state['known_reentry_tickets'] = known_reentries
                 # New filled re-entry — register for full PC1/PC2/trail management
                 print(f"\n[RE-ENTRY] Filled order detected: #{pos_ticket} {pos['symbol']} "
                       f"{pos['type'].upper()} @ {pos['price_open']:.5f} vol={pos['volume']} [{pos_comment}]")
