@@ -278,7 +278,9 @@ class RecoveryManager:
             'symbol': symbol,
             'entry_price': entry_price,
             'type': position_type,
-            'initial_volume': volume,
+            'initial_volume': volume,    # Never overwritten — used for PC % calculations
+            'volume': volume,            # Alias for initial_volume (convenience key)
+            'current_volume': volume,    # Updated after each partial close (PC1/PC2)
             'grid_levels': [],
             'hedge_tickets': [],
             'dca_levels': [],
@@ -295,12 +297,13 @@ class RecoveryManager:
             # Partial profit tracking
             'partial_1_closed': False,
             'partial_2_closed': False,
+            'sl_moved_to_be': False,     # Set True when hardware SL moved to entry (PC1 or PC2)
             'pc2_trigger_time': None,  # Track when PC2 triggers for time-based exit (60 min limit)
             # Trailing stop (activated after PC2)
             'trailing_stop_active': False,
             'trailing_stop_distance_pips': 0,
             'trailing_stop_price': 0.0,
-            'highest_profit_price': entry_price,  # Track highest price for trailing (MFE)
+            'highest_profit_price': entry_price,  # Track highest/lowest price for trailing (MFE)
             'lowest_profit_price': entry_price,   # Track lowest price for MAE analysis
         }
 

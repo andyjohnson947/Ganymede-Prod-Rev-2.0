@@ -273,8 +273,12 @@ class ConfluenceStrategy:
             if not open_time:
                 return
             if isinstance(open_time, str):
-                from datetime import datetime, timezone
                 open_time = datetime.fromisoformat(open_time)
+            # FIX: ensure open_time is always timezone-aware before subtraction
+            # datetime.fromisoformat() returns naive datetime on Python<3.11 if no offset in string
+            if open_time.tzinfo is None:
+                import pytz
+                open_time = pytz.utc.localize(open_time)
 
             pc1_hit   = tracked_pos.get('partial_1_closed', False)
             mae       = tracked_pos.get('mae_pips', 0.0)
@@ -299,9 +303,13 @@ class ConfluenceStrategy:
                 return 'deep'
 
             # Use final pip position as proxy for the state at close time
-            entry_p   = tracked_pos.get('entry_price', 0)
-            pip_value = 0.0001
-            cur_pips  = profit / (tracked_pos.get('initial_volume', 0.16) * 10) if entry_p else 0
+            # FIX: use current_volume (updated after each partial close) not initial_volume.
+            # After PC1 only ~0.08 lots remain; after PC2 only ~0.04 lots remain.
+            # Using initial_volume would understate pips by up to 4x.
+            entry_p    = tracked_pos.get('entry_price', 0)
+            pip_value  = 0.0001
+            close_vol  = tracked_pos.get('current_volume') or tracked_pos.get('initial_volume', 0.16)
+            cur_pips   = profit / (close_vol * 10) if (entry_p and close_vol > 0) else 0
 
             state_key = f"{_elapsed_bucket(elapsed)}|{_pip_bucket(cur_pips)}|{_mae_bucket(mae)}"
 
@@ -1034,13 +1042,16 @@ class ConfluenceStrategy:
                         if self.mt5.close_partial_position(ticket, close_volume, comment=pc1_comment):
                             print(f"[PC1] {ticket} - Closed 50% @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
                             tracked_pos['partial_1_closed'] = True
-
-                            # PERSIST STATE immediately so re-entry detection survives bot restart
-                            self.recovery_manager.save_state()
+                            # Track remaining volume immediately (don't wait for 30-min reconcile)
+                            tracked_pos['current_volume'] = round(position['volume'] - close_volume, 2)
 
                             # MOVE HARDWARE SL TO BREAKEVEN after PC1
                             if self.mt5.modify_position(ticket, sl=entry_price):
                                 print(f"[PC1] Hardware SL -> breakeven @ {entry_price:.5f}")
+                                tracked_pos['sl_moved_to_be'] = True
+
+                            # PERSIST STATE immediately so re-entry detection survives bot restart
+                            self.recovery_manager.save_state()
 
                             # DISABLE VWAP EXITS after PC1
                             print(f"[PC1] VWAP exits disabled for {ticket}")
@@ -1059,6 +1070,8 @@ class ConfluenceStrategy:
                         if self.mt5.close_partial_position(ticket, close_volume, comment=pc2_comment):
                             print(f"[PC2] {ticket} - Closed 25% (75% total) @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
                             tracked_pos['partial_2_closed'] = True
+                            # Track remaining volume immediately (don't wait for 30-min reconcile)
+                            tracked_pos['current_volume'] = round(position['volume'] - close_volume, 2)
 
                             # Always record PC2 trigger time — used by 60-min runner limit
                             # regardless of whether trailing stop is already active (crash recovery)
@@ -1086,6 +1099,7 @@ class ConfluenceStrategy:
                             # MOVE HARDWARE SL TO BREAKEVEN
                             if self.mt5.modify_position(ticket, sl=entry_price):
                                 print(f"[PC2] Hardware SL -> breakeven @ {entry_price:.5f}")
+                                tracked_pos['sl_moved_to_be'] = True
 
                                 # ML LOGGING: Log SL to BE
                                 if self.ml_logger:
@@ -1094,6 +1108,9 @@ class ConfluenceStrategy:
                                         symbol=symbol,
                                         breakeven_price=entry_price
                                     )
+
+                            # PERSIST STATE immediately — prevents PC2 double-fire on restart
+                            self.recovery_manager.save_state()
 
             # TRAILING STOP SYSTEM: ONLY for positive original positions with trailing active
             # Recovery system manages underwater positions separately with grid/DCA/hedge
