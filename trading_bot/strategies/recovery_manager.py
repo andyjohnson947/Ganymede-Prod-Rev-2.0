@@ -188,6 +188,11 @@ class RecoveryManager:
         self.tracked_positions = {}  # Track active positions and their recovery state
         self.archived_positions = []  # Archive closed positions for ML analysis (last 100)
 
+        # Extra state dict — persisted alongside tracked_positions in recovery_state.json.
+        # Used by confluence_strategy to store pending_reentry_orders and other add-on keys
+        # that don't belong in tracked_positions but must survive bot restarts.
+        self.state = {}
+
         # Thread locks for atomic hedge operations (prevents race conditions)
         self.hedge_locks = {}  # Dict[int, threading.Lock] - one lock per position
 
@@ -1050,6 +1055,12 @@ class RecoveryManager:
                 'archived_positions': []  # Last 100 closed positions for ML
             }
 
+            # Persist any extra keys stored in self.state (e.g. pending_reentry_orders)
+            _standard_keys = {'version', 'timestamp', 'tracked_positions', 'archived_positions'}
+            for _k, _v in self.state.items():
+                if _k not in _standard_keys:
+                    state[_k] = _v
+
             # Convert tracked positions to JSON-serializable format
             for ticket, position in self.tracked_positions.items():
                 pos_data = self._convert_position_datetimes(position)
@@ -1206,6 +1217,12 @@ class RecoveryManager:
             if 'archived_positions' in state:
                 self.archived_positions = state['archived_positions']
                 archived_count = len(self.archived_positions)
+
+            # Restore extra keys (e.g. pending_reentry_orders) into self.state
+            _standard_keys = {'version', 'timestamp', 'tracked_positions', 'archived_positions'}
+            for _k, _v in state.items():
+                if _k not in _standard_keys:
+                    self.state[_k] = _v
 
             if restored_count > 0 or archived_count > 0:
                 print(f"[OK] Recovery state loaded: {restored_count} tracked, {archived_count} archived ({age_hours:.0f}h old)")
