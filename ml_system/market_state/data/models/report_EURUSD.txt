@@ -1,0 +1,104 @@
+
+======================================================================
+  MARKET STATE ENGINE REPORT: EURUSD
+======================================================================
+
+  Total snapshots: 24,637
+  Date range: 2022-03-10 to 2026-02-24
+  Bar range: 200 to 24836
+
+  ============================================================
+  CLUSTER DISTRIBUTION
+  ============================================================
+
+   ID | Name                                     |   Count |   Pct
+  -----------------------------------------------------------------
+    0 | Moderate Ny Late Normal                  |   4,405 | 17.9%
+    1 | Weak Overlap Normal                      |   5,254 | 21.3%
+    2 | Weak Overlap Normal                      |   6,012 | 24.4%
+    3 | Weak Asian Late Normal                   |   4,207 | 17.1%
+    4 | Moderate Ny Late Normal                  |   4,759 | 19.3%
+  -----------------------------------------------------------------
+      | TOTAL                                    |  24,637 | 100.0%
+
+  ============================================================
+  STRATEGY DOMINANCE BY CLUSTER
+  ============================================================
+
+   ID | Name                           |  Dom |   Dir |  MR WR |  BO WR |  MR Exp |  BO Exp |  Conf
+  ----------------------------------------------------------------------------------------------------
+    0 | Moderate Ny Late Normal        |   BO |  sell | 79.8% | 72.7% |    8.94 |    9.08 |  0.14
+    1 | Weak Overlap Normal            |   MR |  both | 73.0% | 64.8% |    6.90 |    5.94 |  0.96
+    2 | Weak Overlap Normal            |   MR |  both | 72.5% | 64.7% |    6.75 |    5.87 |  0.88
+    3 | Weak Asian Late Normal         |   MR |   buy | 75.0% | 67.3% |    7.51 |    6.94 |  0.57
+    4 | Moderate Ny Late Normal        |   MR |  both | 76.4% | 68.0% |    7.93 |    7.21 |  0.73
+
+  Summary: 4 MR-dominant | 1 BO-dominant | 0 SKIP
+
+  ============================================================
+  FORWARD OUTCOME STATISTICS
+  ============================================================
+
+  Returns by horizon (pips):
+   Horizon |     Mean |      Std |      Min |      Max |   Pos%
+  -------------------------------------------------------
+      1h   |      0.0 |     11.2 |   -139.7 |    173.4 |  49.3%
+      2h   |      0.1 |     15.6 |   -144.5 |    214.8 |  50.0%
+      4h   |      0.1 |     22.0 |   -187.4 |    236.7 |  50.5%
+      6h   |      0.2 |     26.8 |   -192.3 |    219.9 |  50.3%
+      8h   |      0.2 |     31.0 |   -203.8 |    247.6 |  50.4%
+     12h   |      0.4 |     37.9 |   -225.8 |    247.0 |  49.9%
+     24h   |      0.7 |     52.8 |   -273.8 |    389.5 |  49.5%
+
+  R-target hit rates (24h window):
+    MR Buy 1R      :  73.5% (18,106 / 24,636)
+    MR Buy 2R      :  50.4% (12,411 / 24,636)
+    MR Sell 1R     :  74.0% (18,240 / 24,636)
+    MR Sell 2R     :  50.7% (12,487 / 24,636)
+    BO Buy 1R      :  65.1% (16,030 / 24,636)
+    BO Buy 2R      :  38.9% (9,573 / 24,636)
+    BO Sell 1R     :  66.0% (16,261 / 24,636)
+    BO Sell 2R     :  39.1% (9,641 / 24,636)
+
+  MFE/MAE statistics (pips):
+    MFE Up              : mean=40.6, median=30.2, p75=56.0, p90=87.1
+    MFE Down            : mean=39.6, median=30.5, p75=55.6, p90=84.3
+    MAE Up (buy DD)     : mean=39.6, median=30.5, p75=55.6, p90=84.3
+    MAE Down (sell DD)  : mean=40.6, median=30.2, p75=56.0, p90=87.1
+
+  ============================================================
+  SMC STRUCTURE SUMMARY
+  ============================================================
+  SMC data available: 24,637 / 24,637 bars (100.0%)
+
+  HTF Bias distribution:
+    established_bearish           :  8349 (33.9%)
+    established_bullish           :  6916 (28.1%)
+    potential_bullish             :  5110 (20.7%)
+    potential_bearish             :  4255 (17.3%)
+    neutral                       :     7 (0.0%)
+
+  Last BOS type:
+    bearish             : 13051 (53.0%)
+    bullish             : 11063 (44.9%)
+                        :   523 (2.1%)
+
+  ============================================================
+  TEMPORAL PATTERNS
+  ============================================================
+
+  Session-cluster heatmap (top 3 clusters per session):
+    asian_early    :  4108 bars | C2(25%), C4(20%), C0(19%)
+    asian_late     :  4108 bars | C2(25%), C1(20%), C3(20%)
+    london_open    :  2054 bars | C2(27%), C1(23%), C3(19%)
+    london_mid     :  3081 bars | C2(26%), C1(24%), C3(17%)
+    overlap        :  4104 bars | C2(26%), C1(25%), C4(18%)
+    ny_late        :  4104 bars | C4(23%), C2(21%), C1(21%)
+    close          :  3078 bars | C4(23%), C2(21%), C0(21%)
+
+  Day-of-week distribution:
+    Mon:  4896 bars (19.9%)
+    Tue:  4957 bars (20.1%)
+    Wed:  4896 bars (19.9%)
+    Thu:  4920 bars (20.0%)
+    Fri:  4968 bars (20.2%)

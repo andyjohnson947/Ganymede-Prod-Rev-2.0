@@ -40,22 +40,38 @@ def create_dataset(
     print(f"Output: {output_file}")
     print("=" * 80)
 
-    # Step 1: Load trades
-    print("\n[1/5] Loading trades from log...")
+    # Step 1: Load trades (SQLite primary, JSONL fallback)
+    print("\n[1/5] Loading trades...")
     trades = []
 
+    # Try SQLite first
     try:
-        with open(input_file, 'r') as f:
-            for line_num, line in enumerate(f, 1):
-                try:
-                    trades.append(json.loads(line))
-                except json.JSONDecodeError as e:
-                    print(f"Warning: Skipping invalid JSON on line {line_num}: {e}")
-    except FileNotFoundError:
-        print(f"Error: File {input_file} not found!")
-        return None
+        from ml_system.trade_db import get_trade_db
+        db = get_trade_db()
+        if db:
+            trades = db.get_closed_trades() or []
+            if trades:
+                print(f"[OK] Loaded {len(trades)} closed trades from SQLite")
+    except Exception as e:
+        print(f"  SQLite unavailable ({e}), trying JSONL fallback...")
 
-    print(f"[OK] Loaded {len(trades)} trades")
+    # Fallback: parse JSONL
+    if not trades:
+        try:
+            with open(input_file, 'r') as f:
+                for line_num, line in enumerate(f, 1):
+                    try:
+                        trades.append(json.loads(line))
+                    except json.JSONDecodeError as e:
+                        print(f"Warning: Skipping invalid JSON on line {line_num}: {e}")
+            print(f"[OK] Loaded {len(trades)} trades from JSONL")
+        except FileNotFoundError:
+            print(f"Error: No trade data found (SQLite empty, JSONL missing)")
+            return None
+
+    if not trades:
+        print(f"Error: No trade data found in SQLite or JSONL")
+        return None
 
     # Step 2: Extract features
     print("\n[2/5] Extracting features...")

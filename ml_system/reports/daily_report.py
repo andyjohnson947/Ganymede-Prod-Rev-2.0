@@ -22,9 +22,10 @@ sys.path.insert(0, str(project_root))
 
 from ml_system.features.extractor import FeatureExtractor
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging - file only, no console spam
 logger = logging.getLogger('DailyReport')
+logger.setLevel(logging.INFO)
+logger.propagate = False  # Don't pollute root logger / console
 
 class DailyReportGenerator:
     """Generate daily ML performance reports"""
@@ -130,41 +131,17 @@ class DailyReportGenerator:
 
     def get_recent_trades(self, days=1):
         """Get trades from last N days"""
-        cutoff = datetime.now() - timedelta(days=days)
-        trades = []
-
-        # Use new enhanced trade log instead of continuous logger
-        trade_log_file = 'ml_system/outputs/enhanced_trade_log.jsonl'
-
-        # Fallback to old log if new one doesn't exist yet
-        if not os.path.exists(trade_log_file):
-            trade_log_file = 'ml_system/outputs/continuous_trade_log.jsonl'
-
-        # Check if file exists
-        if not os.path.exists(trade_log_file):
-            logger.warning(f"Trade log file not found: {trade_log_file}")
-            logger.warning("Enhanced ML logging will be available after first trades")
-            return []
-
+        # Try SQLite first
         try:
-            with open(trade_log_file, 'r', encoding='utf-8', errors='ignore') as f:
-                for line in f:
-                    if not line.strip():  # Skip empty lines
-                        continue
-                    try:
-                        trade = json.loads(line)
-                        entry_time = datetime.fromisoformat(trade['entry_time'].replace('Z', '+00:00'))
-
-                        if entry_time >= cutoff:
-                            trades.append(trade)
-                    except (json.JSONDecodeError, KeyError, ValueError) as e:
-                        logger.warning(f"Skipping malformed trade line: {e}")
-                        continue
+            from ml_system.trade_db import get_trade_db
+            db = get_trade_db()
+            if db:
+                return db.get_trades_since(days)
         except Exception as e:
-            logger.error(f"Error reading trade log: {e}")
-            return []
+            logger.warning(f"SQLite read failed, falling back to JSONL: {e}")
 
-        return trades
+        # SQLite failed — no JSONL fallback (SQLite is source of truth)
+        return []
 
     def analyze_ml_performance(self, trades):
         """Analyze ML model performance on recent trades"""
@@ -461,6 +438,137 @@ class DailyReportGenerator:
 
         return recommendations
 
+    def generate_market_summary(self):
+        """
+        Generate 24h market conditions summary per symbol.
+        Uses MT5 data to show ADX, DI, price range, volatility, and strategy eligibility.
+        """
+        lines = []
+        symbols = ['EURUSD', 'GBPUSD']
+
+        try:
+            import MetaTrader5 as mt5
+            if not mt5.initialize():
+                lines.append("  [WARN] MT5 not available - cannot generate market summary")
+                return lines
+
+            # Import ADX calculator and config
+            from indicators.adx import calculate_adx
+            from config.strategy_config import get_adx_settings
+
+            for symbol in symbols:
+                try:
+                    # Get last 30 H1 bars (24h + buffer for ADX calculation)
+                    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 50)
+                    if rates is None or len(rates) < 20:
+                        lines.append(f"  {symbol}: No data available")
+                        continue
+
+                    df = pd.DataFrame(rates)
+                    df['time'] = pd.to_datetime(df['time'], unit='s')
+
+                    # Calculate ADX/DI
+                    df_adx = calculate_adx(df.copy(), period=14)
+                    latest = df_adx.iloc[-1]
+                    adx_6h_ago = df_adx.iloc[-7] if len(df_adx) > 7 else df_adx.iloc[0]
+
+                    adx = latest['adx']
+                    plus_di = latest['plus_di']
+                    minus_di = latest['minus_di']
+                    adx_prev = adx_6h_ago['adx']
+
+                    # ADX trend
+                    adx_change = adx - adx_prev
+                    if adx_change > 2:
+                        adx_trend = "rising"
+                    elif adx_change < -2:
+                        adx_trend = "falling"
+                    else:
+                        adx_trend = "stable"
+
+                    # Market regime
+                    if adx < 20:
+                        regime = "Ranging"
+                    elif adx < 30:
+                        regime = "Mild Trend"
+                    elif adx < 40:
+                        regime = "Strong Trend"
+                    else:
+                        regime = "Very Strong"
+
+                    # Direction
+                    if plus_di > minus_di:
+                        direction = "Bullish"
+                    else:
+                        direction = "Bearish"
+
+                    # 24h price range (last 24 bars)
+                    last_24 = df.tail(24)
+                    high_24h = last_24['high'].max()
+                    low_24h = last_24['low'].min()
+                    range_pips = (high_24h - low_24h) / 0.0001
+
+                    # Current price
+                    tick = mt5.symbol_info_tick(symbol)
+                    current_price = tick.bid if tick else latest['close']
+
+                    # ATR (14-period from H1)
+                    if 'atr' in df_adx.columns:
+                        atr = df_adx['atr'].iloc[-1] if not pd.isna(df_adx['atr'].iloc[-1]) else 0
+                    else:
+                        # Manual ATR calculation
+                        tr = df['high'].tail(14) - df['low'].tail(14)
+                        atr = tr.mean()
+                    atr_pips = atr / 0.0001
+
+                    # Volatility assessment
+                    if atr_pips < 30:
+                        vol_label = "Low"
+                    elif atr_pips < 60:
+                        vol_label = "Normal"
+                    elif atr_pips < 90:
+                        vol_label = "High"
+                    else:
+                        vol_label = "Very High"
+
+                    # Strategy eligibility (using per-symbol ADX settings)
+                    sym_adx = get_adx_settings(symbol)
+                    mr_max = sym_adx.get('mr_max_adx', 40)
+                    bo_min = sym_adx.get('bo_adx_min', 25)
+                    bo_max = sym_adx.get('bo_adx_max', 40)
+
+                    if adx <= mr_max:
+                        mr_status = f"Active (ADX {adx:.0f} < {mr_max})"
+                    else:
+                        mr_status = f"Blocked (ADX {adx:.0f} > {mr_max})"
+
+                    if bo_min <= adx <= bo_max:
+                        bo_status = f"Active (ADX {adx:.0f} in {bo_min}-{bo_max})"
+                    elif adx < bo_min:
+                        bo_status = f"Blocked (ADX {adx:.0f} < {bo_min})"
+                    else:
+                        bo_status = f"Blocked (ADX {adx:.0f} > {bo_max})"
+
+                    # Format output
+                    lines.append(f"  {symbol}: {current_price:.5f} (Range: {low_24h:.5f}-{high_24h:.5f}, {range_pips:.0f} pips)")
+                    lines.append(f"    ADX: {adx:.1f} ({regime}, {adx_trend}) | +DI: {plus_di:.1f} | -DI: {minus_di:.1f} ({direction})")
+                    lines.append(f"    ATR: {atr:.5f} ({atr_pips:.0f} pips) | Volatility: {vol_label}")
+                    lines.append(f"    MR: {mr_status} | BO: {bo_status}")
+                    lines.append("")
+
+                except Exception as e:
+                    lines.append(f"  {symbol}: Error - {e}")
+                    lines.append("")
+
+            mt5.shutdown()
+
+        except ImportError:
+            lines.append("  [WARN] MetaTrader5 module not available")
+        except Exception as e:
+            lines.append(f"  [ERROR] Market summary failed: {e}")
+
+        return lines
+
     def generate_report(self):
         """Generate comprehensive daily report"""
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -530,6 +638,14 @@ class DailyReportGenerator:
         else:
             report.append(f"  Trades Closed: 0")
             report.append(f"  (No closed trades to analyze)")
+        report.append("")
+
+        # Section 2.5: Market Conditions
+        report.append("2.5 MARKET CONDITIONS (Last 24 Hours)")
+        report.append("-" * 80)
+        market_lines = self.generate_market_summary()
+        for line in market_lines:
+            report.append(line)
         report.append("")
 
         # Section 3: ML Performance

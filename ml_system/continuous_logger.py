@@ -28,14 +28,32 @@ except ImportError:
 from indicators.vwap import VWAP
 from indicators.volume_profile import VolumeProfile
 from indicators.htf_levels import HTFLevels
-from indicators.adx import calculate_adx
+from indicators.adx import calculate_adx, analyze_candle_momentum
 from utils.data_utils import convert_numpy_types
 from config.strategy_config import (
     CONFLUENCE_WEIGHTS,
     LEVEL_TOLERANCE_PCT,
     ADX_PERIOD,
-    TREND_FILTER_ENABLED
+    TREND_FILTER_ENABLED,
+    CANDLE_MOMENTUM_ENABLED,
+    CANDLE_MOMENTUM_LOOKBACK,
+    CANDLE_MOMENTUM_MIN_SHRINK_RATIO,
 )
+
+# Auto-tuner integration - import lazily to avoid circular imports
+_auto_tuner_module = None
+
+def _get_auto_tuner():
+    """Lazy import of auto_tuner module"""
+    global _auto_tuner_module
+    if _auto_tuner_module is None:
+        try:
+            from ml_system import auto_tuner as at
+            _auto_tuner_module = at
+        except ImportError as e:
+            print(f"[WARN] Could not import auto_tuner: {e}")
+            _auto_tuner_module = False  # Mark as unavailable
+    return _auto_tuner_module if _auto_tuner_module else None
 
 
 class ContinuousMLLogger:
@@ -55,6 +73,14 @@ class ContinuousMLLogger:
         # Continuous log file (append mode)
         self.continuous_log = self.output_dir / "continuous_trade_log.jsonl"
 
+        # SQLite mirror (write-only, JSONL remains source of truth)
+        try:
+            from ml_system.trade_db import TradeDatabase
+            self.trade_db = TradeDatabase(self.output_dir / "trades.db")
+        except Exception as e:
+            print(f"[WARN] SQLite mirror not available: {e}")
+            self.trade_db = None
+
         # Track which trades we've already logged
         self.logged_tickets = self._load_logged_tickets()
 
@@ -72,6 +98,14 @@ class ContinuousMLLogger:
 
     def _load_logged_tickets(self) -> set:
         """Load set of already-logged ticket IDs"""
+        # Try SQLite first
+        if hasattr(self, 'trade_db') and self.trade_db:
+            try:
+                return self.trade_db.get_all_tickets()
+            except Exception as e:
+                print(f"[WARN] SQLite ticket load failed, falling back to JSONL: {e}")
+
+        # Fallback: parse JSONL
         logged = set()
         if self.continuous_log.exists():
             with open(self.continuous_log, 'r', encoding='utf-8', errors='ignore') as f:
@@ -332,6 +366,31 @@ class ContinuousMLLogger:
         else:
             factors['trend_filter'] = {'enabled': False}
 
+        # Candle Momentum (retrospective calculation for ML)
+        if CANDLE_MOMENTUM_ENABLED and h1_with_vwap is not None and len(h1_with_vwap) >= CANDLE_MOMENTUM_LOOKBACK + 2:
+            try:
+                # Calculate for both directions so ML has full picture
+                buy_momentum = analyze_candle_momentum(
+                    data=h1_with_vwap,
+                    direction='buy',
+                    lookback=CANDLE_MOMENTUM_LOOKBACK,
+                    shrink_ratio=CANDLE_MOMENTUM_MIN_SHRINK_RATIO
+                )
+                sell_momentum = analyze_candle_momentum(
+                    data=h1_with_vwap,
+                    direction='sell',
+                    lookback=CANDLE_MOMENTUM_LOOKBACK,
+                    shrink_ratio=CANDLE_MOMENTUM_MIN_SHRINK_RATIO
+                )
+                factors['candle_momentum'] = {
+                    'buy': buy_momentum,
+                    'sell': sell_momentum,
+                }
+            except Exception as e:
+                factors['candle_momentum'] = {'error': str(e)}
+        else:
+            factors['candle_momentum'] = {'enabled': False}
+
         # NEW: Volatility Features (Phase 1)
         factors['volatility'] = self._calculate_volatility_features(h1_data, entry_price)
 
@@ -462,7 +521,13 @@ class ContinuousMLLogger:
                 for line in f:
                     try:
                         trade = json.loads(line)
-                        trade_time = datetime.fromisoformat(trade['entry_time'])
+                        # Handle multiple timestamp formats
+                        entry_time_str = trade.get('entry_time')
+                        if not entry_time_str and 'execution_quality' in trade:
+                            entry_time_str = trade['execution_quality'].get('timestamp')
+                        if not entry_time_str:
+                            continue
+                        trade_time = datetime.fromisoformat(entry_time_str.replace('Z', ''))
                         recent_trades.append({
                             'time': trade_time,
                             'profit': trade.get('outcome', {}).get('profit', 0),
@@ -532,6 +597,96 @@ class ContinuousMLLogger:
             return 'NY'
         else:
             return 'Sydney'
+
+    def _get_regime_state(self) -> Dict:
+        """Load current regime state from regime_state.json for ML logging."""
+        try:
+            regime_file = Path(__file__).parent / 'outputs' / 'regime_state.json'
+            if not regime_file.exists():
+                return {}
+            import json
+            with open(regime_file, 'r') as f:
+                state = json.load(f)
+            return {
+                'regime': state.get('regime'),
+                'confidence': state.get('confidence'),
+                'allowed_strategies': state.get('allowed_strategies'),
+                'size_multiplier': state.get('size_multiplier'),
+                'h4_bar_time': state.get('h4_bar_time'),
+            }
+        except Exception:
+            return {}
+
+    def _calculate_execution_quality(self, symbol: str, expected_price: float, actual_price: float,
+                                        spread_at_entry_pips: float = 0.0, fill_time_ms: int = 0,
+                                        requotes: int = 0) -> Dict:
+        """
+        Calculate execution quality metrics at trade entry time.
+
+        Args:
+            symbol: Trading symbol
+            expected_price: Expected/intended entry price
+            actual_price: Actual filled price
+            spread_at_entry_pips: Spread at entry (in pips)
+            fill_time_ms: Fill time in milliseconds
+            requotes: Number of requotes
+
+        Returns:
+            Dict with execution quality metrics (slippage, spread, score, etc.)
+        """
+        try:
+            # Calculate slippage in pips
+            if expected_price and actual_price:
+                point = 0.01 if 'JPY' in symbol else 0.0001
+                slippage_pips = abs(actual_price - expected_price) / point
+            else:
+                slippage_pips = 0.0
+
+            # Calculate execution quality score (0-100)
+            score = 100
+
+            # Penalize slippage (up to 30 points)
+            if slippage_pips > 2:
+                score -= min(30, slippage_pips * 5)
+
+            # Penalize wide spreads (up to 20 points)
+            if spread_at_entry_pips > 2:
+                score -= min(20, (spread_at_entry_pips - 2) * 10)
+
+            # Penalize slow fills (20 points if > 1 second)
+            if fill_time_ms > 1000:
+                score -= 20
+
+            # Penalize requotes (10 points each)
+            score -= requotes * 10
+
+            score = max(0, score)
+
+            return {
+                'timestamp': datetime.now().isoformat(),
+                'symbol': symbol,
+                'expected_price': float(expected_price) if expected_price else None,
+                'actual_price': float(actual_price) if actual_price else None,
+                'slippage_pips': round(float(slippage_pips), 2),
+                'spread_at_entry_pips': float(spread_at_entry_pips),
+                'fill_time_ms': int(fill_time_ms),
+                'requotes': int(requotes),
+                'execution_quality_score': int(score)
+            }
+
+        except Exception as e:
+            print(f"[WARN] Execution quality calculation failed: {e}")
+            return {
+                'timestamp': datetime.now().isoformat(),
+                'symbol': symbol,
+                'expected_price': None,
+                'actual_price': None,
+                'slippage_pips': 0.0,
+                'spread_at_entry_pips': 0.0,
+                'fill_time_ms': 0,
+                'requotes': 0,
+                'execution_quality_score': 100
+            }
 
     def _calculate_market_microstructure(self, symbol: str, entry_price: float, filled_price: float) -> Dict:
         """
@@ -633,7 +788,13 @@ class ContinuousMLLogger:
                         if not line.strip():
                             continue
                         trade = json.loads(line)
-                        trade_time = datetime.fromisoformat(trade.get('entry_time', ''))
+                        # Handle multiple timestamp formats
+                        entry_time_str = trade.get('entry_time')
+                        if not entry_time_str and 'execution_quality' in trade:
+                            entry_time_str = trade['execution_quality'].get('timestamp')
+                        if not entry_time_str:
+                            continue
+                        trade_time = datetime.fromisoformat(entry_time_str.replace('Z', ''))
 
                         # Collect recent volumes (last 30 days)
                         if (entry_time - trade_time).days <= 30:
@@ -666,6 +827,70 @@ class ContinuousMLLogger:
                 'daily_volume_used': 0.0,
                 'margin_level_pct': 999.0,
             }
+
+    def update_execution_quality(self, ticket: int, expected_price: float, actual_price: float,
+                                    spread_at_entry_pips: float = 0.0, fill_time_ms: int = 0,
+                                    requotes: int = 0) -> bool:
+        """
+        Update execution quality for an existing trade record.
+
+        Call this from trading bot immediately after trade execution when you have
+        the expected price and actual fill price.
+
+        Args:
+            ticket: Trade ticket number
+            expected_price: Expected/intended entry price
+            actual_price: Actual filled price
+            spread_at_entry_pips: Spread at entry in pips
+            fill_time_ms: Fill time in milliseconds
+            requotes: Number of requotes
+
+        Returns:
+            True if update successful, False otherwise
+        """
+        if not self.continuous_log.exists():
+            return False
+
+        try:
+            # Read all trades
+            all_trades = []
+            with open(self.continuous_log, 'r', encoding='utf-8', errors='ignore') as f:
+                for line in f:
+                    try:
+                        all_trades.append(json.loads(line))
+                    except:
+                        continue
+
+            # Find and update the trade
+            updated = False
+            for trade in all_trades:
+                if trade['ticket'] == ticket:
+                    symbol = trade.get('symbol', '')
+                    exec_quality = self._calculate_execution_quality(
+                        symbol=symbol,
+                        expected_price=expected_price,
+                        actual_price=actual_price,
+                        spread_at_entry_pips=spread_at_entry_pips,
+                        fill_time_ms=fill_time_ms,
+                        requotes=requotes
+                    )
+                    trade['execution_quality'] = exec_quality
+                    updated = True
+                    break
+
+            if updated:
+                # Write back
+                with open(self.continuous_log, 'w', encoding='utf-8', errors='ignore') as f:
+                    for trade in all_trades:
+                        trade = convert_numpy_types(trade)
+                        f.write(json.dumps(trade) + '\n')
+                return True
+
+            return False
+
+        except Exception as e:
+            print(f"[WARN] Failed to update execution quality for {ticket}: {e}")
+            return False
 
     def find_recovery_actions(self, ticket: int, from_date: datetime, to_date: datetime) -> Dict:
         """Find all recovery actions (DCA, hedge, grid) for a specific ticket"""
@@ -760,7 +985,7 @@ class ContinuousMLLogger:
         for deal in deals:
             comment = deal.comment or ""
 
-            if deal.position_id == ticket and ('Partial' in comment or 'partial' in comment):
+            if deal.position_id == ticket and ('Partial' in comment or 'partial' in comment or 'PC1' in comment or 'PC2' in comment):
                 partial_closes['count'] += 1
                 partial_closes['closes'].append({
                     'price': float(deal.price),
@@ -887,6 +1112,144 @@ class ContinuousMLLogger:
                 'partial_count': 0,
             }
 
+    def _aggregate_trailing_events(self, ticket: int) -> Dict:
+        """
+        Aggregate all trailing stop events for a specific trade ticket.
+
+        Reads from trailing_stop_events.jsonl and consolidates:
+        - Stop loss data (initial, final, was hit)
+        - Break even data (when/if activated)
+        - PC1/PC2 trigger data (timing, pips)
+
+        Args:
+            ticket: Position ticket to aggregate events for
+
+        Returns:
+            Dict with aggregated SL/BE/PC data
+        """
+        events_log = self.output_dir / "trailing_stop_events.jsonl"
+
+        # Default structure
+        aggregated = {
+            'stop_loss': {
+                'initial_price': None,
+                'initial_pips': None,
+                'final_price': None,
+                'was_hit': False,
+                'sl_type': None,  # 'hard_adx', 'normal', 'recovery_disabled'
+                'adx_at_entry': None,
+            },
+            'break_even': {
+                'activated': False,
+                'trigger_price': None,
+                'trigger_time': None,
+            },
+            'pc_data': {
+                'pc1_triggered': False,
+                'pc1_price': None,
+                'pc1_pips': None,
+                'pc1_target_pips': None,
+                'pc1_time': None,
+                'pc2_triggered': False,
+                'pc2_price': None,
+                'pc2_pips': None,
+                'pc2_time': None,
+                'trailing_distance_pips': None,
+            },
+            'trailing': {
+                'active': False,
+                'updates_count': 0,
+                'final_stop_price': None,
+                'peak_price': None,
+                'capture_ratio': None,
+            },
+            'mfe_mae': {
+                'mfe_price': None,
+                'mae_price': None,
+                'mfe_pips': None,
+                'mae_pips': None,  # How far price went against before profit/exit
+            }
+        }
+
+        if not events_log.exists():
+            return aggregated
+
+        try:
+            with open(events_log, 'r', encoding='utf-8', errors='ignore') as f:
+                for line in f:
+                    try:
+                        event = json.loads(line)
+                        if event.get('ticket') != ticket:
+                            continue
+
+                        event_type = event.get('event_type', '')
+
+                        # Hard SL set at entry
+                        if event_type == 'hard_sl_set':
+                            aggregated['stop_loss']['initial_price'] = event.get('sl_price')
+                            aggregated['stop_loss']['initial_pips'] = event.get('sl_pips')
+                            aggregated['stop_loss']['sl_type'] = event.get('reason')
+                            aggregated['stop_loss']['adx_at_entry'] = event.get('adx')
+
+                        # SL hit (exit via stop)
+                        elif event_type == 'sl_hit':
+                            aggregated['stop_loss']['was_hit'] = True
+                            aggregated['stop_loss']['final_price'] = event.get('exit_price')
+                            if not aggregated['stop_loss']['sl_type']:
+                                aggregated['stop_loss']['sl_type'] = event.get('sl_type')
+
+                        # SL moved to breakeven
+                        elif event_type == 'sl_to_breakeven':
+                            aggregated['break_even']['activated'] = True
+                            aggregated['break_even']['trigger_price'] = event.get('breakeven_price')
+                            aggregated['break_even']['trigger_time'] = event.get('timestamp')
+                            aggregated['stop_loss']['final_price'] = event.get('breakeven_price')
+
+                        # PC1 trigger
+                        elif event_type == 'pc1_trigger':
+                            aggregated['pc_data']['pc1_triggered'] = True
+                            aggregated['pc_data']['pc1_price'] = event.get('current_price')
+                            aggregated['pc_data']['pc1_pips'] = event.get('profit_pips')
+                            aggregated['pc_data']['pc1_target_pips'] = event.get('pc1_pips_target')
+                            aggregated['pc_data']['pc1_time'] = event.get('timestamp')
+
+                        # PC2 trigger
+                        elif event_type == 'pc2_trigger':
+                            aggregated['pc_data']['pc2_triggered'] = True
+                            aggregated['pc_data']['pc2_price'] = event.get('current_price')
+                            aggregated['pc_data']['pc2_pips'] = event.get('profit_pips')
+                            aggregated['pc_data']['pc2_time'] = event.get('timestamp')
+                            aggregated['pc_data']['trailing_distance_pips'] = event.get('trailing_distance_pips')
+                            aggregated['trailing']['active'] = True
+                            aggregated['trailing']['final_stop_price'] = event.get('trailing_stop_price')
+
+                        # Trailing stop update
+                        elif event_type == 'trailing_update':
+                            aggregated['trailing']['updates_count'] += 1
+                            aggregated['trailing']['final_stop_price'] = event.get('new_stop')
+
+                        # Trailing stop hit
+                        elif event_type == 'trailing_hit':
+                            aggregated['trailing']['final_stop_price'] = event.get('trailing_stop_price')
+                            aggregated['trailing']['peak_price'] = event.get('peak_price')
+                            aggregated['trailing']['capture_ratio'] = event.get('capture_ratio')
+                            aggregated['stop_loss']['was_hit'] = True  # Trailing is a form of SL
+
+                        # MFE/MAE data
+                        elif event_type == 'mfe_mae':
+                            aggregated['mfe_mae']['mfe_price'] = event.get('mfe_price')
+                            aggregated['mfe_mae']['mae_price'] = event.get('mae_price')
+                            aggregated['mfe_mae']['mfe_pips'] = event.get('mfe_pips')
+                            aggregated['mfe_mae']['mae_pips'] = event.get('mae_pips')
+
+                    except json.JSONDecodeError:
+                        continue
+
+        except Exception as e:
+            print(f"[WARN] Failed to aggregate trailing events for {ticket}: {e}")
+
+        return aggregated
+
     def update_closed_trades(self):
         """Check for closed positions and update their records with outcome data"""
         if not self.mt5:
@@ -922,23 +1285,34 @@ class ContinuousMLLogger:
         for trade in trades_to_update:
             ticket = trade['ticket']
 
-            # Find exit deal for this ticket
+            # Find FINAL exit deal for this ticket (last exit, not partials)
+            # A position can have multiple exit deals: PC1, PC2, and final close
+            # We want the LAST one (final close) to get correct exit price/time
             exit_deal = None
             for deal in deals:
                 if deal.position_id == ticket and deal.entry == 1:  # Exit deal
-                    exit_deal = deal
-                    break
+                    exit_deal = deal  # Keep overwriting - last one wins
 
             if exit_deal:
                 # Trade is closed - get recovery and partial close data
-                entry_time = datetime.fromisoformat(trade['entry_time'])
+                # Handle multiple timestamp formats
+                entry_time_str = trade.get('entry_time')
+                if not entry_time_str and 'execution_quality' in trade:
+                    entry_time_str = trade['execution_quality'].get('timestamp')
+                if not entry_time_str:
+                    continue  # Skip trades without timestamp
+                entry_time = datetime.fromisoformat(entry_time_str.replace('Z', ''))
                 exit_time = datetime.fromtimestamp(exit_deal.time)
 
+                # Use exit_time + 1 min buffer for deal searches
+                # PC2 and final close can happen at the same second
+                search_end = exit_time + timedelta(minutes=1)
+
                 # Find recovery actions
-                recovery = self.find_recovery_actions(ticket, entry_time, exit_time)
+                recovery = self.find_recovery_actions(ticket, entry_time, search_end)
 
                 # Find partial closes
-                partial_closes = self.find_partial_closes(ticket, entry_time, exit_time)
+                partial_closes = self.find_partial_closes(ticket, entry_time, search_end)
 
                 # Calculate hold time
                 hold_seconds = (exit_time - entry_time).total_seconds()
@@ -953,6 +1327,34 @@ class ContinuousMLLogger:
                     exit_comment=exit_deal.comment or ""
                 )
 
+                # Aggregate trailing events (SL/BE/PC data) for this trade
+                trailing_data = self._aggregate_trailing_events(ticket)
+
+                # Detect if SL was hit by comparing exit price to known SL price
+                # This handles cases where we didn't get real-time sl_hit event
+                sl_data = trailing_data['stop_loss']
+                exit_price = float(exit_deal.price)
+                entry_price = trade['entry_price']
+                direction = trade.get('direction', 'BUY')
+
+                # Infer SL hit if:
+                # 1. We have a recorded SL price AND
+                # 2. Exit was at or near that price (within 2 pips tolerance)
+                if sl_data.get('initial_price') and not sl_data.get('was_hit'):
+                    sl_price = sl_data['initial_price']
+                    # Check BE SL first (if activated)
+                    if trailing_data['break_even']['activated'] and trailing_data['break_even'].get('trigger_price'):
+                        sl_price = trailing_data['break_even']['trigger_price']
+                    # Check trailing SL (if active)
+                    elif trailing_data['trailing']['active'] and trailing_data['trailing'].get('final_stop_price'):
+                        sl_price = trailing_data['trailing']['final_stop_price']
+
+                    # Compare exit price to SL price (within 2 pip tolerance)
+                    pip_tolerance = 0.0002  # 2 pips
+                    if abs(exit_price - sl_price) < pip_tolerance:
+                        sl_data['was_hit'] = True
+                        sl_data['final_price'] = exit_price
+
                 # Build outcome data
                 outcome = {
                     'status': 'closed',
@@ -962,7 +1364,11 @@ class ContinuousMLLogger:
                     'hold_hours': float(hold_hours),
                     'recovery': recovery,
                     'partial_closes': partial_closes,
-                    'exit_strategy': exit_strategy,  # NEW: Exit strategy metrics
+                    'exit_strategy': exit_strategy,  # Exit strategy metrics
+                    'stop_loss': sl_data,  # SL tracking (with inferred hit detection)
+                    'break_even': trailing_data['break_even'],  # BE tracking
+                    'pc_data': trailing_data['pc_data'],  # PC1/PC2 detailed tracking
+                    'trailing': trailing_data['trailing'],  # Trailing stop tracking
                     'net_profit': float(exit_deal.profit) - recovery['recovery_cost'],
                     'had_recovery': recovery['dca_count'] + recovery['hedge_count'] > 0,
                     'had_grid': recovery['grid_count'] > 0,
@@ -972,6 +1378,13 @@ class ContinuousMLLogger:
 
                 trade['outcome'] = outcome
                 updated_count += 1
+
+                # Mirror outcome to SQLite
+                if self.trade_db:
+                    try:
+                        self.trade_db.update_outcome(ticket, outcome)
+                    except Exception as e:
+                        print(f"[WARN] SQLite update failed for #{ticket}: {e}")
 
                 print(f"[UPDATE] Trade #{ticket} closed: ${outcome['profit']:.2f} | "
                       f"DCA: {recovery['dca_count']} | Hedge: {recovery['hedge_count']} | "
@@ -1002,6 +1415,37 @@ class ContinuousMLLogger:
 
             print(f"[OK] Updated {updated_count} closed trades with outcome data")
 
+            # Record trades to setup classifier for tier learning
+            try:
+                from strategies.setup_classifier import get_setup_classifier
+                classifier = get_setup_classifier()
+                for trade in trades_to_update:
+                    if 'outcome' in trade and 'confluence_factors' in trade:
+                        # Extract context for granular setup tracking
+                        market_context = trade.get('market_context', {})
+                        classifier.record_trade(
+                            factors=trade.get('confluence_factors', []),
+                            direction=trade.get('direction', 'buy'),
+                            symbol=trade.get('symbol', 'UNKNOWN'),
+                            is_win=trade['outcome'].get('profit', 0) > 0,
+                            profit=trade['outcome'].get('profit', 0),
+                            htf_score=trade.get('htf_score', 0),
+                            entry_score=trade.get('entry_score', 0),
+                            ticket=trade.get('ticket'),
+                            strategy_type=trade.get('strategy_type'),       # NEW: Pass strategy
+                            hour=market_context.get('hour'),                 # NEW: Pass hour
+                            day_of_week=market_context.get('day_of_week')    # NEW: Pass day
+                        )
+                print(f"[SETUP CLASSIFIER] Recorded {len(trades_to_update)} trades for tier learning")
+            except Exception as e:
+                print(f"[WARN] Setup classifier recording failed: {e}")
+
+            # Trigger auto-tuner for each closed trade
+            auto_tuner = _get_auto_tuner()
+            if auto_tuner:
+                for _ in range(updated_count):
+                    auto_tuner.on_trade_closed()
+
     def backfill_missed_trades(self):
         """Backfill any trades that were missed while logger was offline"""
         if not self.mt5:
@@ -1016,7 +1460,13 @@ class ContinuousMLLogger:
                     for line in f:
                         try:
                             trade = json.loads(line)
-                            trade_time = datetime.fromisoformat(trade['entry_time'])
+                            # Handle multiple timestamp formats
+                            entry_time_str = trade.get('entry_time')
+                            if not entry_time_str and 'execution_quality' in trade:
+                                entry_time_str = trade['execution_quality'].get('timestamp')
+                            if not entry_time_str:
+                                continue
+                            trade_time = datetime.fromisoformat(entry_time_str.replace('Z', ''))
                             if last_logged_time is None or trade_time > last_logged_time:
                                 last_logged_time = trade_time
                         except:
@@ -1044,8 +1494,10 @@ class ContinuousMLLogger:
             for deal in deals:
                 comment = deal.comment or ""
 
-                # Only log confluence entry trades (old format: "Confluence:", new format: "VWAP:" or "BREAKOUT:")
-                is_entry_trade = any(marker in comment for marker in ['Confluence:', 'VWAP:', 'BREAKOUT:'])
+                # Only log confluence entry trades
+                # Old format: "Confluence:", "VWAP:", "BREAKOUT:"
+                # New format: "MR|GLD|C8", "BO|HI|C5"
+                is_entry_trade = any(marker in comment for marker in ['Confluence:', 'VWAP:', 'BREAKOUT:', 'MR|', 'BO|'])
                 if not is_entry_trade:
                     continue
 
@@ -1066,17 +1518,31 @@ class ContinuousMLLogger:
                     entry_price = deal.price
 
                     # Parse strategy type and confluence score from comment
-                    # New format: "VWAP:C12" or "BREAKOUT:C8"
-                    # Old format: "Confluence:12"
+                    # New format: "MR|GLD|C8", "BO|HI|C5"
+                    # Old format: "VWAP:C12", "BREAKOUT:C8", "Confluence:12"
                     strategy_type = None
                     confluence_score = None
 
                     try:
-                        if 'VWAP:' in comment:
-                            strategy_type = 'vwap'  # Mean reversion to VWAP/levels
+                        # New format: "MR|GLD|C8" or "BO|HI|C5"
+                        if comment.startswith('MR|'):
+                            strategy_type = 'mean_reversion'
+                            # Parse "MR|GLD|C8" -> confluence_score = 8
+                            parts = comment.split('|')
+                            if len(parts) >= 3 and parts[2].startswith('C'):
+                                confluence_score = int(parts[2][1:].split()[0])
+                        elif comment.startswith('BO|'):
+                            strategy_type = 'breakout'  # Momentum through levels
+                            # Parse "BO|HI|C5" -> confluence_score = 5
+                            parts = comment.split('|')
+                            if len(parts) >= 3 and parts[2].startswith('C'):
+                                confluence_score = int(parts[2][1:].split()[0])
+                        # Legacy formats
+                        elif 'VWAP:' in comment:
+                            strategy_type = 'mean_reversion'
                             confluence_score = int(comment.split('VWAP:C')[1].split()[0])
                         elif 'BREAKOUT:' in comment:
-                            strategy_type = 'breakout'  # Momentum through levels
+                            strategy_type = 'breakout'
                             confluence_score = int(comment.split('BREAKOUT:C')[1].split()[0])
                         elif 'Confluence:' in comment:
                             strategy_type = 'confluence'  # Legacy format
@@ -1098,6 +1564,55 @@ class ContinuousMLLogger:
                     if not confluence_factors:
                         continue
 
+                    # Build factor list for setup classifier
+                    # For BO trades, use DI-specific factors from comment instead of reconstructing MR factors
+                    factor_list = []
+                    if strategy_type == 'breakout' and comment.startswith('BO|'):
+                        # Parse BO-specific factors from comment: "BO|DI|HI|C5" or "BO|WK|HI|C5"
+                        parts = comment.split('|')
+                        subtype_labels = {'DI': 'DI Momentum', 'RB': 'Range Breakout', 'LV': 'LVN Breakout', 'WK': 'Weekly Breakout'}
+                        bo_label = subtype_labels.get(parts[1], 'Breakout') if len(parts) >= 2 else 'Breakout'
+                        conf_label = {'HI': 'High', 'ME': 'Medium', 'LO': 'Low'}.get(parts[2] if len(parts) >= 4 else parts[1] if len(parts) >= 3 else '', '')
+                        factor_list.append(f'{bo_label} ({conf_label} confidence)')
+                    else:
+                        # MR trades: reconstruct from volume profile / VWAP / HTF data
+                        vwap_data = confluence_factors.get('vwap', {})
+                        vp_data = confluence_factors.get('volume_profile', {})
+                        htf_data = confluence_factors.get('htf_levels', {})
+
+                        if vwap_data.get('in_band_1'):
+                            factor_list.append('VWAP Band 1')
+                        if vwap_data.get('in_band_2'):
+                            factor_list.append('VWAP Band 2')
+                        if vp_data.get('at_poc'):
+                            factor_list.append('POC')
+                        if vp_data.get('above_vah'):
+                            factor_list.append('Above VAH')
+                        if vp_data.get('below_val'):
+                            factor_list.append('Below VAL')
+                        if vp_data.get('at_lvn'):
+                            factor_list.append('Low Volume Node')
+                        if vp_data.get('at_swing_high'):
+                            factor_list.append('Swing High')
+                        if vp_data.get('at_swing_low'):
+                            factor_list.append('Swing Low')
+                        # Add HTF factors
+                        factor_list.extend(htf_data.get('factors_matched', []))
+
+                    # Calculate market microstructure first (used for execution_quality)
+                    market_micro = self._calculate_market_microstructure(symbol, entry_price, deal.price)
+
+                    # Calculate execution quality using spread from market_microstructure
+                    # Note: expected_price not available from MT5 deal history, use actual price
+                    exec_quality = self._calculate_execution_quality(
+                        symbol=symbol,
+                        expected_price=entry_price,  # Best approximation from deal
+                        actual_price=deal.price,
+                        spread_at_entry_pips=market_micro.get('spread_pips', 0.0),
+                        fill_time_ms=0,  # Not available from MT5 deal history
+                        requotes=0  # Not available from MT5 deal history
+                    )
+
                     # Build trade record
                     trade_record = {
                         'ticket': int(ticket),
@@ -1108,20 +1623,24 @@ class ContinuousMLLogger:
                         'volume': float(deal.volume),
                         'strategy_type': strategy_type,  # 'revision', 'breakout', or 'confluence' (legacy)
                         'confluence_score': confluence_score,
+                        'confluence_factors': factor_list,  # For setup classifier
                         'vwap': confluence_factors.get('vwap', {}),
                         'volume_profile': confluence_factors.get('volume_profile', {}),
                         'htf_levels': confluence_factors.get('htf_levels', {}),
                         'fair_value_gaps': confluence_factors.get('fair_value_gaps', {}),
                         'trend_filter': confluence_factors.get('trend_filter', {}),
+                        'candle_momentum': confluence_factors.get('candle_momentum', {}),  # Candle body trend
+                        'regime_state': self._get_regime_state(),  # HMM regime at entry
                         'volatility': confluence_factors.get('volatility', {}),  # NEW: Phase 1
                         'entry_quality': confluence_factors.get('entry_quality', {}),  # NEW: Phase 1
+                        'execution_quality': exec_quality,  # NEW: Execution quality tracking
                         'market_context': {
                             'hour': trade_time.hour,
                             'day_of_week': trade_time.strftime('%A'),
                             'session': self._get_trading_session(trade_time.hour),
                         },
                         'trade_sequencing': self._calculate_trade_sequencing(trade_time),  # NEW: Phase 1
-                        'market_microstructure': self._calculate_market_microstructure(symbol, entry_price, deal.price),  # NEW: Phase 3
+                        'market_microstructure': market_micro,  # NEW: Phase 3
                         'position_sizing': self._calculate_position_sizing_context(symbol, deal.volume, trade_time),  # NEW: Phase 3
                         'logged_at': datetime.now().isoformat()
                     }
@@ -1132,6 +1651,13 @@ class ContinuousMLLogger:
                     # Append to continuous log
                     with open(self.continuous_log, 'a', encoding='utf-8', errors='ignore') as f:
                         f.write(json.dumps(trade_record) + '\n')
+
+                    # Mirror to SQLite
+                    if self.trade_db:
+                        try:
+                            self.trade_db.insert_trade(trade_record)
+                        except Exception as e:
+                            print(f"[WARN] SQLite backfill insert failed for #{ticket}: {e}")
 
                     # Mark as logged
                     self.logged_tickets.add(ticket)
@@ -1160,9 +1686,9 @@ class ContinuousMLLogger:
         if not self.mt5:
             return
 
-        # Get recent deals (last hour) (thread-safe)
+        # Get recent deals (last 48 hours to catch missed trades) (thread-safe)
         to_date = datetime.now()
-        from_date = to_date - timedelta(hours=1)
+        from_date = to_date - timedelta(hours=48)
         deals = self._with_lock(lambda: self.mt5.history_deals_get(from_date, to_date))
 
         if not deals:
@@ -1173,8 +1699,10 @@ class ContinuousMLLogger:
         for deal in deals:
             comment = deal.comment or ""
 
-            # Only log confluence entry trades (old format: "Confluence:", new format: "VWAP:" or "BREAKOUT:")
-            is_entry_trade = any(marker in comment for marker in ['Confluence:', 'VWAP:', 'BREAKOUT:'])
+            # Only log confluence entry trades
+            # Old format: "Confluence:", "VWAP:", "BREAKOUT:"
+            # New format: "MR|GLD|C8", "BO|HI|C5"
+            is_entry_trade = any(marker in comment for marker in ['Confluence:', 'VWAP:', 'BREAKOUT:', 'MR|', 'BO|'])
             if not is_entry_trade:
                 continue
 
@@ -1195,17 +1723,40 @@ class ContinuousMLLogger:
                 entry_price = deal.price
 
                 # Parse strategy type and confluence score from comment
-                # New format: "VWAP:C12" or "BREAKOUT:C8"
-                # Old format: "Confluence:12"
+                # New format: "MR|GLD|C8" or "BO|RB|HI|C5"
+                # Legacy: "VWAP:C12", "BREAKOUT:C8", "Confluence:12", "BO|HI|C5"
                 strategy_type = None
                 confluence_score = None
+                breakout_subtype = None
+                breakout_confidence = None
 
                 try:
-                    if 'VWAP:' in comment:
-                        strategy_type = 'vwap'  # Mean reversion to VWAP/levels
+                    # New format: "MR|GLD|C8" or "BO|RB|HI|C5"
+                    if comment.startswith('MR|'):
+                        strategy_type = 'mean_reversion'
+                        parts = comment.split('|')
+                        if len(parts) >= 3 and parts[2].startswith('C'):
+                            confluence_score = int(parts[2][1:].split()[0])
+                    elif comment.startswith('BO|'):
+                        strategy_type = 'breakout'  # Momentum through levels
+                        parts = comment.split('|')
+                        # New format: "BO|RB|HI|C5" (4 parts with subtype)
+                        if len(parts) >= 4 and parts[3].startswith('C'):
+                            subtype_map = {'RB': 'range_breakout', 'LV': 'lvn_breakout', 'WK': 'weekly_breakout', 'DI': 'di_momentum'}
+                            breakout_subtype = subtype_map.get(parts[1], 'unknown')
+                            breakout_confidence = parts[2]
+                            confluence_score = int(parts[3][1:].split()[0])
+                        # Legacy format: "BO|HI|C5" (3 parts, no subtype)
+                        elif len(parts) >= 3 and parts[2].startswith('C'):
+                            breakout_subtype = 'unknown'
+                            breakout_confidence = parts[1]
+                            confluence_score = int(parts[2][1:].split()[0])
+                    # Legacy formats
+                    elif 'VWAP:' in comment:
+                        strategy_type = 'mean_reversion'
                         confluence_score = int(comment.split('VWAP:C')[1].split()[0])
                     elif 'BREAKOUT:' in comment:
-                        strategy_type = 'breakout'  # Momentum through levels
+                        strategy_type = 'breakout'
                         confluence_score = int(comment.split('BREAKOUT:C')[1].split()[0])
                     elif 'Confluence:' in comment:
                         strategy_type = 'confluence'  # Legacy format
@@ -1227,6 +1778,55 @@ class ContinuousMLLogger:
                 if not confluence_factors:
                     continue
 
+                # Build factor list for setup classifier
+                # For BO trades, use DI-specific factors from comment instead of reconstructing MR factors
+                factor_list = []
+                if strategy_type == 'breakout' and comment.startswith('BO|'):
+                    # Parse BO-specific factors from comment: "BO|DI|HI|C5" or "BO|WK|HI|C5"
+                    parts = comment.split('|')
+                    subtype_labels = {'DI': 'DI Momentum', 'RB': 'Range Breakout', 'LV': 'LVN Breakout', 'WK': 'Weekly Breakout'}
+                    bo_label = subtype_labels.get(parts[1], 'Breakout') if len(parts) >= 2 else 'Breakout'
+                    conf_label = {'HI': 'High', 'ME': 'Medium', 'LO': 'Low'}.get(parts[2] if len(parts) >= 4 else parts[1] if len(parts) >= 3 else '', '')
+                    factor_list.append(f'{bo_label} ({conf_label} confidence)')
+                else:
+                    # MR trades: reconstruct from volume profile / VWAP / HTF data
+                    vwap_data = confluence_factors.get('vwap', {})
+                    vp_data = confluence_factors.get('volume_profile', {})
+                    htf_data = confluence_factors.get('htf_levels', {})
+
+                    if vwap_data.get('in_band_1'):
+                        factor_list.append('VWAP Band 1')
+                    if vwap_data.get('in_band_2'):
+                        factor_list.append('VWAP Band 2')
+                    if vp_data.get('at_poc'):
+                        factor_list.append('POC')
+                    if vp_data.get('above_vah'):
+                        factor_list.append('Above VAH')
+                    if vp_data.get('below_val'):
+                        factor_list.append('Below VAL')
+                    if vp_data.get('at_lvn'):
+                        factor_list.append('Low Volume Node')
+                    if vp_data.get('at_swing_high'):
+                        factor_list.append('Swing High')
+                    if vp_data.get('at_swing_low'):
+                        factor_list.append('Swing Low')
+                    # Add HTF factors
+                    factor_list.extend(htf_data.get('factors_matched', []))
+
+                # Calculate market microstructure first (used for execution_quality)
+                market_micro = self._calculate_market_microstructure(symbol, entry_price, deal.price)
+
+                # Calculate execution quality using spread from market_microstructure
+                # Note: expected_price not available from MT5 deal history, use actual price
+                exec_quality = self._calculate_execution_quality(
+                    symbol=symbol,
+                    expected_price=entry_price,  # Best approximation from deal
+                    actual_price=deal.price,
+                    spread_at_entry_pips=market_micro.get('spread_pips', 0.0),
+                    fill_time_ms=0,  # Not available from MT5 deal history
+                    requotes=0  # Not available from MT5 deal history
+                )
+
                 # Build trade record
                 trade_record = {
                     'ticket': int(ticket),
@@ -1236,21 +1836,27 @@ class ContinuousMLLogger:
                     'direction': 'BUY' if deal.type == 0 else 'SELL',
                     'volume': float(deal.volume),
                     'strategy_type': strategy_type,  # 'revision', 'breakout', or 'confluence' (legacy)
+                    'breakout_subtype': breakout_subtype,  # range_breakout, lvn_breakout, weekly_breakout, di_momentum
+                    'breakout_confidence': breakout_confidence,  # HI, ME, LO
                     'confluence_score': confluence_score,
+                    'confluence_factors': factor_list,  # For setup classifier
                     'vwap': confluence_factors.get('vwap', {}),
                     'volume_profile': confluence_factors.get('volume_profile', {}),
                     'htf_levels': confluence_factors.get('htf_levels', {}),
                     'fair_value_gaps': confluence_factors.get('fair_value_gaps', {}),
                     'trend_filter': confluence_factors.get('trend_filter', {}),
+                    'candle_momentum': confluence_factors.get('candle_momentum', {}),  # Candle body trend
+                    'regime_state': self._get_regime_state(),  # HMM regime at entry
                     'volatility': confluence_factors.get('volatility', {}),  # NEW: Phase 1
                     'entry_quality': confluence_factors.get('entry_quality', {}),  # NEW: Phase 1
+                    'execution_quality': exec_quality,  # NEW: Execution quality tracking
                     'market_context': {
                         'hour': trade_time.hour,
                         'day_of_week': trade_time.strftime('%A'),
                         'session': self._get_trading_session(trade_time.hour),
                     },
                     'trade_sequencing': self._calculate_trade_sequencing(trade_time),  # NEW: Phase 1
-                    'market_microstructure': self._calculate_market_microstructure(symbol, entry_price, deal.price),  # NEW: Phase 3
+                    'market_microstructure': market_micro,  # NEW: Phase 3
                     'position_sizing': self._calculate_position_sizing_context(symbol, deal.volume, trade_time),  # NEW: Phase 3
                     'logged_at': datetime.now().isoformat()
                 }
@@ -1261,6 +1867,13 @@ class ContinuousMLLogger:
                 # Append to continuous log
                 with open(self.continuous_log, 'a', encoding='utf-8', errors='ignore') as f:
                     f.write(json.dumps(trade_record) + '\n')
+
+                # Mirror to SQLite
+                if self.trade_db:
+                    try:
+                        self.trade_db.insert_trade(trade_record)
+                    except Exception as e:
+                        print(f"[WARN] SQLite insert failed for #{ticket}: {e}")
 
                 # Mark as logged
                 self.logged_tickets.add(ticket)
@@ -1312,6 +1925,33 @@ class ContinuousMLLogger:
 
         except Exception as e:
             print(f"[WARN] [LOGGER] Failed to log trailing event for {ticket}: {e}")
+
+    def log_pc1_trigger(self, ticket: int, symbol: str, current_price: float,
+                        entry_price: float, profit_pips: float, close_volume: float,
+                        pc1_pips_target: float):
+        """
+        Log when PC1 triggers (first 25% partial close).
+
+        Args:
+            ticket: Position ticket
+            symbol: Trading symbol
+            current_price: Current market price
+            entry_price: Entry price
+            profit_pips: Profit in pips at trigger
+            close_volume: Volume closed
+            pc1_pips_target: PC1 target in pips for this instrument
+        """
+        self.log_trailing_event(
+            event_type='pc1_trigger',
+            ticket=ticket,
+            symbol=symbol,
+            current_price=float(current_price),
+            entry_price=float(entry_price),
+            profit_pips=float(profit_pips),
+            close_volume=float(close_volume),
+            pc1_pips_target=float(pc1_pips_target),
+            vwap_exits_disabled=True
+        )
 
     def log_pc2_trigger(self, ticket: int, symbol: str, current_price: float,
                         entry_price: float, trailing_distance_pips: float,
@@ -1409,6 +2049,103 @@ class ContinuousMLLogger:
             peak_pips=float(peak_pips),
             pips_from_peak=float(pips_from_peak),
             capture_ratio=float(capture_ratio)
+        )
+
+    def log_mfe_mae(self, ticket: int, symbol: str, entry_price: float,
+                    mfe_price: float, mae_price: float, direction: str,
+                    strategy_type: str = None):
+        """
+        Log Max Favorable Excursion (MFE) and Max Adverse Excursion (MAE) at position close.
+
+        MFE = Best price reached during trade (highest for BUY, lowest for SELL)
+        MAE = Worst price reached during trade (lowest for BUY, highest for SELL)
+
+        Args:
+            ticket: Position ticket
+            symbol: Trading symbol
+            entry_price: Original entry price
+            mfe_price: Best price reached (highest_profit_price)
+            mae_price: Worst price reached (lowest_profit_price)
+            direction: 'buy' or 'sell'
+            strategy_type: 'mean_reversion' or 'breakout'
+        """
+        # Calculate MFE/MAE in pips
+        if direction.lower() == 'buy':
+            mfe_pips = (mfe_price - entry_price) * 10000
+            mae_pips = (entry_price - mae_price) * 10000  # Positive = how much went against
+        else:  # sell
+            mfe_pips = (entry_price - mfe_price) * 10000
+            mae_pips = (mae_price - entry_price) * 10000  # Positive = how much went against
+
+        self.log_trailing_event(
+            event_type='mfe_mae',
+            ticket=ticket,
+            symbol=symbol,
+            entry_price=float(entry_price),
+            mfe_price=float(mfe_price),
+            mae_price=float(mae_price),
+            mfe_pips=float(mfe_pips),
+            mae_pips=float(mae_pips),
+            direction=direction.lower(),
+            strategy_type=strategy_type
+        )
+
+    def log_sl_hit(self, ticket: int, symbol: str, sl_type: str, entry_price: float,
+                   exit_price: float, sl_price: float, loss_pips: float,
+                   adx_at_entry: float = None, strategy_type: str = None):
+        """
+        Log when a stop loss is hit.
+
+        Args:
+            ticket: Position ticket
+            symbol: Trading symbol
+            sl_type: Type of SL ('hard_sl', 'trailing_sl', 'be_sl', 'stack_sl')
+            entry_price: Original entry price
+            exit_price: Actual exit price
+            sl_price: Stop loss price that was set
+            loss_pips: Loss in pips
+            adx_at_entry: ADX value when trade was opened
+            strategy_type: 'mean_reversion' or 'breakout'
+        """
+        self.log_trailing_event(
+            event_type='sl_hit',
+            ticket=ticket,
+            symbol=symbol,
+            sl_type=sl_type,
+            entry_price=float(entry_price),
+            exit_price=float(exit_price),
+            sl_price=float(sl_price),
+            loss_pips=float(loss_pips),
+            adx_at_entry=float(adx_at_entry) if adx_at_entry else None,
+            strategy_type=strategy_type
+        )
+
+    def log_hard_sl_set(self, ticket: int, symbol: str, entry_price: float,
+                        sl_price: float, sl_pips: float, adx: float,
+                        reason: str, strategy_type: str = None):
+        """
+        Log when a hard stop loss is set on entry.
+
+        Args:
+            ticket: Position ticket
+            symbol: Trading symbol
+            entry_price: Entry price
+            sl_price: Stop loss price
+            sl_pips: Stop loss distance in pips
+            adx: ADX value at entry
+            reason: Why SL was set ('recovery_disabled', 'adx_trending')
+            strategy_type: 'mean_reversion' or 'breakout'
+        """
+        self.log_trailing_event(
+            event_type='hard_sl_set',
+            ticket=ticket,
+            symbol=symbol,
+            entry_price=float(entry_price),
+            sl_price=float(sl_price),
+            sl_pips=float(sl_pips),
+            adx=float(adx),
+            reason=reason,
+            strategy_type=strategy_type
         )
 
     def log_m15_entry_block(self, symbol: str, direction: str, price: float,

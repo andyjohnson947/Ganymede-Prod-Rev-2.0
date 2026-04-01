@@ -27,9 +27,9 @@ from ml_system.analysis.cascade_analyzer import CascadeAnalyzer
 from ml_system.ml_optimizer import MLParameterOptimizer
 
 # Don't use basicConfig - it adds global handlers causing duplicate logs
-# Get logger that inherits from parent (MLSystem) via propagation
 logger = logging.getLogger('DecisionReport')
 logger.setLevel(logging.INFO)
+logger.propagate = False  # Don't propagate to root / console
 
 
 class DecisionReportGenerator:
@@ -48,6 +48,94 @@ class DecisionReportGenerator:
         self.MIN_DAILY = 5
         self.MIN_WEEKLY = 15
         self.MIN_MONTHLY = 30
+
+        # Report width (for box drawing)
+        self.WIDTH = 80
+
+    # =========================================================================
+    # BOX DRAWING HELPERS - Clean terminal-style formatting
+    # =========================================================================
+
+    def _box_top(self, title: str = "") -> str:
+        """Draw box top: ┌─ TITLE ────────────┐"""
+        if title:
+            title_part = f"─ {title} "
+            padding = "─" * (self.WIDTH - len(title_part) - 2)
+            return f"┌{title_part}{padding}┐"
+        return "┌" + "─" * (self.WIDTH - 2) + "┐"
+
+    def _box_row(self, content: str) -> str:
+        """Draw box row: │  content           │"""
+        # Truncate if too long
+        max_content = self.WIDTH - 4
+        if len(content) > max_content:
+            content = content[:max_content-2] + ".."
+        padding = " " * (self.WIDTH - len(content) - 4)
+        return f"│  {content}{padding}│"
+
+    def _box_bottom(self) -> str:
+        """Draw box bottom: └────────────────────┘"""
+        return "└" + "─" * (self.WIDTH - 2) + "┘"
+
+    def _box_divider(self) -> str:
+        """Draw inner divider: │  ───────────────  │"""
+        return f"│  {'─' * (self.WIDTH - 6)}  │"
+
+    def _header_box(self, title: str, subtitle: str = "") -> list:
+        """Draw double-line header box"""
+        lines = []
+        lines.append("╔" + "═" * (self.WIDTH - 2) + "╗")
+        # Center title
+        title_padded = title.center(self.WIDTH - 4)
+        lines.append(f"║  {title_padded}║")
+        if subtitle:
+            sub_padded = subtitle.center(self.WIDTH - 4)
+            lines.append(f"║  {sub_padded}║")
+        lines.append("╚" + "═" * (self.WIDTH - 2) + "╝")
+        return lines
+
+    def _table_row(self, values: list, widths: list, align: list = None) -> str:
+        """Format a table row with specified column widths
+
+        Args:
+            values: List of values
+            widths: List of column widths
+            align: List of alignments ('l', 'r', 'c') - default left
+        """
+        if align is None:
+            align = ['l'] * len(values)
+
+        parts = []
+        for i, (val, width) in enumerate(zip(values, widths)):
+            val_str = str(val)[:width]  # Truncate if needed
+            a = align[i] if i < len(align) else 'l'
+            if a == 'r':
+                parts.append(val_str.rjust(width))
+            elif a == 'c':
+                parts.append(val_str.center(width))
+            else:
+                parts.append(val_str.ljust(width))
+
+        content = "  ".join(parts)
+        return self._box_row(content)
+
+    def _format_pct(self, value: float, include_sign: bool = False) -> str:
+        """Format percentage with optional sign"""
+        if include_sign and value > 0:
+            return f"+{value:.0f}%"
+        return f"{value:.0f}%"
+
+    def _format_money(self, value: float, include_sign: bool = True) -> str:
+        """Format money with sign"""
+        if include_sign:
+            return f"${value:+.2f}" if value != 0 else "$0.00"
+        return f"${value:.2f}"
+
+    def _truncate(self, text: str, max_len: int) -> str:
+        """Truncate text with ellipsis if needed"""
+        if len(text) <= max_len:
+            return text
+        return text[:max_len-2] + ".."
 
     def load_bot_config(self):
         """Load current bot configuration"""
@@ -80,7 +168,17 @@ class DecisionReportGenerator:
             return {}
 
     def get_trades(self, days=365):
-        """Get all trades from continuous log"""
+        """Get all trades from SQLite (fallback: JSONL)"""
+        # Try SQLite first
+        try:
+            from ml_system.trade_db import get_trade_db
+            db = get_trade_db()
+            if db:
+                return db.get_trades_since(days)
+        except Exception as e:
+            logger.warning(f"SQLite read failed, falling back to JSONL: {e}")
+
+        # Fallback: parse JSONL
         trades = []
         # Use absolute path based on project root
         project_root = Path(__file__).parent.parent.parent
@@ -453,7 +551,7 @@ class DecisionReportGenerator:
                     'dca_count': dca_count,
                     'adx': t.get('trend_filter', {}).get('adx', 0),
                     'di_spread': t.get('trend_filter', {}).get('di_spread', 0),
-                    'confluence': t.get('confluence_score', 0)
+                    'confluence': t.get('confluence_score') or 0
                 })
 
         if len(dca_trades) < 3:
@@ -540,36 +638,36 @@ class DecisionReportGenerator:
         return analysis
 
     def analyze_vwap_vs_breakout(self, trades):
-        """Compare VWAP (mean reversion) vs BREAKOUT (momentum) performance"""
+        """Compare Mean Reversion vs Breakout (momentum) performance"""
         closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
 
         if len(closed) < self.MIN_DAILY:
             return None
 
         # Separate by strategy type
-        vwap_trades = []
+        mr_trades = []
         breakout_trades = []
         legacy_trades = []
 
         for t in closed:
             strategy_type = t.get('strategy_type', 'confluence')
             win = 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0
-            profit = t.get('outcome', {}).get('profit', 0)
-            confluence = t.get('confluence_score', 0)
+            profit = t.get('outcome', {}).get('profit', 0) or 0
+            confluence = t.get('confluence_score') or 0
 
-            if strategy_type == 'vwap':
-                vwap_trades.append({'win': win, 'profit': profit, 'confluence': confluence})
+            if strategy_type in ('vwap', 'mean_reversion'):
+                mr_trades.append({'win': win, 'profit': profit, 'confluence': confluence})
             elif strategy_type == 'breakout':
                 breakout_trades.append({'win': win, 'profit': profit, 'confluence': confluence})
             else:
                 legacy_trades.append({'win': win, 'profit': profit, 'confluence': confluence})
 
         analysis = {
-            'vwap': {
-                'count': len(vwap_trades),
-                'winrate': sum(t['win'] for t in vwap_trades) / len(vwap_trades) if vwap_trades else 0,
-                'avg_profit': sum(t['profit'] for t in vwap_trades) / len(vwap_trades) if vwap_trades else 0,
-                'avg_confluence': sum(t['confluence'] for t in vwap_trades) / len(vwap_trades) if vwap_trades else 0
+            'mean_reversion': {
+                'count': len(mr_trades),
+                'winrate': sum(t['win'] for t in mr_trades) / len(mr_trades) if mr_trades else 0,
+                'avg_profit': sum(t['profit'] for t in mr_trades) / len(mr_trades) if mr_trades else 0,
+                'avg_confluence': sum(t['confluence'] for t in mr_trades) / len(mr_trades) if mr_trades else 0
             },
             'breakout': {
                 'count': len(breakout_trades),
@@ -585,6 +683,396 @@ class DecisionReportGenerator:
         }
 
         return analysis
+
+    def analyze_per_symbol_performance(self, trades):
+        """Analyze performance broken down by trading symbol"""
+        closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
+
+        if len(closed) < self.MIN_DAILY:
+            return {}
+
+        # Group by symbol
+        symbol_data = defaultdict(list)
+        for t in closed:
+            symbol = t.get('symbol', 'UNKNOWN')
+            win = 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0
+            profit = t.get('outcome', {}).get('profit', 0) or 0
+            factors = t.get('confluence_factors', [])
+
+            symbol_data[symbol].append({
+                'win': win,
+                'profit': profit,
+                'factors': factors
+            })
+
+        # Calculate per-symbol stats
+        results = {}
+        for symbol, trades_list in symbol_data.items():
+            wins = sum(t['win'] for t in trades_list)
+            total = len(trades_list)
+            total_profit = sum(t['profit'] for t in trades_list)
+
+            # Find best and worst factors for this symbol
+            factor_wins = defaultdict(lambda: {'wins': 0, 'total': 0})
+            for t in trades_list:
+                for factor in t['factors']:
+                    factor_wins[factor]['total'] += 1
+                    factor_wins[factor]['wins'] += t['win']
+
+            # Get factor win rates (minimum 2 occurrences)
+            factor_rates = {
+                f: stats['wins'] / stats['total']
+                for f, stats in factor_wins.items()
+                if stats['total'] >= 2
+            }
+
+            best_factor = max(factor_rates.items(), key=lambda x: x[1]) if factor_rates else (None, 0)
+            worst_factor = min(factor_rates.items(), key=lambda x: x[1]) if factor_rates else (None, 0)
+
+            results[symbol] = {
+                'count': total,
+                'wins': wins,
+                'winrate': wins / total if total > 0 else 0,
+                'total_profit': total_profit,
+                'avg_profit': total_profit / total if total > 0 else 0,
+                'best_factor': best_factor[0],
+                'best_factor_rate': best_factor[1],
+                'worst_factor': worst_factor[0],
+                'worst_factor_rate': worst_factor[1]
+            }
+
+        return results
+
+    def analyze_di_alignment(self, trades):
+        """Analyze DI filter alignment with trade direction and outcomes"""
+        closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
+
+        if len(closed) < self.MIN_DAILY:
+            return None
+
+        # Categorize trades by DI alignment
+        di_aligned_buy = []  # +DI > -DI and BUY
+        di_aligned_sell = []  # -DI > +DI and SELL
+        di_neutral = []  # Small DI gap
+
+        for t in closed:
+            trend_filter = t.get('trend_filter', {})
+            plus_di = trend_filter.get('plus_di', 0)
+            minus_di = trend_filter.get('minus_di', 0)
+            direction = t.get('direction', '').upper()
+            win = 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0
+            profit = t.get('outcome', {}).get('profit', 0) or 0
+
+            di_gap = abs(plus_di - minus_di)
+
+            if di_gap < 3:  # Neutral zone
+                di_neutral.append({'win': win, 'profit': profit})
+            elif plus_di > minus_di and direction == 'BUY':
+                di_aligned_buy.append({'win': win, 'profit': profit})
+            elif minus_di > plus_di and direction == 'SELL':
+                di_aligned_sell.append({'win': win, 'profit': profit})
+            elif plus_di > minus_di and direction == 'SELL':
+                # Counter-DI sell
+                di_neutral.append({'win': win, 'profit': profit, 'counter': True})
+            elif minus_di > plus_di and direction == 'BUY':
+                # Counter-DI buy
+                di_neutral.append({'win': win, 'profit': profit, 'counter': True})
+
+        def calc_stats(trade_list):
+            if not trade_list:
+                return {'count': 0, 'winrate': 0, 'avg_profit': 0}
+            return {
+                'count': len(trade_list),
+                'winrate': sum(t['win'] for t in trade_list) / len(trade_list),
+                'avg_profit': sum(t['profit'] for t in trade_list) / len(trade_list)
+            }
+
+        return {
+            'bullish_buy': calc_stats(di_aligned_buy),
+            'bearish_sell': calc_stats(di_aligned_sell),
+            'neutral': calc_stats(di_neutral),
+            'total_aligned': len(di_aligned_buy) + len(di_aligned_sell),
+            'total_neutral': len(di_neutral)
+        }
+
+    def analyze_smc_correlation(self, trades):
+        """
+        Analyze SMC (BOS/CHOCH) correlation with trade outcomes.
+        Reads from smc_trade_correlation.jsonl which contains SMC state at trade entry.
+        """
+        closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
+
+        if len(closed) < self.MIN_DAILY:
+            return None
+
+        # Load SMC correlation data from dedicated log
+        project_root = Path(__file__).parent.parent.parent
+        smc_log = project_root / 'ml_system' / 'outputs' / 'smc_trade_correlation.jsonl'
+
+        if not smc_log.exists():
+            return None
+
+        # Build lookup of SMC state by timestamp (approximate match within 5 minutes)
+        smc_data_by_time = {}
+        try:
+            with open(str(smc_log), 'r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        entry = json.loads(line.strip())
+                        ts = entry.get('timestamp', '')
+                        symbol = entry.get('symbol', '')
+                        if ts and symbol:
+                            key = f"{symbol}_{ts[:16]}"  # Match by symbol + minute
+                            smc_data_by_time[key] = entry.get('smc_state', {})
+                    except:
+                        continue
+        except Exception as e:
+            logger.warning(f"Failed to load SMC correlation log: {e}")
+            return None
+
+        # Match trades to SMC data
+        with_bos = []
+        with_choch = []
+        no_smc = []
+
+        for t in closed:
+            win = 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0
+            profit = t.get('outcome', {}).get('profit', 0) or 0
+            direction = t.get('direction', '').upper()
+
+            # Try to find matching SMC data
+            entry_time = t.get('entry_time', '')
+            symbol = t.get('symbol', '')
+
+            smc_state = None
+            if entry_time and symbol:
+                # Try exact minute match
+                key = f"{symbol}_{entry_time[:16]}"
+                smc_state = smc_data_by_time.get(key)
+
+            trade_data = {'win': win, 'profit': profit, 'direction': direction}
+
+            if smc_state and smc_state.get('available'):
+                # Check entry timeframe for BOS/CHOCH
+                entry_tf = smc_state.get('entry_tf', {})
+                latest_bos = entry_tf.get('latest_bos', {})
+                latest_choch = entry_tf.get('latest_choch', {})
+
+                # BOS within recent bars (< 50 bars ago) is considered active
+                has_recent_bos = latest_bos and latest_bos.get('bars_ago', 999) < 50
+                has_recent_choch = latest_choch and latest_choch.get('bars_ago', 999) < 50
+
+                # Check alignment with trade direction
+                bos_dir = latest_bos.get('direction', '') if latest_bos else ''
+                choch_dir = latest_choch.get('direction', '') if latest_choch else ''
+
+                # Trade aligns with BOS direction?
+                bos_aligned = (direction == 'BUY' and bos_dir == 'bullish') or \
+                              (direction == 'SELL' and bos_dir == 'bearish')
+
+                # Trade aligns with CHOCH direction?
+                choch_aligned = (direction == 'BUY' and choch_dir == 'bullish') or \
+                                (direction == 'SELL' and choch_dir == 'bearish')
+
+                if has_recent_bos and bos_aligned:
+                    with_bos.append(trade_data)
+                elif has_recent_choch and choch_aligned:
+                    with_choch.append(trade_data)
+                else:
+                    no_smc.append(trade_data)
+            else:
+                no_smc.append(trade_data)
+
+        def calc_stats(trade_list):
+            if not trade_list:
+                return {'count': 0, 'winrate': 0, 'avg_profit': 0}
+            return {
+                'count': len(trade_list),
+                'winrate': sum(t['win'] for t in trade_list) / len(trade_list),
+                'avg_profit': sum(t['profit'] for t in trade_list) / len(trade_list)
+            }
+
+        return {
+            'with_bos': calc_stats(with_bos),
+            'with_choch': calc_stats(with_choch),
+            'no_smc': calc_stats(no_smc)
+        }
+
+    def analyze_execution_quality(self, trades):
+        """Analyze trade execution quality metrics"""
+        closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
+
+        if len(closed) < self.MIN_DAILY:
+            return None
+
+        slippages = []
+        spreads = []
+        exact_fills = 0
+
+        for t in closed:
+            exec_data = t.get('execution_quality', {})
+            if exec_data:
+                slip = exec_data.get('slippage_pips', 0)
+                spread = exec_data.get('spread_at_entry_pips', 0)
+
+                if slip is not None:
+                    slippages.append(slip)
+                    if slip == 0:
+                        exact_fills += 1
+                if spread is not None:
+                    spreads.append(spread)
+
+        if not slippages:
+            return None
+
+        return {
+            'avg_slippage': sum(slippages) / len(slippages),
+            'max_slippage': max(slippages),
+            'exact_fill_pct': exact_fills / len(slippages) * 100 if slippages else 0,
+            'within_1_pip_pct': sum(1 for s in slippages if s <= 1) / len(slippages) * 100,
+            'avg_spread': sum(spreads) / len(spreads) if spreads else 0,
+            'sample_size': len(slippages)
+        }
+
+    def analyze_factors_by_day(self, trades):
+        """Analyze which confluence factors work best on which days"""
+        closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
+
+        if len(closed) < self.MIN_WEEKLY:
+            return None
+
+        # Build factor-day matrix
+        factor_day_stats = defaultdict(lambda: defaultdict(lambda: {'wins': 0, 'total': 0}))
+
+        for t in closed:
+            entry_time = t.get('entry_time')
+            if not entry_time:
+                continue
+
+            try:
+                if isinstance(entry_time, str):
+                    dt = datetime.fromisoformat(entry_time.replace('Z', '+00:00'))
+                else:
+                    dt = entry_time
+                day_name = dt.strftime('%A')
+            except:
+                continue
+
+            win = 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0
+            factors = t.get('confluence_factors', [])
+
+            for factor in factors:
+                factor_day_stats[factor][day_name]['total'] += 1
+                factor_day_stats[factor][day_name]['wins'] += win
+
+        # Find significant patterns (factors with >= 3 trades on a day)
+        patterns = []
+        day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+
+        for factor, day_stats in factor_day_stats.items():
+            # Calculate overall factor win rate
+            total_wins = sum(d['wins'] for d in day_stats.values())
+            total_trades = sum(d['total'] for d in day_stats.values())
+            if total_trades < 5:
+                continue
+            overall_wr = total_wins / total_trades
+
+            # Find best and worst days for this factor
+            day_rates = []
+            for day in day_order:
+                if day in day_stats and day_stats[day]['total'] >= 2:
+                    day_wr = day_stats[day]['wins'] / day_stats[day]['total']
+                    day_rates.append((day, day_wr, day_stats[day]['total']))
+
+            if len(day_rates) >= 2:
+                best_day = max(day_rates, key=lambda x: x[1])
+                worst_day = min(day_rates, key=lambda x: x[1])
+
+                # Only report if there's a significant difference (>20%)
+                if best_day[1] - worst_day[1] > 0.2:
+                    patterns.append({
+                        'factor': factor,
+                        'overall_wr': overall_wr,
+                        'best_day': best_day[0],
+                        'best_day_wr': best_day[1],
+                        'best_day_count': best_day[2],
+                        'worst_day': worst_day[0],
+                        'worst_day_wr': worst_day[1],
+                        'worst_day_count': worst_day[2],
+                        'edge': best_day[1] - worst_day[1]
+                    })
+
+        # Sort by edge (biggest day-to-day difference)
+        patterns.sort(key=lambda x: x['edge'], reverse=True)
+
+        return patterns[:10] if patterns else None
+
+    def analyze_factors_by_hour(self, trades):
+        """Analyze which confluence factors work best at which hours"""
+        closed = [t for t in trades if t.get('outcome', {}).get('status') == 'closed']
+
+        if len(closed) < self.MIN_WEEKLY:
+            return None
+
+        # Build factor-hour matrix
+        factor_hour_stats = defaultdict(lambda: defaultdict(lambda: {'wins': 0, 'total': 0}))
+
+        for t in closed:
+            entry_time = t.get('entry_time')
+            if not entry_time:
+                continue
+
+            try:
+                if isinstance(entry_time, str):
+                    dt = datetime.fromisoformat(entry_time.replace('Z', '+00:00'))
+                else:
+                    dt = entry_time
+                hour = dt.hour
+            except:
+                continue
+
+            win = 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0
+            factors = t.get('confluence_factors', [])
+
+            for factor in factors:
+                factor_hour_stats[factor][hour]['total'] += 1
+                factor_hour_stats[factor][hour]['wins'] += win
+
+        # Find significant patterns
+        patterns = []
+
+        for factor, hour_stats in factor_hour_stats.items():
+            total_trades = sum(d['total'] for d in hour_stats.values())
+            if total_trades < 5:
+                continue
+
+            # Find best and worst hours for this factor
+            hour_rates = []
+            for hour, stats in hour_stats.items():
+                if stats['total'] >= 2:
+                    hour_wr = stats['wins'] / stats['total']
+                    hour_rates.append((hour, hour_wr, stats['total']))
+
+            if len(hour_rates) >= 2:
+                best_hour = max(hour_rates, key=lambda x: x[1])
+                worst_hour = min(hour_rates, key=lambda x: x[1])
+
+                # Only report if there's a significant difference (>25%)
+                if best_hour[1] - worst_hour[1] > 0.25:
+                    patterns.append({
+                        'factor': factor,
+                        'best_hour': best_hour[0],
+                        'best_hour_wr': best_hour[1],
+                        'best_hour_count': best_hour[2],
+                        'worst_hour': worst_hour[0],
+                        'worst_hour_wr': worst_hour[1],
+                        'worst_hour_count': worst_hour[2],
+                        'edge': best_hour[1] - worst_hour[1]
+                    })
+
+        patterns.sort(key=lambda x: x['edge'], reverse=True)
+
+        return patterns[:5] if patterns else None
 
     def generate_recommendations(self, trades):
         """Generate prioritized recommendations"""
@@ -619,7 +1107,7 @@ class DecisionReportGenerator:
 
         # Confluence threshold analysis
         df = pd.DataFrame([{
-            'confluence': t.get('confluence_score', 0),
+            'confluence': t.get('confluence_score') or 0,
             'win': 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0,
         } for t in closed])
 
@@ -639,7 +1127,324 @@ class DecisionReportGenerator:
         return recommendations
 
     def generate_report(self):
-        """Generate decision-focused report"""
+        """Generate decision-focused report with clean formatting"""
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+        date_str = datetime.now().strftime('%Y-%m-%d')
+
+        # Load data
+        trades_7d = self.get_trades(days=7)
+        trades_30d = self.get_trades(days=30)
+        trades_all = self.get_trades(days=365)
+        config = self.load_bot_config()
+
+        closed_7d = [t for t in trades_7d if t.get('outcome', {}).get('status') == 'closed']
+        closed_30d = [t for t in trades_30d if t.get('outcome', {}).get('status') == 'closed']
+        closed_all = [t for t in trades_all if t.get('outcome', {}).get('status') == 'closed']
+
+        # Calculate summary stats
+        winrate_7d = sum(1 for t in closed_7d if t.get('outcome', {}).get('profit', 0) > 0) / len(closed_7d) if closed_7d else 0
+        avg_profit_7d = sum(t.get('outcome', {}).get('profit', 0) for t in closed_7d) / len(closed_7d) if closed_7d else 0
+
+        # Build report
+        report = []
+
+        # ═══════════════════════════════════════════════════════════════════════
+        # HEADER
+        # ═══════════════════════════════════════════════════════════════════════
+        report.extend(self._header_box(
+            "ML DECISION REPORT",
+            f"{len(closed_7d)} trades | {winrate_7d*100:.0f}% win | {self._format_money(avg_profit_7d)} avg | {timestamp}"
+        ))
+        report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # ACTION ITEMS
+        # ───────────────────────────────────────────────────────────────────────
+        report.append(self._box_top("ACTION ITEMS"))
+
+        recommendations = self.generate_recommendations(trades_7d)
+
+        if len(closed_7d) < self.MIN_DAILY:
+            report.append(self._box_row(f"Collecting data... {len(closed_7d)}/{self.MIN_DAILY} trades needed"))
+        else:
+            high_priority = [r for r in recommendations if r.get('priority') == 'HIGH']
+            medium_priority = [r for r in recommendations if r.get('priority') == 'MEDIUM']
+            low_priority = [r for r in recommendations if r.get('priority') == 'LOW']
+
+            if high_priority:
+                for rec in high_priority:
+                    report.append(self._box_row(f"! {rec.get('setting')}: {rec.get('current')} -> {rec.get('optimal')}"))
+            if medium_priority:
+                for rec in medium_priority:
+                    report.append(self._box_row(f"* {rec.get('setting')}: {rec.get('current')} -> {rec.get('optimal')}"))
+            if low_priority:
+                for rec in low_priority:
+                    report.append(self._box_row(f"~ {rec.get('setting')}: {rec.get('current')} -> {rec.get('optimal')}"))
+
+            if not (high_priority or medium_priority or low_priority):
+                report.append(self._box_row("All settings optimal - no changes needed"))
+
+        report.append(self._box_bottom())
+        report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # CONFIG VS OPTIMAL
+        # ───────────────────────────────────────────────────────────────────────
+        report.append(self._box_top("CONFIG vs OPTIMAL"))
+
+        # Get ML recommendations
+        ml_rec = self.ml_optimizer.get_all_recommendations(trades_30d) if len(trades_30d) >= 10 else {}
+        conf_rec = ml_rec.get('confluence_threshold', {})
+        conf_optimal = conf_rec.get('optimal', '-')
+        weights = ml_rec.get('weights', {})
+
+        # Header row
+        report.append(self._table_row(
+            ['Setting', 'Current', 'Optimal', 'Status'],
+            [24, 12, 12, 10],
+            ['l', 'c', 'c', 'c']
+        ))
+        report.append(self._box_divider())
+
+        # Config rows
+        config_data = [
+            ('Confluence Threshold', str(config.get('confluence_threshold', 8)), str(conf_optimal), 'REVIEW' if conf_optimal != config.get('confluence_threshold', 8) else 'OK'),
+            ('DCA Enabled', 'Yes' if config.get('dca_enabled') else 'No', 'Yes', 'OK'),
+            ('Grid Enabled', 'Yes' if config.get('grid_enabled') else 'No', 'Yes', 'OK'),
+            ('Hedge Enabled', 'Yes' if config.get('hedge_enabled') else 'No', 'Sparingly', 'REVIEW' if config.get('hedge_enabled') else 'OK'),
+        ]
+
+        for row in config_data:
+            status_icon = '.' if row[3] == 'OK' else '!'
+            report.append(self._table_row(
+                [row[0], row[1], row[2], f"{status_icon} {row[3]}"],
+                [24, 12, 12, 10],
+                ['l', 'c', 'c', 'c']
+            ))
+
+        report.append(self._box_bottom())
+        report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # STRATEGY PERFORMANCE
+        # ───────────────────────────────────────────────────────────────────────
+        vb_analysis = self.analyze_vwap_vs_breakout(trades_7d)
+        if vb_analysis and (vb_analysis['mean_reversion']['count'] > 0 or vb_analysis['breakout']['count'] > 0):
+            report.append(self._box_top("STRATEGY PERFORMANCE"))
+
+            report.append(self._table_row(
+                ['Strategy', 'Trades', 'Win%', 'Avg P/L', 'Note'],
+                [18, 8, 8, 10, 22],
+                ['l', 'r', 'r', 'r', 'l']
+            ))
+            report.append(self._box_divider())
+
+            mr = vb_analysis['mean_reversion']
+            bo = vb_analysis['breakout']
+
+            if mr['count'] > 0:
+                mr_note = ""
+                if bo['count'] > 0 and mr['winrate'] > bo['winrate'] + 0.1:
+                    mr_note = f"+{(mr['winrate']-bo['winrate'])*100:.0f}% vs BO"
+                report.append(self._table_row(
+                    ['MEAN REVERSION', str(mr['count']), f"{mr['winrate']*100:.0f}%", self._format_money(mr['avg_profit']), mr_note],
+                    [18, 8, 8, 10, 22],
+                    ['l', 'r', 'r', 'r', 'l']
+                ))
+
+            if bo['count'] > 0:
+                bo_note = "All losses" if bo['winrate'] == 0 else ""
+                report.append(self._table_row(
+                    ['BREAKOUT', str(bo['count']), f"{bo['winrate']*100:.0f}%", self._format_money(bo['avg_profit']), bo_note],
+                    [18, 8, 8, 10, 22],
+                    ['l', 'r', 'r', 'r', 'l']
+                ))
+
+            report.append(self._box_bottom())
+            report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # SYMBOL BREAKDOWN
+        # ───────────────────────────────────────────────────────────────────────
+        symbol_perf = self.analyze_per_symbol_performance(trades_7d)
+        if symbol_perf:
+            report.append(self._box_top("SYMBOL BREAKDOWN"))
+
+            report.append(self._table_row(
+                ['Symbol', 'Trades', 'Win%', 'P/L', 'Best Factor', 'Worst Factor'],
+                [8, 7, 7, 9, 18, 18],
+                ['l', 'r', 'r', 'r', 'l', 'l']
+            ))
+            report.append(self._box_divider())
+
+            for symbol, stats in sorted(symbol_perf.items()):
+                best = f"{self._truncate(stats['best_factor'], 12)} ({stats['best_factor_rate']*100:.0f}%)" if stats['best_factor'] else "-"
+                worst = f"{self._truncate(stats['worst_factor'], 12)} ({stats['worst_factor_rate']*100:.0f}%)" if stats['worst_factor'] else "-"
+                report.append(self._table_row(
+                    [symbol, str(stats['count']), f"{stats['winrate']*100:.0f}%", self._format_money(stats['avg_profit']), best, worst],
+                    [8, 7, 7, 9, 18, 18],
+                    ['l', 'r', 'r', 'r', 'l', 'l']
+                ))
+
+            report.append(self._box_bottom())
+            report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # TOP FACTORS
+        # ───────────────────────────────────────────────────────────────────────
+        if len(closed_7d) >= self.MIN_DAILY:
+            factors = self.analyze_confluence_factors(trades_7d)
+            if factors:
+                report.append(self._box_top("TOP CONFLUENCE FACTORS"))
+
+                report.append(self._table_row(
+                    ['Factor', 'Trades', 'Win%', 'Edge'],
+                    [26, 8, 8, 10],
+                    ['l', 'r', 'r', 'r']
+                ))
+                report.append(self._box_divider())
+
+                for factor_name, stats in list(factors.items())[:8]:
+                    edge_str = f"+{stats['edge']*100:.0f}%" if stats['edge'] > 0 else f"{stats['edge']*100:.0f}%"
+                    report.append(self._table_row(
+                        [self._truncate(factor_name, 26), str(stats['count']), f"{stats['winrate']*100:.0f}%", edge_str],
+                        [26, 8, 8, 10],
+                        ['l', 'r', 'r', 'r']
+                    ))
+
+                # Best/Worst insight
+                report.append(self._box_divider())
+                best_factor = list(factors.items())[0]
+                worst_factor = list(factors.items())[-1]
+                report.append(self._box_row(f"BEST: {best_factor[0]} ({best_factor[1]['winrate']*100:.0f}% win, +{best_factor[1]['edge']*100:.0f}% edge)"))
+                if worst_factor[1]['edge'] < 0:
+                    report.append(self._box_row(f"WORST: {worst_factor[0]} ({worst_factor[1]['winrate']*100:.0f}% win, {worst_factor[1]['edge']*100:.0f}% edge)"))
+
+                report.append(self._box_bottom())
+                report.append("")
+
+                # Best combos (compact)
+                combos = self.analyze_confluence_combinations(trades_7d)
+                if combos:
+                    report.append(self._box_top("BEST FACTOR COMBOS"))
+                    for i, combo in enumerate(combos[:3], 1):
+                        report.append(self._box_row(f"{i}. {combo['factors']} = {combo['winrate']*100:.0f}% ({combo['count']} trades)"))
+                    report.append(self._box_bottom())
+                    report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # TIMING PATTERNS
+        # ───────────────────────────────────────────────────────────────────────
+        patterns = self.analyze_time_patterns(trades_7d)
+        regime = self.analyze_market_regime(trades_7d)
+
+        if len(closed_7d) >= self.MIN_DAILY:
+            report.append(self._box_top("TIMING & MARKET"))
+
+            if patterns['best_hours']:
+                best_h, best_wr, best_cnt = patterns['best_hours'][0]
+                report.append(self._box_row(f"Best Hour:  {best_h:02d}:00 UTC ({best_wr*100:.0f}% win, {best_cnt} trades)"))
+            if patterns['worst_hours']:
+                worst_h, worst_wr, worst_cnt = patterns['worst_hours'][0]
+                report.append(self._box_row(f"Avoid:      {worst_h:02d}:00 UTC ({worst_wr*100:.0f}% win, {worst_cnt} trades)"))
+            if patterns['best_days']:
+                best_day, best_wr, best_cnt = patterns['best_days'][0]
+                report.append(self._box_row(f"Best Day:   {best_day} ({best_wr*100:.0f}% win, {best_cnt} trades)"))
+            if patterns['worst_days']:
+                worst_day, worst_wr, worst_cnt = patterns['worst_days'][0]
+                report.append(self._box_row(f"Worst Day:  {worst_day} ({worst_wr*100:.0f}% win, {worst_cnt} trades)"))
+
+            if regime:
+                report.append(self._box_divider())
+                report.append(self._box_row(f"Ranging (ADX<20):   {regime['ranging']['count']} trades, {regime['ranging']['winrate']*100:.0f}% win"))
+                report.append(self._box_row(f"Trending (ADX>20):  {regime['trending']['count']} trades, {regime['trending']['winrate']*100:.0f}% win"))
+                report.append(self._box_row(f"Current:            {regime['current_dominant'].upper()}"))
+
+            report.append(self._box_bottom())
+            report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # RECOVERY SUMMARY (compact)
+        # ───────────────────────────────────────────────────────────────────────
+        init_rec = self.analyze_initial_vs_recovery(trades_7d)
+        dca_analysis = self.analyze_dca_success_factors(trades_7d)
+        grid_analysis = self.analyze_grid_performance(trades_7d)
+        hedge_analysis = self.analyze_hedge_success_factors(trades_7d)
+
+        has_recovery_data = init_rec or dca_analysis or grid_analysis or hedge_analysis
+
+        if has_recovery_data:
+            report.append(self._box_top("RECOVERY MECHANISMS"))
+
+            if init_rec:
+                init_wr = init_rec['initial']['winrate'] * 100
+                rec_wr = init_rec['recovery']['winrate'] * 100
+                diff = rec_wr - init_wr
+                sign = "+" if diff > 0 else ""
+                report.append(self._box_row(f"Initial: {init_rec['initial']['count']} trades @ {init_wr:.0f}% | Recovery: {init_rec['recovery']['count']} @ {rec_wr:.0f}% ({sign}{diff:.0f}%)"))
+
+            if dca_analysis:
+                report.append(self._box_row(f"DCA: {dca_analysis['total']} trades @ {dca_analysis['winrate']*100:.0f}% win, avg {dca_analysis['avg_dca_count']:.1f} levels"))
+            if grid_analysis:
+                report.append(self._box_row(f"Grid: {grid_analysis['total']} trades @ {grid_analysis['winrate']*100:.0f}% win"))
+            if hedge_analysis:
+                report.append(self._box_row(f"Hedge: {hedge_analysis['total']} trades @ {hedge_analysis['winrate']*100:.0f}% win"))
+
+            report.append(self._box_bottom())
+            report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # EXECUTION QUALITY (compact)
+        # ───────────────────────────────────────────────────────────────────────
+        exec_analysis = self.analyze_execution_quality(trades_7d)
+        if exec_analysis and exec_analysis['sample_size'] > 0:
+            report.append(self._box_top("EXECUTION QUALITY"))
+            report.append(self._box_row(f"Slippage: avg {exec_analysis['avg_slippage']:.2f} pips, max {exec_analysis['max_slippage']:.2f} pips"))
+            report.append(self._box_row(f"Exact fills: {exec_analysis['exact_fill_pct']:.0f}% | Spread: {exec_analysis['avg_spread']:.2f} pips avg"))
+            report.append(self._box_bottom())
+            report.append("")
+
+        # ───────────────────────────────────────────────────────────────────────
+        # CASCADE PROTECTION (compact)
+        # ───────────────────────────────────────────────────────────────────────
+        try:
+            events = self.cascade_analyzer.parse_stop_out_log()
+            if events:
+                analysis = self.cascade_analyzer.analyze_stop_out_patterns(events)
+                report.append(self._box_top("CASCADE PROTECTION"))
+                report.append(self._box_row(f"Stop-outs: {analysis['total_stops']} | Avg loss: {self._format_money(analysis['avg_loss'])} | Max: {self._format_money(analysis['max_loss'])}"))
+                if analysis.get('cascades_detected', 0) > 0:
+                    report.append(self._box_row(f"Cascade events: {analysis['cascades_detected']}"))
+                report.append(self._box_bottom())
+                report.append("")
+        except Exception:
+            pass  # Skip cascade section if error
+
+        # ───────────────────────────────────────────────────────────────────────
+        # FOOTER
+        # ───────────────────────────────────────────────────────────────────────
+        report.append(self._box_top("SUMMARY"))
+        report.append(self._box_row(f"7 Days:  {len(closed_7d)} trades | {winrate_7d*100:.1f}% win | {self._format_money(avg_profit_7d)} avg"))
+        if len(closed_30d) > 0:
+            wr_30d = sum(1 for t in closed_30d if t.get('outcome', {}).get('profit', 0) > 0) / len(closed_30d)
+            avg_30d = sum(t.get('outcome', {}).get('profit', 0) for t in closed_30d) / len(closed_30d)
+            report.append(self._box_row(f"30 Days: {len(closed_30d)} trades | {wr_30d*100:.1f}% win | {self._format_money(avg_30d)} avg"))
+        report.append(self._box_row(f"All Time: {len(closed_all)} trades"))
+        report.append(self._box_bottom())
+
+        report_text = '\n'.join(report)
+
+        # Save report
+        report_file = self.report_dir / f'decision_report_{date_str}.txt'
+        with open(str(report_file), 'w', encoding='utf-8', errors='ignore') as f:
+            f.write(report_text)
+
+        logger.info(f"[OK] Decision report saved to: {report_file}")
+
+        return report_text, str(report_file)
+
+    def generate_report_legacy(self):
+        """LEGACY: Old verbose report format - kept for reference"""
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         date_str = datetime.now().strftime('%Y-%m-%d')
 
@@ -706,374 +1511,24 @@ class DecisionReportGenerator:
                     report.append(f"  - {rec.get('setting', 'setting')}: {rec.get('current', 'N/A')} -> {rec.get('optimal', 'N/A')}")
                 report.append("")
 
+            # Info-level items (not enough data, etc.)
+            info_items = [r for r in recommendations if r.get('priority') == 'INFO']
+
             if not (high_priority or medium_priority or low_priority):
-                report.append("[OK] NO CHANGES RECOMMENDED")
-                report.append("Your current settings are performing optimally.")
-                report.append("")
-
-        # Section 2: Config Comparison Table
-        report.append("SECTION 2: CURRENT CONFIG vs ML OPTIMAL")
-        report.append("=" * 80)
-        report.append(f"{'Setting':<25} {'Current':<15} {'ML Optimal':<15} {'Status':<10}")
-        report.append("-" * 80)
-
-        # Get ML recommendations
-        ml_rec = self.ml_optimizer.get_all_recommendations(trades_30d) if len(trades_30d) >= 10 else {}
-
-        # Confluence threshold
-        conf_rec = ml_rec.get('confluence_threshold', {})
-        conf_optimal = conf_rec.get('optimal', 'Need more data')
-        conf_status = 'OPTIMAL' if conf_optimal == config.get('confluence_threshold', 8) else 'REVIEW'
-
-        # ADX filter
-        adx_rec = ml_rec.get('adx_filter', {})
-        adx_optimal = adx_rec.get('optimal', 'Need more data')
-        if adx_optimal == 'Need more data':
-            adx_optimal_str = 'Analyzing...'
-        elif adx_optimal is None:
-            adx_optimal_str = 'None'
-        else:
-            adx_optimal_str = f">= {adx_optimal}"
-
-        # Weight recommendations
-        weights = ml_rec.get('weights', {})
-        swing_low_opt = weights.get('at_swing_low', {}).get('optimal', 'Analyzing...')
-        swing_high_opt = weights.get('at_swing_high', {}).get('optimal', 'Analyzing...')
-
-        # Build config table
-        config_rows = [
-            ('Confluence Threshold', config.get('confluence_threshold', 8), conf_optimal, conf_status),
-            ('Swing Low Weight', config.get('swing_low_weight', 1), swing_low_opt, 'ACTIVE'),
-            ('Swing High Weight', config.get('swing_high_weight', 1), swing_high_opt, 'ACTIVE'),
-            ('ADX Filter', 'None', adx_optimal_str, 'ACTIVE'),
-            ('DCA Enabled', 'Yes' if config.get('dca_enabled', True) else 'No', 'Yes', 'OPTIMAL'),
-            ('DCA Trigger (pips)', config.get('dca_trigger_pips', 20), '20-35', 'OPTIMAL'),
-            ('Grid (Positive)', 'Yes' if config.get('grid_enabled', True) else 'No', 'Yes', 'OPTIMAL'),
-            ('Hedge Enabled', 'Yes' if config.get('hedge_enabled', False) else 'No', 'Use sparingly', 'REVIEW'),
-        ]
-
-        for setting, current, optimal, status in config_rows:
-            report.append(f"{setting:<25} {str(current):<15} {str(optimal):<15} {status:<10}")
-
-        report.append("")
-
-        # Section 3: Confluence Analysis
-        report.append("SECTION 3: CONFLUENCE ANALYSIS")
-        report.append("=" * 80)
-
-        if len(closed_7d) >= self.MIN_DAILY:
-            # Individual factors
-            factors = self.analyze_confluence_factors(trades_7d)
-
-            if factors:
-                report.append("INDIVIDUAL CONFLUENCE FACTORS (Ranked by Edge):")
-                report.append("")
-                report.append(f"{'Factor':<25} {'Count':<8} {'Win%':<10} {'Win% Without':<15} {'Edge':<10}")
-                report.append("-" * 80)
-
-                for factor_name, stats in list(factors.items())[:10]:
-                    edge_str = f"+{stats['edge']*100:.1f}%" if stats['edge'] > 0 else f"{stats['edge']*100:.1f}%"
-                    report.append(
-                        f"{factor_name:<25} "
-                        f"{stats['count']:<8} "
-                        f"{stats['winrate']*100:<9.0f}% "
-                        f"{stats['winrate_without']*100:<14.0f}% "
-                        f"{edge_str:<10}"
-                    )
-                report.append("")
-
-                # Specific insights (NOT vague!)
-                best_factor = list(factors.items())[0]
-                worst_factor = list(factors.items())[-1]
-
-                report.append("KEY INSIGHTS:")
-                report.append(f"  [+] BEST: {best_factor[0]} wins {best_factor[1]['winrate']*100:.0f}% ({best_factor[1]['count']} trades)")
-                report.append(f"      Trades WITHOUT this factor only win {best_factor[1]['winrate_without']*100:.0f}%")
-                report.append(f"      EDGE: +{best_factor[1]['edge']*100:.1f}% advantage")
-                report.append("")
-
-                if worst_factor[1]['edge'] < 0:
-                    report.append(f"  [-] WORST: {worst_factor[0]} wins {worst_factor[1]['winrate']*100:.0f}% ({worst_factor[1]['count']} trades)")
-                    report.append(f"      Trades WITHOUT this factor win {worst_factor[1]['winrate_without']*100:.0f}%")
-                    report.append(f"      EDGE: {worst_factor[1]['edge']*100:.1f}% (negative)")
+                if info_items:
+                    # Show info items instead of "NO CHANGES"
+                    report.append("[i] STATUS:")
+                    for info in info_items:
+                        report.append(f"  - {info.get('message', 'Collecting data')}")
+                        if info.get('action'):
+                            report.append(f"    -> {info['action']}")
+                    report.append("")
+                else:
+                    report.append("[OK] ALL SETTINGS OPTIMAL")
+                    report.append("No changes recommended based on recent performance.")
                     report.append("")
 
-            # Combinations
-            combos = self.analyze_confluence_combinations(trades_7d)
-            if combos:
-                report.append("BEST CONFLUENCE COMBINATIONS:")
-                report.append("")
-                for i, combo in enumerate(combos[:3], 1):
-                    report.append(f"  {i}. {combo['factors']}")
-                    report.append(f"     Win Rate: {combo['winrate']*100:.0f}% ({combo['count']} trades)")
-                report.append("")
-        else:
-            report.append(f"[INFO] Need {self.MIN_DAILY - len(closed_7d)} more trades for confluence analysis")
-            report.append("")
-
-        # VWAP vs BREAKOUT Strategy Comparison
-        vb_analysis = self.analyze_vwap_vs_breakout(trades_7d)
-        if vb_analysis and (vb_analysis['vwap']['count'] > 0 or vb_analysis['breakout']['count'] > 0):
-            report.append("STRATEGY TYPE PERFORMANCE:")
-            report.append("")
-            report.append(f"{'Strategy':<20} {'Count':<10} {'Win Rate':<15} {'Avg Profit':<15} {'Avg Confluence':<15}")
-            report.append("-" * 80)
-
-            if vb_analysis['vwap']['count'] > 0:
-                report.append(
-                    f"{'VWAP (Reversion)':<20} "
-                    f"{vb_analysis['vwap']['count']:<10} "
-                    f"{vb_analysis['vwap']['winrate']*100:<14.0f}% "
-                    f"${vb_analysis['vwap']['avg_profit']:<14.2f} "
-                    f"{vb_analysis['vwap']['avg_confluence']:<14.1f}"
-                )
-
-            if vb_analysis['breakout']['count'] > 0:
-                report.append(
-                    f"{'BREAKOUT (Momentum)':<20} "
-                    f"{vb_analysis['breakout']['count']:<10} "
-                    f"{vb_analysis['breakout']['winrate']*100:<14.0f}% "
-                    f"${vb_analysis['breakout']['avg_profit']:<14.2f} "
-                    f"{vb_analysis['breakout']['avg_confluence']:<14.1f}"
-                )
-
-            report.append("")
-
-            # Specific insights
-            if vb_analysis['vwap']['count'] > 0 and vb_analysis['breakout']['count'] > 0:
-                vwap_wr = vb_analysis['vwap']['winrate']
-                breakout_wr = vb_analysis['breakout']['winrate']
-
-                if vwap_wr > breakout_wr + 0.1:
-                    diff = (vwap_wr - breakout_wr) * 100
-                    report.append(f"[+] VWAP mean reversion outperforms BREAKOUT by {diff:.1f}%")
-                elif breakout_wr > vwap_wr + 0.1:
-                    diff = (breakout_wr - vwap_wr) * 100
-                    report.append(f"[+] BREAKOUT momentum outperforms VWAP by {diff:.1f}%")
-                else:
-                    report.append("[=] Both strategies performing similarly")
-
-            report.append("")
-
-        # Section 4: Initial vs Recovery
-        report.append("SECTION 4: INITIAL vs RECOVERY TRADES")
-        report.append("=" * 80)
-
-        init_rec = self.analyze_initial_vs_recovery(trades_7d)
-        if init_rec:
-            report.append(f"{'Type':<20} {'Count':<10} {'Win Rate':<15} {'Avg Profit':<15}")
-            report.append("-" * 80)
-
-            report.append(
-                f"{'Initial Only':<20} "
-                f"{init_rec['initial']['count']:<10} "
-                f"{init_rec['initial']['winrate']*100:<14.0f}% "
-                f"${init_rec['initial']['avg_profit']:<14.2f}"
-            )
-
-            report.append(
-                f"{'With Recovery':<20} "
-                f"{init_rec['recovery']['count']:<10} "
-                f"{init_rec['recovery']['winrate']*100:<14.0f}% "
-                f"${init_rec['recovery']['avg_profit']:<14.2f}"
-            )
-            report.append("")
-
-            # Specific insight
-            if init_rec['recovery']['winrate'] > init_rec['initial']['winrate']:
-                diff = (init_rec['recovery']['winrate'] - init_rec['initial']['winrate']) * 100
-                report.append(f"[+] Recovery mechanisms ADD +{diff:.1f}% to win rate")
-            else:
-                diff = (init_rec['initial']['winrate'] - init_rec['recovery']['winrate']) * 100
-                report.append(f"[-] Recovery mechanisms REDUCE win rate by {diff:.1f}%")
-            report.append("")
-        else:
-            report.append("[INFO] Not enough data for initial vs recovery comparison")
-            report.append("")
-
-        # Section 5: Recovery Mechanisms Detail
-        report.append("SECTION 5: RECOVERY MECHANISMS")
-        report.append("=" * 80)
-
-        # DCA Analysis
-        dca_analysis = self.analyze_dca_success_factors(trades_7d)
-        if dca_analysis:
-            report.append("DCA (Dollar Cost Averaging) Performance:")
-            report.append(f"  Total DCA Trades: {dca_analysis['total']}")
-            report.append(f"  Win Rate: {dca_analysis['winrate']*100:.0f}%")
-            report.append(f"  Avg Profit: ${dca_analysis['avg_profit']:.2f}")
-            report.append(f"  Avg DCA Levels Used: {dca_analysis['avg_dca_count']:.1f}")
-            report.append("")
-
-            report.append("  What Makes DCA Successful:")
-            report.append(f"    Winners: ADX {dca_analysis['winner_patterns']['avg_adx']:.1f}, Confluence {dca_analysis['winner_patterns']['avg_confluence']:.1f}")
-            report.append(f"    Losers:  ADX {dca_analysis['loser_patterns']['avg_adx']:.1f}, Confluence {dca_analysis['loser_patterns']['avg_confluence']:.1f}")
-
-            adx_diff = dca_analysis['winner_patterns']['avg_adx'] - dca_analysis['loser_patterns']['avg_adx']
-            conf_diff = dca_analysis['winner_patterns']['avg_confluence'] - dca_analysis['loser_patterns']['avg_confluence']
-
-            if adx_diff > 5:
-                report.append(f"    [!] DCA works better in STRONGER trends (ADX {abs(adx_diff):.1f} points higher)")
-            elif adx_diff < -5:
-                report.append(f"    [!] DCA works better in RANGING markets (ADX {abs(adx_diff):.1f} points lower)")
-
-            if conf_diff > 2:
-                report.append(f"    [!] DCA works better with HIGH confluence entries ({abs(conf_diff):.1f} points higher)")
-
-            report.append("")
-        else:
-            report.append("DCA: Not enough data (need 3+ DCA trades)")
-            report.append("")
-
-        # Grid Analysis
-        grid_analysis = self.analyze_grid_performance(trades_7d)
-        if grid_analysis:
-            report.append("GRID (Positive Trend) Performance:")
-            report.append(f"  Total Grid Trades: {grid_analysis['total']}")
-            report.append(f"  Win Rate: {grid_analysis['winrate']*100:.0f}%")
-            report.append(f"  Avg Profit: ${grid_analysis['avg_profit']:.2f}")
-            report.append(f"  Avg Grid Orders: {grid_analysis['avg_grid_count']:.1f}")
-            report.append("")
-        else:
-            report.append("GRID: Not enough data (need 3+ grid trades)")
-            report.append("")
-
-        # Hedge Analysis
-        hedge_analysis = self.analyze_hedge_success_factors(trades_7d)
-        if hedge_analysis:
-            report.append("HEDGE Performance:")
-            report.append(f"  Total Hedge Trades: {hedge_analysis['total']}")
-            report.append(f"  Win Rate: {hedge_analysis['winrate']*100:.0f}%")
-            report.append(f"  Avg Profit: ${hedge_analysis['avg_profit']:.2f}")
-            report.append("")
-        else:
-            report.append("HEDGE: Not enough data (need 3+ hedge trades)")
-            report.append("")
-
-        # Section 6: Time & Market Patterns
-        report.append("SECTION 6: TIME & MARKET PATTERNS")
-        report.append("=" * 80)
-
-        patterns = self.analyze_time_patterns(trades_7d)
-
-        if len(closed_7d) >= self.MIN_WEEKLY:
-            report.append("DAILY PATTERNS:")
-            if patterns['best_hours']:
-                best_h, best_wr, best_cnt = patterns['best_hours'][0]
-                report.append(f"  Best Hours: {best_h}:00 GMT ({best_wr*100:.0f}% win rate, {best_cnt} trades)")
-            if patterns['worst_hours']:
-                worst_h, worst_wr, worst_cnt = patterns['worst_hours'][0]
-                report.append(f"  Avoid: {worst_h}:00 GMT ({worst_wr*100:.0f}% win rate, {worst_cnt} trades)")
-            report.append("")
-
-            report.append("WEEKLY PATTERNS:")
-            if patterns['best_days']:
-                best_day, best_wr, best_cnt = patterns['best_days'][0]
-                report.append(f"  Best Days: {best_day} ({best_wr*100:.0f}% win rate, {best_cnt} trades)")
-            if patterns['worst_days']:
-                worst_day, worst_wr, worst_cnt = patterns['worst_days'][0]
-                report.append(f"  Worst Days: {worst_day} ({worst_wr*100:.0f}% win rate, {worst_cnt} trades)")
-            report.append("")
-        else:
-            report.append(f"[INFO] Need {self.MIN_WEEKLY - len(closed_7d)} more trades for pattern analysis")
-            report.append("")
-
-        regime = self.analyze_market_regime(trades_7d)
-        if regime:
-            report.append("MARKET REGIME (Last 7 days):")
-            report.append(f"  Ranging (ADX<20): {regime['ranging']['count']} trades ({regime['ranging']['winrate']*100:.0f}% win rate)")
-            report.append(f"  Trending (ADX 20-40): {regime['trending']['count']} trades ({regime['trending']['winrate']*100:.0f}% win rate)")
-            report.append(f"  Current Mode: {regime['current_dominant'].upper()}")
-            report.append("")
-
-        # Section 7: Performance Trends
-        report.append("SECTION 7: PERFORMANCE SUMMARY")
-        report.append("=" * 80)
-
-        if len(closed_7d) > 0:
-            winrate_7d = sum(1 for t in closed_7d if t.get('outcome', {}).get('profit', 0) > 0) / len(closed_7d)
-            avg_profit_7d = sum(t.get('outcome', {}).get('profit', 0) for t in closed_7d) / len(closed_7d)
-
-            report.append(f"Last 7 Days: {len(closed_7d)} trades, {winrate_7d*100:.1f}% win rate, ${avg_profit_7d:.2f} avg profit")
-
-        if len(closed_30d) > 0:
-            winrate_30d = sum(1 for t in closed_30d if t.get('outcome', {}).get('profit', 0) > 0) / len(closed_30d)
-            avg_profit_30d = sum(t.get('outcome', {}).get('profit', 0) for t in closed_30d) / len(closed_30d)
-
-            report.append(f"Last 30 Days: {len(closed_30d)} trades, {winrate_30d*100:.1f}% win rate, ${avg_profit_30d:.2f} avg profit")
-
-        report.append(f"All Time: {len(closed_all)} trades")
-        report.append("")
-
-        # DCA/Partial analysis if columns exist
-        if len(closed_7d) > 0:
-            df = pd.DataFrame([{
-                'had_dca': t.get('outcome', {}).get('recovery', {}).get('dca_count', 0) > 0,
-                'had_partial': t.get('outcome', {}).get('partial_closes', {}).get('count', 0) > 0,
-                'win': 1 if t.get('outcome', {}).get('profit', 0) > 0 else 0,
-            } for t in closed_7d])
-
-            if df['had_dca'].any():
-                dca_winrate = df[df['had_dca']]['win'].mean()
-                report.append(f"DCA Recovery Rate: {dca_winrate*100:.0f}%")
-
-            if df['had_partial'].any():
-                partial_winrate = df[df['had_partial']]['win'].mean()
-                partial_count = df['had_partial'].sum()
-                report.append(f"Partial Close Usage: {partial_count} trades ({partial_winrate*100:.0f}% win rate)")
-
-        report.append("")
-
-        # Section 7: Cascade Protection Analysis
-        report.append("SECTION 7: CASCADE PROTECTION ANALYSIS")
-        report.append("=" * 80)
-        report.append("")
-
-        try:
-            # Generate cascade analysis
-            cascade_report = self.cascade_analyzer.generate_report()
-            # Remove the duplicate header since we already added section header
-            cascade_lines = cascade_report.strip().split('\n')
-            # Remove the "CASCADE PROTECTION ANALYSIS" header lines (first 3 lines with =====)
-            content_start = 0
-            for i, line in enumerate(cascade_lines):
-                if i > 0 and '='*60 not in line and 'CASCADE PROTECTION' not in line:
-                    content_start = i
-                    break
-            cascade_content = '\n'.join(cascade_lines[content_start:]).strip()
-            report.append(cascade_content if cascade_content else "No stop-out events recorded yet.")
-        except Exception as e:
-            logger.error(f"Error analyzing cascade protection: {e}")
-            report.append("No stop-out events recorded yet.")
-
-        report.append("")
-
-        # Section 8: Next Steps
-        report.append("SECTION 8: NEXT REVIEW")
-        report.append("=" * 80)
-
-        if len(closed_all) < self.MIN_MONTHLY:
-            report.append(f"Data Collection Phase: {len(closed_all)}/{self.MIN_MONTHLY} trades")
-            report.append(f"Next significant review: After {self.MIN_MONTHLY - len(closed_all)} more closed trades")
-        else:
-            report.append("Sufficient data for monthly review.")
-            report.append(f"Next review: {(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')}")
-
-        report.append("")
-        report.append("=" * 80)
-        report.append("END OF DECISION REPORT")
-        report.append("=" * 80)
-
-        report_text = '\n'.join(report)
-
-        # Save report (use Path operator for Windows compatibility)
-        report_file = self.report_dir / f'decision_report_{date_str}.txt'
-        with open(str(report_file), 'w', encoding='utf-8', errors='ignore') as f:
-            f.write(report_text)
-
-        logger.info(f"[OK] Decision report saved to: {report_file}")
-
-        return report_text, str(report_file)
+        return '\n'.join(report), None
 
     def send_email(self, report_text, email_config):
         """Send report via email"""

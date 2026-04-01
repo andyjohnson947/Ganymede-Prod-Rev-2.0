@@ -1,0 +1,35 @@
+{
+  "symbol": "GBPUSD",
+  "timestamp": "2026-04-01T08:00:07.976549",
+  "h4_bar_time": "2026-04-01T08:00:00",
+  "state": 4,
+  "regime": "TREND_EXHAUSTION",
+  "confidence": 1.0,
+  "all_probs": {
+    "0": 0.0,
+    "1": 0.0,
+    "2": 0.0,
+    "3": 0.0,
+    "4": 1.0
+  },
+  "description": "|slope12|=0.141 but wicks=0.55, ATR change=+0.043, efficiency=0.131",
+  "allowed_strategies": [
+    "MR"
+  ],
+  "size_multiplier": 0.75,
+  "note": "Fading trend, MR on edges only",
+  "current_features": {
+    "body_ratio": 0.4294,
+    "wick_ratio": 0.5706,
+    "atr_normalised": 0.8806,
+    "atr_change": 0.0273,
+    "volatility_ratio": 1.2691,
+    "abs_slope_4": 0.2733,
+    "abs_slope_12": 0.1273,
+    "efficiency_12": 0.0602,
+    "candle_consistency": 0.6667,
+    "volume_ratio": 0.9068,
+    "hh_ll_imbalance": 0.3333,
+    "range_percentile": 0.72
+  }
+}

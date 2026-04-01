@@ -1,0 +1,55 @@
+{
+  "EURUSD": {
+    "stats": {
+      "total_signals": 79757,
+      "orig_confirmed": 44284,
+      "orig_timeout": 9314,
+      "new_confirmed": 22704,
+      "new_timeout": 4788,
+      "orig_sl": 6148,
+      "blocked_confirmed": 21580,
+      "blocked_sl": 3232,
+      "orig_pc1": 28822,
+      "blocked_pc1": 13822,
+      "new_sl": 2916,
+      "new_pc1": 15000,
+      "blocked_timeout": 4526
+    },
+    "block_reasons": {
+      "no_wick": 28313,
+      "trend_blocked(4/5 bullish)": 6372,
+      "doji_blocked": 13813,
+      "trend_blocked(4/5 bearish)": 6113,
+      "trend_blocked(5/5 bearish)": 1229,
+      "trend_blocked(5/5 bullish)": 1209,
+      "flat_bar": 3,
+      "no_confirmation": 1
+    }
+  },
+  "GBPUSD": {
+    "stats": {
+      "total_signals": 79420,
+      "orig_confirmed": 43858,
+      "orig_pc1": 28604,
+      "new_confirmed": 22460,
+      "new_pc1": 14930,
+      "orig_sl": 7513,
+      "new_sl": 3614,
+      "blocked_confirmed": 21398,
+      "blocked_pc1": 13674,
+      "blocked_sl": 3899,
+      "orig_timeout": 7741,
+      "new_timeout": 3916,
+      "blocked_timeout": 3825
+    },
+    "block_reasons": {
+      "doji_blocked": 13854,
+      "no_wick": 28098,
+      "trend_blocked(4/5 bearish)": 6194,
+      "trend_blocked(5/5 bearish)": 1274,
+      "trend_blocked(4/5 bullish)": 6249,
+      "trend_blocked(5/5 bullish)": 1290,
+      "flat_bar": 1
+    }
+  }
+}

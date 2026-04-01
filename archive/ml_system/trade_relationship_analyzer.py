@@ -25,7 +25,17 @@ class TradeRelationshipAnalyzer:
         self.trades = self._load_trades()
 
     def _load_trades(self) -> List[Dict]:
-        """Load trades from continuous log"""
+        """Load trades from SQLite (fallback: JSONL)"""
+        # Try SQLite first
+        try:
+            from ml_system.trade_db import get_trade_db
+            db = get_trade_db()
+            if db:
+                return db.get_all_trades()
+        except Exception:
+            pass
+
+        # Fallback: parse JSONL
         if not self.continuous_log.exists():
             return []
 

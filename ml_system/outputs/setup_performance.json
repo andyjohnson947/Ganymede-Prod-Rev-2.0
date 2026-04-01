@@ -1,0 +1,8135 @@
+{
+  "9f_below_val_53d82915": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "total_trades": 7,
+    "wins": 0,
+    "losses": 7,
+    "total_profit": -9.160000000000002,
+    "avg_profit": -1.308571428571429,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-03T07:39:15.164390",
+    "last_seen": "2026-02-03T08:11:21.628086",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 6,
+        "profit": -7.16
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 6
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -2.0,
+        "timestamp": "2026-02-03T07:39:15.164390"
+      },
+      {
+        "is_win": false,
+        "profit": -2.04,
+        "timestamp": "2026-02-03T07:39:15.165456"
+      },
+      {
+        "is_win": false,
+        "profit": -1.12,
+        "timestamp": "2026-02-03T07:51:15.500749"
+      },
+      {
+        "is_win": false,
+        "profit": -1.12,
+        "timestamp": "2026-02-03T07:51:15.501748"
+      },
+      {
+        "is_win": false,
+        "profit": -0.4,
+        "timestamp": "2026-02-03T08:11:21.627087"
+      },
+      {
+        "is_win": false,
+        "profit": -0.48,
+        "timestamp": "2026-02-03T08:11:21.628086"
+      }
+    ]
+  },
+  "9f_daily_hvn_ea5917d0": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day POC + Prev Day VAH + Prev Week Low",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -2.04,
+    "avg_profit": 0.0,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-03T07:51:15.502753",
+    "last_seen": "2026-02-03T07:51:15.502753",
+    "symbols": {},
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": []
+  },
+  "10f_daily_hvn_75cf8a52": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -1.48,
+    "avg_profit": -0.74,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-03T08:11:21.629087",
+    "last_seen": "2026-02-03T08:11:21.630084",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -1.48
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 2
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.8,
+        "timestamp": "2026-02-03T08:11:21.629087"
+      },
+      {
+        "is_win": false,
+        "profit": -0.68,
+        "timestamp": "2026-02-03T08:11:21.630084"
+      }
+    ]
+  },
+  "8f_below_val_342479d3": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Below VAL + Daily HVN + POC + Prev Day High + Prev Day VAH",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -24.92,
+    "avg_profit": -12.46,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-04T14:01:38.219654",
+    "last_seen": "2026-02-04T14:01:38.219654",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -24.92
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 2
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -12.48,
+        "timestamp": "2026-02-04T14:01:38.219654"
+      },
+      {
+        "is_win": false,
+        "profit": -12.44,
+        "timestamp": "2026-02-04T14:01:38.219654"
+      }
+    ]
+  },
+  "10f_daily_hvn_db592799": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "total_trades": 3,
+    "wins": 0,
+    "losses": 3,
+    "total_profit": -42.599999999999994,
+    "avg_profit": -14.199999999999998,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-04T23:59:56.804096",
+    "last_seen": "2026-02-05T03:12:05.265147",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 3,
+        "profit": -42.599999999999994
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 3
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -14.28,
+        "timestamp": "2026-02-04T23:59:56.804096"
+      },
+      {
+        "is_win": false,
+        "profit": -14.12,
+        "timestamp": "2026-02-05T02:50:04.655183"
+      },
+      {
+        "is_win": false,
+        "profit": -14.2,
+        "timestamp": "2026-02-05T03:12:05.265147"
+      }
+    ]
+  },
+  "10f_daily_hvn_9e6c6500": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing High",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "total_trades": 3,
+    "wins": 0,
+    "losses": 3,
+    "total_profit": -30.0,
+    "avg_profit": -10.0,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-05T00:03:57.013119",
+    "last_seen": "2026-02-05T00:03:57.028750",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 3,
+        "profit": -30.0
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 3
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -9.92,
+        "timestamp": "2026-02-05T00:03:57.013119"
+      },
+      {
+        "is_win": false,
+        "profit": -10.08,
+        "timestamp": "2026-02-05T00:03:57.013119"
+      },
+      {
+        "is_win": false,
+        "profit": -10.0,
+        "timestamp": "2026-02-05T00:03:57.028750"
+      }
+    ]
+  },
+  "9f_daily_hvn_0024db6e": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "total_trades": 3,
+    "wins": 3,
+    "losses": 0,
+    "total_profit": 13.799999999999999,
+    "avg_profit": 4.6,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-05T04:03:09.421655",
+    "last_seen": "2026-02-05T04:04:10.594958",
+    "symbols": {
+      "EURUSD": {
+        "wins": 3,
+        "losses": 0,
+        "profit": 13.799999999999999
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 3,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 4.4,
+        "timestamp": "2026-02-05T04:03:09.421655"
+      },
+      {
+        "is_win": true,
+        "profit": 4.8,
+        "timestamp": "2026-02-05T04:04:10.591958"
+      },
+      {
+        "is_win": true,
+        "profit": 4.6,
+        "timestamp": "2026-02-05T04:04:10.594958"
+      }
+    ]
+  },
+  "10f_below_val_09c0552a": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "total_trades": 3,
+    "wins": 0,
+    "losses": 3,
+    "total_profit": -42.08,
+    "avg_profit": -14.026666666666666,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-05T06:09:45.164067",
+    "last_seen": "2026-02-05T06:11:47.323588",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 3,
+        "profit": -42.08
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 3
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -14.08,
+        "timestamp": "2026-02-05T06:09:45.164067"
+      },
+      {
+        "is_win": false,
+        "profit": -14.08,
+        "timestamp": "2026-02-05T06:10:46.231010"
+      },
+      {
+        "is_win": false,
+        "profit": -13.92,
+        "timestamp": "2026-02-05T06:11:47.323588"
+      }
+    ]
+  },
+  "5f_below_val_f7d113a9": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Swing Low + Weekly HVN + Weekly POC",
+    "total_trades": 3,
+    "wins": 3,
+    "losses": 0,
+    "total_profit": 17.04,
+    "avg_profit": 5.68,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-05T08:18:56.669347",
+    "last_seen": "2026-02-05T08:21:56.986957",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 3,
+        "losses": 0,
+        "profit": 17.04
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 3,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 5.36,
+        "timestamp": "2026-02-05T08:18:56.669347"
+      },
+      {
+        "is_win": true,
+        "profit": 5.6,
+        "timestamp": "2026-02-05T08:18:56.684972"
+      },
+      {
+        "is_win": true,
+        "profit": 6.08,
+        "timestamp": "2026-02-05T08:21:56.986957"
+      }
+    ]
+  },
+  "9f_daily_hvn_9a2e50f9": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 4.68,
+    "avg_profit": 4.68,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-05T10:38:01.944445",
+    "last_seen": "2026-02-05T10:38:01.944445",
+    "symbols": {
+      "EURUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 4.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 1,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 4.68,
+        "timestamp": "2026-02-05T10:38:01.944445"
+      }
+    ]
+  },
+  "10f_daily_hvn_e3173757": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 8.96,
+    "avg_profit": 4.48,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-05T10:54:02.453057",
+    "last_seen": "2026-02-05T10:56:02.640042",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 8.96
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 2,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 4.4,
+        "timestamp": "2026-02-05T10:54:02.453057"
+      },
+      {
+        "is_win": true,
+        "profit": 4.5600000000000005,
+        "timestamp": "2026-02-05T10:56:02.640042"
+      }
+    ]
+  },
+  "4f_prev_day_h_f35bf325": {
+    "factors": [
+      "Prev Day High",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day High + Prev Week High + Swing High + VWAP Band 1",
+    "total_trades": 5,
+    "wins": 4,
+    "losses": 1,
+    "total_profit": 14.079999999999998,
+    "avg_profit": 2.816,
+    "win_rate": 80.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-09T07:53:24.252951",
+    "last_seen": "2026-02-09T08:43:34.356444",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 1,
+        "profit": 14.079999999999998
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 0.2,
+        "timestamp": "2026-02-09T07:53:24.252951"
+      },
+      {
+        "is_win": false,
+        "profit": -0.4,
+        "timestamp": "2026-02-09T07:53:24.257871"
+      },
+      {
+        "is_win": true,
+        "profit": 4.76,
+        "timestamp": "2026-02-09T08:43:34.352445"
+      },
+      {
+        "is_win": true,
+        "profit": 4.72,
+        "timestamp": "2026-02-09T08:43:34.354449"
+      },
+      {
+        "is_win": true,
+        "profit": 4.8,
+        "timestamp": "2026-02-09T08:43:34.356444"
+      }
+    ]
+  },
+  "8f_below_val_15a2126a": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day High + Prev Day VAH + Swing High",
+    "total_trades": 6,
+    "wins": 6,
+    "losses": 0,
+    "total_profit": 23.52,
+    "avg_profit": 3.92,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-09T07:53:24.255871",
+    "last_seen": "2026-02-09T08:37:34.099443",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 6,
+        "losses": 0,
+        "profit": 23.52
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 6,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 2.08,
+        "timestamp": "2026-02-09T07:53:24.255871"
+      },
+      {
+        "is_win": true,
+        "profit": 1.6,
+        "timestamp": "2026-02-09T07:53:24.259870"
+      },
+      {
+        "is_win": true,
+        "profit": 5.16,
+        "timestamp": "2026-02-09T07:57:32.746444"
+      },
+      {
+        "is_win": true,
+        "profit": 4.64,
+        "timestamp": "2026-02-09T08:15:33.398442"
+      },
+      {
+        "is_win": true,
+        "profit": 4.88,
+        "timestamp": "2026-02-09T08:35:33.902444"
+      },
+      {
+        "is_win": true,
+        "profit": 5.16,
+        "timestamp": "2026-02-09T08:37:34.099443"
+      }
+    ]
+  },
+  "3f_prev_week__ddc5cbb3": {
+    "factors": [
+      "Prev Week High",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Week High + Swing Low + VWAP Band 1",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 11.28,
+    "avg_profit": 5.64,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-09T11:27:44.791016",
+    "last_seen": "2026-02-09T11:27:44.793017",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 11.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 2,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 5.6,
+        "timestamp": "2026-02-09T11:27:44.791016"
+      },
+      {
+        "is_win": true,
+        "profit": 5.68,
+        "timestamp": "2026-02-09T11:27:44.793017"
+      }
+    ]
+  },
+  "3f_above_vah_d840120d": {
+    "factors": [
+      "Above VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Swing Low + VWAP Band 1",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -5.24,
+    "avg_profit": -2.62,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-09T15:28:21.518910",
+    "last_seen": "2026-02-09T15:28:21.518910",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -5.24
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 2
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -2.68,
+        "timestamp": "2026-02-09T15:28:21.518910"
+      },
+      {
+        "is_win": false,
+        "profit": -2.56,
+        "timestamp": "2026-02-09T15:28:21.518910"
+      }
+    ]
+  },
+  "4f_poc_ff6123ae": {
+    "factors": [
+      "POC",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "POC + Prev Week High + Swing High + VWAP Band 1",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -4.88,
+    "avg_profit": -2.44,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-10T10:09:47.970865",
+    "last_seen": "2026-02-10T10:09:47.974863",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -4.88
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 2
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -2.42,
+        "timestamp": "2026-02-10T10:09:47.970865"
+      },
+      {
+        "is_win": false,
+        "profit": -2.46,
+        "timestamp": "2026-02-10T10:09:47.974863"
+      }
+    ]
+  },
+  "6f_daily_hvn_71cd0062": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day VAH + Swing High",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -4.36,
+    "avg_profit": -2.18,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-10T10:09:47.976866",
+    "last_seen": "2026-02-10T10:09:47.978865",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -4.36
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 2
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -2.18,
+        "timestamp": "2026-02-10T10:09:47.976866"
+      },
+      {
+        "is_win": false,
+        "profit": -2.18,
+        "timestamp": "2026-02-10T10:09:47.978865"
+      }
+    ]
+  },
+  "7f_above_vah_f65d4b3f": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day High + Prev Day VAH + Prev Week High",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -0.7,
+    "avg_profit": -0.35,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-10T10:09:47.981866",
+    "last_seen": "2026-02-10T10:09:47.983868",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -0.7
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 2
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.34,
+        "timestamp": "2026-02-10T10:09:47.981866"
+      },
+      {
+        "is_win": false,
+        "profit": -0.36,
+        "timestamp": "2026-02-10T10:09:47.983868"
+      }
+    ]
+  },
+  "6f_daily_hvn_93e492b1": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day VAH + Prev Week High + Swing High",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -9.96,
+    "avg_profit": -9.96,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-10T11:16:22.100972",
+    "last_seen": "2026-02-10T11:16:22.100972",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -9.96
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 1
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -9.96,
+        "timestamp": "2026-02-10T11:16:22.100972"
+      }
+    ]
+  },
+  "6f_daily_hvn_17a1dae2": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH + Swing High",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 6.36,
+    "avg_profit": 3.18,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-10T23:31:48.886324",
+    "last_seen": "2026-02-12T09:13:29.959962",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 6.36
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 2,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 4.44,
+        "timestamp": "2026-02-10T23:31:48.886324"
+      },
+      {
+        "is_win": true,
+        "profit": 1.92,
+        "timestamp": "2026-02-12T09:13:29.959962"
+      }
+    ]
+  },
+  "7f_daily_hvn_765ac568": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 5.040000000000001,
+    "avg_profit": 2.5200000000000005,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-11T00:50:51.884294",
+    "last_seen": "2026-02-11T04:51:58.699817",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 5.040000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 2,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 4.5600000000000005,
+        "timestamp": "2026-02-11T00:50:51.884294"
+      },
+      {
+        "is_win": true,
+        "profit": 0.48,
+        "timestamp": "2026-02-11T04:51:58.699817"
+      }
+    ]
+  },
+  "7f_above_vah_ffc55201": {
+    "factors": [
+      "Above VAH",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Prev Day Low + Prev Day POC + Prev Day VAH + Prev Week High",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 2.4699999999999998,
+    "avg_profit": 1.2349999999999999,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-11T17:05:54.274048",
+    "last_seen": "2026-02-11T17:05:54.274048",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 2.4699999999999998
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.23,
+        "timestamp": "2026-02-11T17:05:54.274048"
+      },
+      {
+        "is_win": true,
+        "profit": 1.24,
+        "timestamp": "2026-02-11T17:05:54.274048"
+      }
+    ]
+  },
+  "8f_above_vah_f1940f45": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -2.4,
+    "avg_profit": -1.2,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-11T21:45:13.587615",
+    "last_seen": "2026-02-11T21:45:13.603240",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -2.4
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -1.2,
+        "timestamp": "2026-02-11T21:45:13.587615"
+      },
+      {
+        "is_win": false,
+        "profit": -1.2,
+        "timestamp": "2026-02-11T21:45:13.603240"
+      }
+    ]
+  },
+  "6f_above_vah_d8bbd1bf": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day VAH + Prev Week High + Swing Low",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 2.1,
+    "avg_profit": 1.05,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T00:54:23.149343",
+    "last_seen": "2026-02-12T00:54:23.152343",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 2.1
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.05,
+        "timestamp": "2026-02-12T00:54:23.149343"
+      },
+      {
+        "is_win": true,
+        "profit": 1.05,
+        "timestamp": "2026-02-12T00:54:23.152343"
+      }
+    ]
+  },
+  "6f_daily_hvn_510d4d19": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing High",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 2.46,
+    "avg_profit": 1.23,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T01:49:26.478443",
+    "last_seen": "2026-02-12T01:49:26.478443",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 2.46
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.23,
+        "timestamp": "2026-02-12T01:49:26.478443"
+      },
+      {
+        "is_win": true,
+        "profit": 1.23,
+        "timestamp": "2026-02-12T01:49:26.478443"
+      }
+    ]
+  },
+  "7f_daily_hvn_9398ccdb": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Prev Week High",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -8.4,
+    "avg_profit": -4.2,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T05:48:15.147258",
+    "last_seen": "2026-02-12T05:48:15.147258",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -8.4
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -4.2,
+        "timestamp": "2026-02-12T05:48:15.147258"
+      },
+      {
+        "is_win": false,
+        "profit": -4.2,
+        "timestamp": "2026-02-12T05:48:15.147258"
+      }
+    ]
+  },
+  "6f_poc_42498f69": {
+    "factors": [
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "POC + Prev Day Low + Prev Day POC + Prev Day VAH + Swing High",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 3.04,
+    "avg_profit": 3.04,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T07:12:19.920261",
+    "last_seen": "2026-02-12T07:12:19.920261",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 3.04
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 1,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 3.04,
+        "timestamp": "2026-02-12T07:12:19.920261"
+      }
+    ]
+  },
+  "7f_daily_hvn_d5f93dca": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 1.34,
+    "avg_profit": 1.34,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T09:44:30.789892",
+    "last_seen": "2026-02-12T09:44:30.789892",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 1.34
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 1,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.34,
+        "timestamp": "2026-02-12T09:44:30.789892"
+      }
+    ]
+  },
+  "6f_MR_h5_above__f4eed101": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day VAH + Prev Week High + Swing High",
+    "strategy_type": "vwap",
+    "hour": 5,
+    "day_of_week": "Thursday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -0.68,
+    "avg_profit": -0.68,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T11:10:19.797925",
+    "last_seen": "2026-02-12T11:10:19.797925",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -0.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 1
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.68,
+        "timestamp": "2026-02-12T11:10:19.797925"
+      }
+    ]
+  },
+  "8f_MR_h9_daily__3d3eff4f": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "vwap",
+    "hour": 9,
+    "day_of_week": "Thursday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -13.88,
+    "avg_profit": -13.88,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T11:35:20.629112",
+    "last_seen": "2026-02-12T11:35:20.629112",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -13.88
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 1
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -13.88,
+        "timestamp": "2026-02-12T11:35:20.629112"
+      }
+    ]
+  },
+  "6f_MR_h9_above__2e415e68": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day VAH + Prev Week High + Swing Low",
+    "strategy_type": "vwap",
+    "hour": 9,
+    "day_of_week": "Thursday",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 1.07,
+    "avg_profit": 1.07,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T13:29:32.854001",
+    "last_seen": "2026-02-12T13:29:32.854001",
+    "symbols": {
+      "EURUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 1.07
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 1,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.07,
+        "timestamp": "2026-02-12T13:29:32.854001"
+      }
+    ]
+  },
+  "7f_BO_h16_daily__01f733e8": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Prev Week High",
+    "strategy_type": "breakout",
+    "hour": 16,
+    "day_of_week": "Thursday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -6.36,
+    "avg_profit": -3.18,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-12T20:03:26.208324",
+    "last_seen": "2026-02-12T20:03:26.208324",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -6.36
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -3.2,
+        "timestamp": "2026-02-12T20:03:26.208324"
+      },
+      {
+        "is_win": false,
+        "profit": -3.16,
+        "timestamp": "2026-02-12T20:03:26.208324"
+      }
+    ]
+  },
+  "7f_BO_h0_daily__0e909ac9": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day POC + Prev Day VAH + Prev Week High",
+    "strategy_type": "breakout",
+    "hour": 0,
+    "day_of_week": "Friday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 2.06,
+    "avg_profit": 1.03,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-13T02:07:41.428598",
+    "last_seen": "2026-02-13T02:07:41.428598",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 2.06
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.03,
+        "timestamp": "2026-02-13T02:07:41.428598"
+      },
+      {
+        "is_win": true,
+        "profit": 1.03,
+        "timestamp": "2026-02-13T02:07:41.428598"
+      }
+    ]
+  },
+  "9f_BO_h1_daily__55836444": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "breakout",
+    "hour": 1,
+    "day_of_week": "Friday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 2.5300000000000002,
+    "avg_profit": 1.2650000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-13T02:49:42.894539",
+    "last_seen": "2026-02-13T02:49:42.894539",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 2.5300000000000002
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.26,
+        "timestamp": "2026-02-13T02:49:42.894539"
+      },
+      {
+        "is_win": true,
+        "profit": 1.27,
+        "timestamp": "2026-02-13T02:49:42.894539"
+      }
+    ]
+  },
+  "9f_MR_h23_daily__91f76e24": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "vwap",
+    "hour": 23,
+    "day_of_week": "Sunday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -0.12,
+    "avg_profit": -0.12,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-16T03:14:11.253820",
+    "last_seen": "2026-02-16T03:14:11.253820",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -0.12
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 1
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.12,
+        "timestamp": "2026-02-16T03:14:11.253820"
+      }
+    ]
+  },
+  "8f_MR_h23_daily__f65e3fbb": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day VAH + Swing High",
+    "strategy_type": "vwap",
+    "hour": 23,
+    "day_of_week": "Sunday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -0.08,
+    "avg_profit": -0.08,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-16T03:38:37.945915",
+    "last_seen": "2026-02-16T03:38:37.945915",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -0.08
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 1
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.08,
+        "timestamp": "2026-02-16T03:38:37.945915"
+      }
+    ]
+  },
+  "9f_MR_h5_daily__e3c77a50": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 5,
+    "day_of_week": "Monday",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 1.02,
+    "avg_profit": 1.02,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-16T09:53:59.512755",
+    "last_seen": "2026-02-16T09:53:59.512755",
+    "symbols": {
+      "EURUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 1.02
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 1,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.02,
+        "timestamp": "2026-02-16T09:53:59.512755"
+      }
+    ]
+  },
+  "9f_MR_h10_daily__16822988": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 10,
+    "day_of_week": "Monday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -1.16,
+    "avg_profit": -1.16,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-16T14:23:08.817935",
+    "last_seen": "2026-02-16T14:23:08.817935",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -1.16
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -1.16,
+        "timestamp": "2026-02-16T14:23:08.817935"
+      }
+    ]
+  },
+  "10f_BO_h11_below__7f07687b": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "breakout",
+    "hour": 11,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 25.120000000000005,
+    "avg_profit": 6.280000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-17T11:14:24.910807",
+    "last_seen": "2026-02-17T12:14:26.875062",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 25.120000000000005
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 6.24,
+        "timestamp": "2026-02-17T11:14:24.910807"
+      },
+      {
+        "is_win": true,
+        "profit": 6.4,
+        "timestamp": "2026-02-17T11:14:24.917805"
+      },
+      {
+        "is_win": true,
+        "profit": 6.24,
+        "timestamp": "2026-02-17T12:14:26.875062"
+      },
+      {
+        "is_win": true,
+        "profit": 6.24,
+        "timestamp": "2026-02-17T12:14:26.875062"
+      }
+    ]
+  },
+  "5f_BO_h11_below__b374da89": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Weekly HVN + Weekly POC",
+    "strategy_type": "breakout",
+    "hour": 11,
+    "day_of_week": "Tuesday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 26.56,
+    "avg_profit": 13.28,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-17T12:01:26.375217",
+    "last_seen": "2026-02-17T12:01:26.384729",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 26.56
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 13.44,
+        "timestamp": "2026-02-17T12:01:26.375217"
+      },
+      {
+        "is_win": true,
+        "profit": 13.12,
+        "timestamp": "2026-02-17T12:01:26.384729"
+      }
+    ]
+  },
+  "6f_BO_h0_below__5ada2b8b": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day VAH + Prev Week Low + Swing Low",
+    "strategy_type": "breakout",
+    "hour": 0,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -52.0,
+    "avg_profit": -26.0,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T04:01:32.472563",
+    "last_seen": "2026-02-18T04:01:32.484083",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -52.0
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -25.6,
+        "timestamp": "2026-02-18T04:01:32.472563"
+      },
+      {
+        "is_win": false,
+        "profit": -26.4,
+        "timestamp": "2026-02-18T04:01:32.484083"
+      }
+    ]
+  },
+  "6f_MR_h7_below__56ff5be0": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day VAH + Prev Week Low + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Wednesday",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 6.48,
+    "avg_profit": 6.48,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T09:24:50.293660",
+    "last_seen": "2026-02-18T09:24:50.293660",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 6.48
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 1,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 6.48,
+        "timestamp": "2026-02-18T09:24:50.293660"
+      }
+    ]
+  },
+  "11f_MR_h10_daily__c596d85b": {
+    "factors": [
+      "Daily HVN",
+      "Low Volume Node",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing High",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Low Volume Node + POC + Prev Day High + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 10,
+    "day_of_week": "Wednesday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -34.72,
+    "avg_profit": -34.72,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T13:20:43.140547",
+    "last_seen": "2026-02-18T13:20:43.140547",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -34.72
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -34.72,
+        "timestamp": "2026-02-18T13:20:43.140547"
+      }
+    ]
+  },
+  "6f_MR_h10_below__4eea7711": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day VAH + Prev Week Low + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 10,
+    "day_of_week": "Wednesday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -29.28,
+    "avg_profit": -29.28,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T13:20:43.147548",
+    "last_seen": "2026-02-18T13:20:43.147548",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -29.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -29.28,
+        "timestamp": "2026-02-18T13:20:43.147548"
+      }
+    ]
+  },
+  "4f_BO_h11_below__285e9d44": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Weekly HVN"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Weekly HVN",
+    "strategy_type": "breakout",
+    "hour": 11,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -36.48,
+    "avg_profit": -18.24,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T13:20:43.153097",
+    "last_seen": "2026-02-18T13:20:43.159218",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -36.48
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -18.24,
+        "timestamp": "2026-02-18T13:20:43.153097"
+      },
+      {
+        "is_win": false,
+        "profit": -18.24,
+        "timestamp": "2026-02-18T13:20:43.159218"
+      }
+    ]
+  },
+  "10f_BO_h17_below__a0391a5d": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 17,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -2.56,
+    "avg_profit": -1.28,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T21:01:09.937806",
+    "last_seen": "2026-02-18T21:01:09.937806",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -2.56
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -1.28,
+        "timestamp": "2026-02-18T21:01:09.937806"
+      },
+      {
+        "is_win": false,
+        "profit": -1.28,
+        "timestamp": "2026-02-18T21:01:09.937806"
+      }
+    ]
+  },
+  "9f_BO_h17_below__427de698": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 17,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 16.0,
+    "avg_profit": 8.0,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-18T21:45:12.505714",
+    "last_seen": "2026-02-18T21:45:12.511231",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 16.0
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.0,
+        "timestamp": "2026-02-18T21:45:12.505714"
+      },
+      {
+        "is_win": true,
+        "profit": 8.0,
+        "timestamp": "2026-02-18T21:45:12.511231"
+      }
+    ]
+  },
+  "10f_MR_h22_below__fc69e190": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -0.48,
+    "avg_profit": -0.24,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T02:29:29.439599",
+    "last_seen": "2026-02-19T02:35:30.120221",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -0.48
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.32,
+        "timestamp": "2026-02-19T02:29:29.439599"
+      },
+      {
+        "is_win": false,
+        "profit": -0.16,
+        "timestamp": "2026-02-19T02:35:30.120221"
+      }
+    ]
+  },
+  "10f_MR_h3_below__9914799d": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 3,
+    "day_of_week": "Thursday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -31.84,
+    "avg_profit": -15.92,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T07:01:43.984957",
+    "last_seen": "2026-02-19T07:01:43.997473",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -31.84
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -16.0,
+        "timestamp": "2026-02-19T07:01:43.984957"
+      },
+      {
+        "is_win": false,
+        "profit": -15.84,
+        "timestamp": "2026-02-19T07:01:43.997473"
+      }
+    ]
+  },
+  "9f_MR_h5_below__4a93580c": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 5,
+    "day_of_week": "Thursday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -45.12,
+    "avg_profit": -45.12,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T08:19:54.390861",
+    "last_seen": "2026-02-19T08:19:54.390861",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -45.12
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -45.12,
+        "timestamp": "2026-02-19T08:19:54.390861"
+      }
+    ]
+  },
+  "10f_MR_h7_below__b61952dd": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Thursday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -32.16,
+    "avg_profit": -32.16,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T09:20:14.351023",
+    "last_seen": "2026-02-19T09:20:14.351023",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -32.16
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -32.16,
+        "timestamp": "2026-02-19T09:20:14.351023"
+      }
+    ]
+  },
+  "9f_BO_h11_below__0385c42f": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 11,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 34.56,
+    "avg_profit": 8.64,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T11:07:21.920436",
+    "last_seen": "2026-02-19T11:18:24.468267",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 15.12
+      },
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 19.44
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 7.52,
+        "timestamp": "2026-02-19T11:07:21.920436"
+      },
+      {
+        "is_win": true,
+        "profit": 7.6,
+        "timestamp": "2026-02-19T11:07:21.934458"
+      },
+      {
+        "is_win": true,
+        "profit": 8.72,
+        "timestamp": "2026-02-19T11:16:24.200925"
+      },
+      {
+        "is_win": true,
+        "profit": 10.72,
+        "timestamp": "2026-02-19T11:18:24.468267"
+      }
+    ]
+  },
+  "5f_BO_h11_below__44f31c4a": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Weekly HVN + Weekly POC",
+    "strategy_type": "breakout",
+    "hour": 11,
+    "day_of_week": "Thursday",
+    "total_trades": 2,
+    "wins": 1,
+    "losses": 1,
+    "total_profit": -16.32,
+    "avg_profit": -8.16,
+    "win_rate": 50.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T11:23:25.188849",
+    "last_seen": "2026-02-19T12:15:27.035101",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 1,
+        "losses": 1,
+        "profit": -16.32
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 1,
+        "losses": 1
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.6,
+        "timestamp": "2026-02-19T11:23:25.188849"
+      },
+      {
+        "is_win": false,
+        "profit": -25.92,
+        "timestamp": "2026-02-19T12:15:27.035101"
+      }
+    ]
+  },
+  "9f_MR_h12_below__372a4cdc": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 12,
+    "day_of_week": "Thursday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 13.68,
+    "avg_profit": 6.84,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T12:47:29.172159",
+    "last_seen": "2026-02-19T15:45:40.710707",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 13.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 2,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 7.2,
+        "timestamp": "2026-02-19T12:47:29.172159"
+      },
+      {
+        "is_win": true,
+        "profit": 6.48,
+        "timestamp": "2026-02-19T15:45:40.710707"
+      }
+    ]
+  },
+  "9f_BO_h15_below__ac1fad82": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 15,
+    "day_of_week": "Thursday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -26.88,
+    "avg_profit": -13.44,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T19:01:49.871547",
+    "last_seen": "2026-02-19T19:01:49.881059",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -26.88
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -13.44,
+        "timestamp": "2026-02-19T19:01:49.871547"
+      },
+      {
+        "is_win": false,
+        "profit": -13.44,
+        "timestamp": "2026-02-19T19:01:49.881059"
+      }
+    ]
+  },
+  "9f_BO_h16_below__7c9aca01": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 16,
+    "day_of_week": "Thursday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -26.56,
+    "avg_profit": -13.28,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-19T20:37:53.524242",
+    "last_seen": "2026-02-19T20:37:53.524242",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -26.56
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -13.28,
+        "timestamp": "2026-02-19T20:37:53.524242"
+      },
+      {
+        "is_win": false,
+        "profit": -13.28,
+        "timestamp": "2026-02-19T20:37:53.524242"
+      }
+    ]
+  },
+  "9f_BO_h0_below__5653ed7b": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 0,
+    "day_of_week": "Friday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -3.52,
+    "avg_profit": -1.76,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-20T04:01:23.242998",
+    "last_seen": "2026-02-20T04:01:23.249999",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -3.52
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -1.76,
+        "timestamp": "2026-02-20T04:01:23.242998"
+      },
+      {
+        "is_win": false,
+        "profit": -1.76,
+        "timestamp": "2026-02-20T04:01:23.249999"
+      }
+    ]
+  },
+  "9f_BO_h0_below__588a4e2e": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "breakout",
+    "hour": 0,
+    "day_of_week": "Friday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -46.72,
+    "avg_profit": -23.36,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-20T04:01:23.256000",
+    "last_seen": "2026-02-20T04:01:23.262001",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -46.72
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -23.36,
+        "timestamp": "2026-02-20T04:01:23.256000"
+      },
+      {
+        "is_win": false,
+        "profit": -23.36,
+        "timestamp": "2026-02-20T04:01:23.262001"
+      }
+    ]
+  },
+  "9f_MR_h5_below__228576f0": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 5,
+    "day_of_week": "Friday",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 1.8,
+    "avg_profit": 1.8,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-20T06:14:30.813825",
+    "last_seen": "2026-02-20T06:14:30.813825",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 1.8
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 1,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.8,
+        "timestamp": "2026-02-20T06:14:30.813825"
+      }
+    ]
+  },
+  "1f_BO_h0_di_mom_2d838cce": {
+    "factors": [
+      "DI Momentum (High confidence)"
+    ],
+    "signature": "DI Momentum (High confidence)",
+    "strategy_type": "breakout",
+    "hour": 0,
+    "day_of_week": "Monday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 4.24,
+    "avg_profit": 2.12,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-23T03:26:12.446137",
+    "last_seen": "2026-02-23T03:26:12.461790",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 4.24
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 2,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 2.12,
+        "timestamp": "2026-02-23T03:26:12.446137"
+      },
+      {
+        "is_win": true,
+        "profit": 2.12,
+        "timestamp": "2026-02-23T03:26:12.461790"
+      }
+    ]
+  },
+  "7f_MR_h12_daily__13e314ef": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 12,
+    "day_of_week": "Monday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -13.92,
+    "avg_profit": -13.92,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-23T16:02:08.783794",
+    "last_seen": "2026-02-23T16:02:08.783794",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -13.92
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -13.92,
+        "timestamp": "2026-02-23T16:02:08.783794"
+      }
+    ]
+  },
+  "9f_MR_h22_below__90a5c280": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Monday",
+    "total_trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "total_profit": 6.4,
+    "avg_profit": 6.4,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-24T00:05:31.449792",
+    "last_seen": "2026-02-24T00:05:31.449792",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 1,
+        "losses": 0,
+        "profit": 6.4
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 1,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 6.4,
+        "timestamp": "2026-02-24T00:05:31.449792"
+      }
+    ]
+  },
+  "9f_MR_h22_below__a970b8e0": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Monday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -27.36,
+    "avg_profit": -27.36,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-24T02:01:37.253792",
+    "last_seen": "2026-02-24T02:01:37.253792",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -27.36
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -27.36,
+        "timestamp": "2026-02-24T02:01:37.253792"
+      }
+    ]
+  },
+  "9f_MR_h0_below__d6abb1de": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 0,
+    "day_of_week": "Tuesday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -28.96,
+    "avg_profit": -28.96,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-24T04:52:43.996012",
+    "last_seen": "2026-02-24T04:52:43.996012",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -28.96
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -28.96,
+        "timestamp": "2026-02-24T04:52:43.996012"
+      }
+    ]
+  },
+  "9f_MR_h7_daily__00d7e93e": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Tuesday",
+    "total_trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "total_profit": -12.16,
+    "avg_profit": -12.16,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-24T11:55:53.431548",
+    "last_seen": "2026-02-24T11:55:53.431548",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 1,
+        "profit": -12.16
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 1
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -12.16,
+        "timestamp": "2026-02-24T11:55:53.431548"
+      }
+    ]
+  },
+  "9f_MR_h7_daily__4fbfc99f": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 2.24,
+    "avg_profit": 0.56,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-25T09:43:30.014321",
+    "last_seen": "2026-02-25T09:47:34.247324",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 2.24
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 0.56,
+        "timestamp": "2026-02-25T09:43:30.014321"
+      },
+      {
+        "is_win": true,
+        "profit": 0.56,
+        "timestamp": "2026-02-25T09:43:30.022322"
+      },
+      {
+        "is_win": true,
+        "profit": 0.56,
+        "timestamp": "2026-02-25T09:43:30.030319"
+      },
+      {
+        "is_win": true,
+        "profit": 0.56,
+        "timestamp": "2026-02-25T09:47:34.247324"
+      }
+    ]
+  },
+  "9f_MR_h9_daily__7dabc32d": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 9,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -7.76,
+    "avg_profit": -1.94,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-25T11:24:18.339925",
+    "last_seen": "2026-02-25T11:25:18.623518",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -7.76
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -2.08,
+        "timestamp": "2026-02-25T11:24:18.339925"
+      },
+      {
+        "is_win": false,
+        "profit": -1.8399999999999999,
+        "timestamp": "2026-02-25T11:25:18.601364"
+      },
+      {
+        "is_win": false,
+        "profit": -1.92,
+        "timestamp": "2026-02-25T11:25:18.616992"
+      },
+      {
+        "is_win": false,
+        "profit": -1.92,
+        "timestamp": "2026-02-25T11:25:18.623518"
+      }
+    ]
+  },
+  "6f_MR_h9_above__96d322b5": {
+    "factors": [
+      "Above VAH",
+      "POC",
+      "Prev Day High",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 2"
+    ],
+    "signature": "Above VAH + POC + Prev Day High + Prev Week High + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 9,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -39.2,
+    "avg_profit": -9.8,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-02-25T12:38:21.142774",
+    "last_seen": "2026-02-25T12:38:21.174043",
+    "symbols": {
+      "AUDUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -39.2
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -9.6,
+        "timestamp": "2026-02-25T12:38:21.142774"
+      },
+      {
+        "is_win": false,
+        "profit": -9.92,
+        "timestamp": "2026-02-25T12:38:21.158420"
+      },
+      {
+        "is_win": false,
+        "profit": -9.84,
+        "timestamp": "2026-02-25T12:38:21.158420"
+      },
+      {
+        "is_win": false,
+        "profit": -9.84,
+        "timestamp": "2026-02-25T12:38:21.174043"
+      }
+    ]
+  },
+  "4f_MR_h9_prev_d_bbac32e2": {
+    "factors": [
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day High + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 9,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -119.84,
+    "avg_profit": -29.96,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-06T03:22:44.688568",
+    "last_seen": "2026-03-06T03:22:44.713989",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -119.84
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-06T03:22:44.688568"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-06T03:22:44.698990"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-06T03:22:44.705989"
+      },
+      {
+        "is_win": false,
+        "profit": -30.08,
+        "timestamp": "2026-03-06T03:22:44.713989"
+      }
+    ]
+  },
+  "3f_MR_h17_poc_66aeca99": {
+    "factors": [
+      "POC",
+      "Prev Day VAH",
+      "VWAP Band 1"
+    ],
+    "signature": "POC + Prev Day VAH + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 17,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 4.8,
+    "avg_profit": 1.2,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-06T17:28:46.099354",
+    "last_seen": "2026-03-06T17:28:46.123287",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 4.8
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.28,
+        "timestamp": "2026-03-06T17:28:46.099354"
+      },
+      {
+        "is_win": true,
+        "profit": 1.2,
+        "timestamp": "2026-03-06T17:28:46.109282"
+      },
+      {
+        "is_win": true,
+        "profit": 1.2,
+        "timestamp": "2026-03-06T17:28:46.116282"
+      },
+      {
+        "is_win": true,
+        "profit": 1.12,
+        "timestamp": "2026-03-06T17:28:46.123287"
+      }
+    ]
+  },
+  "4f_MR_h17_prev_d_5e71464f": {
+    "factors": [
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day High + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 17,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 5.12,
+    "avg_profit": 1.28,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-06T17:28:46.131291",
+    "last_seen": "2026-03-06T17:28:46.153145",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 5.12
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.28,
+        "timestamp": "2026-03-06T17:28:46.131291"
+      },
+      {
+        "is_win": true,
+        "profit": 1.28,
+        "timestamp": "2026-03-06T17:28:46.139143"
+      },
+      {
+        "is_win": true,
+        "profit": 1.28,
+        "timestamp": "2026-03-06T17:28:46.147140"
+      },
+      {
+        "is_win": true,
+        "profit": 1.28,
+        "timestamp": "2026-03-06T17:28:46.153145"
+      }
+    ]
+  },
+  "9f_MR_h22_daily__f758895c": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Prev Week Low",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Sunday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 4.640000000000001,
+    "avg_profit": 1.1600000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-08T22:27:15.066231",
+    "last_seen": "2026-03-08T22:27:15.093397",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 4.640000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.44,
+        "timestamp": "2026-03-08T22:27:15.066231"
+      },
+      {
+        "is_win": true,
+        "profit": 1.12,
+        "timestamp": "2026-03-08T22:27:15.077749"
+      },
+      {
+        "is_win": true,
+        "profit": 1.04,
+        "timestamp": "2026-03-08T22:27:15.077749"
+      },
+      {
+        "is_win": true,
+        "profit": 1.04,
+        "timestamp": "2026-03-08T22:27:15.093397"
+      }
+    ]
+  },
+  "8f_MR_h22_daily__db9455df": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Sunday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 6.4,
+    "avg_profit": 1.6,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-08T22:40:15.814496",
+    "last_seen": "2026-03-08T22:40:15.830120",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 6.4
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.6,
+        "timestamp": "2026-03-08T22:40:15.814496"
+      },
+      {
+        "is_win": true,
+        "profit": 1.6,
+        "timestamp": "2026-03-08T22:40:15.814496"
+      },
+      {
+        "is_win": true,
+        "profit": 1.6,
+        "timestamp": "2026-03-08T22:40:15.830120"
+      },
+      {
+        "is_win": true,
+        "profit": 1.6,
+        "timestamp": "2026-03-08T22:40:15.830120"
+      }
+    ]
+  },
+  "4f_MR_h10_prev_d_4c064bb9": {
+    "factors": [
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day Low + Prev Day POC + Prev Day VAH + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 10,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 62.4,
+    "avg_profit": 15.6,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-09T13:19:35.600114",
+    "last_seen": "2026-03-09T13:19:35.620280",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 62.4
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 15.2,
+        "timestamp": "2026-03-09T13:19:35.600114"
+      },
+      {
+        "is_win": true,
+        "profit": 15.36,
+        "timestamp": "2026-03-09T13:19:35.604634"
+      },
+      {
+        "is_win": true,
+        "profit": 15.92,
+        "timestamp": "2026-03-09T13:19:35.604634"
+      },
+      {
+        "is_win": true,
+        "profit": 15.92,
+        "timestamp": "2026-03-09T13:19:35.620280"
+      }
+    ]
+  },
+  "6f_MR_h9_prev_d_f473b630": {
+    "factors": [
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2"
+    ],
+    "signature": "Prev Day Low + Prev Day POC + Prev Day VAL + Prev Week Low + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 9,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 36.0,
+    "avg_profit": 9.0,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-09T13:23:35.713230",
+    "last_seen": "2026-03-09T13:23:35.744483",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 36.0
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.2,
+        "timestamp": "2026-03-09T13:23:35.713230"
+      },
+      {
+        "is_win": true,
+        "profit": 8.96,
+        "timestamp": "2026-03-09T13:23:35.728857"
+      },
+      {
+        "is_win": true,
+        "profit": 9.12,
+        "timestamp": "2026-03-09T13:23:35.728857"
+      },
+      {
+        "is_win": true,
+        "profit": 8.72,
+        "timestamp": "2026-03-09T13:23:35.744483"
+      }
+    ]
+  },
+  "4f_MR_h17_prev_d_7a185e32": {
+    "factors": [
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day Low + Prev Day POC + Prev Day VAH + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 17,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -141.11999999999998,
+    "avg_profit": -35.279999999999994,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-09T18:19:48.980720",
+    "last_seen": "2026-03-09T18:19:49.011131",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -141.11999999999998
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -34.56,
+        "timestamp": "2026-03-09T18:19:48.980720"
+      },
+      {
+        "is_win": false,
+        "profit": -36.48,
+        "timestamp": "2026-03-09T18:19:48.993719"
+      },
+      {
+        "is_win": false,
+        "profit": -36.32,
+        "timestamp": "2026-03-09T18:19:49.002721"
+      },
+      {
+        "is_win": false,
+        "profit": -33.76,
+        "timestamp": "2026-03-09T18:19:49.011131"
+      }
+    ]
+  },
+  "5f_MR_h21_daily__d53ccd87": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 21,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 35.36000000000001,
+    "avg_profit": 8.840000000000002,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-09T21:40:10.857219",
+    "last_seen": "2026-03-09T21:40:10.904101",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 35.36000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.72,
+        "timestamp": "2026-03-09T21:40:10.857219"
+      },
+      {
+        "is_win": true,
+        "profit": 8.88,
+        "timestamp": "2026-03-09T21:40:10.872847"
+      },
+      {
+        "is_win": true,
+        "profit": 8.88,
+        "timestamp": "2026-03-09T21:40:10.888475"
+      },
+      {
+        "is_win": true,
+        "profit": 8.88,
+        "timestamp": "2026-03-09T21:40:10.904101"
+      }
+    ]
+  },
+  "6f_MR_h2_daily__e421ff9d": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 2,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -109.44,
+    "avg_profit": -27.36,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-10T05:15:19.915387",
+    "last_seen": "2026-03-10T05:15:19.947058",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -109.44
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -26.72,
+        "timestamp": "2026-03-10T05:15:19.915387"
+      },
+      {
+        "is_win": false,
+        "profit": -27.68,
+        "timestamp": "2026-03-10T05:15:19.931010"
+      },
+      {
+        "is_win": false,
+        "profit": -27.52,
+        "timestamp": "2026-03-10T05:15:19.940532"
+      },
+      {
+        "is_win": false,
+        "profit": -27.52,
+        "timestamp": "2026-03-10T05:15:19.947058"
+      }
+    ]
+  },
+  "5f_MR_h7_above__66be2042": {
+    "factors": [
+      "Above VAH",
+      "Prev Day High",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 2"
+    ],
+    "signature": "Above VAH + Prev Day High + Prev Week High + Swing High + VWAP Band 2",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 50.4,
+    "avg_profit": 12.6,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-10T07:57:09.554328",
+    "last_seen": "2026-03-10T07:57:09.569957",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 50.4
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 12.56,
+        "timestamp": "2026-03-10T07:57:09.554328"
+      },
+      {
+        "is_win": true,
+        "profit": 12.56,
+        "timestamp": "2026-03-10T07:57:09.554328"
+      },
+      {
+        "is_win": true,
+        "profit": 12.56,
+        "timestamp": "2026-03-10T07:57:09.569957"
+      },
+      {
+        "is_win": true,
+        "profit": 12.72,
+        "timestamp": "2026-03-10T07:57:09.569957"
+      }
+    ]
+  },
+  "4f_MR_h16_daily__2d376fb6": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 16,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 33.84,
+    "avg_profit": 8.46,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-10T17:14:55.326758",
+    "last_seen": "2026-03-10T17:14:55.354443",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 33.84
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.72,
+        "timestamp": "2026-03-10T17:14:55.326758"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-10T17:14:55.336755"
+      },
+      {
+        "is_win": true,
+        "profit": 8.32,
+        "timestamp": "2026-03-10T17:14:55.346444"
+      },
+      {
+        "is_win": true,
+        "profit": 8.16,
+        "timestamp": "2026-03-10T17:14:55.354443"
+      }
+    ]
+  },
+  "6f_MR_h18_daily__b88fdccf": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day VAH + Prev Week High + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 18,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -65.44,
+    "avg_profit": -16.36,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-10T23:13:06.245711",
+    "last_seen": "2026-03-10T23:13:06.273425",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -65.44
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -15.2,
+        "timestamp": "2026-03-10T23:13:06.245711"
+      },
+      {
+        "is_win": false,
+        "profit": -16.32,
+        "timestamp": "2026-03-10T23:13:06.255990"
+      },
+      {
+        "is_win": false,
+        "profit": -16.48,
+        "timestamp": "2026-03-10T23:13:06.264989"
+      },
+      {
+        "is_win": false,
+        "profit": -17.44,
+        "timestamp": "2026-03-10T23:13:06.273425"
+      }
+    ]
+  },
+  "7f_MR_h21_daily__e18293e2": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 21,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -88.80000000000001,
+    "avg_profit": -22.200000000000003,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-10T23:13:06.281426",
+    "last_seen": "2026-03-10T23:13:06.308579",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -88.80000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -21.92,
+        "timestamp": "2026-03-10T23:13:06.281426"
+      },
+      {
+        "is_win": false,
+        "profit": -21.92,
+        "timestamp": "2026-03-10T23:13:06.290724"
+      },
+      {
+        "is_win": false,
+        "profit": -22.4,
+        "timestamp": "2026-03-10T23:13:06.298727"
+      },
+      {
+        "is_win": false,
+        "profit": -22.56,
+        "timestamp": "2026-03-10T23:13:06.308579"
+      }
+    ]
+  },
+  "6f_MR_h16_daily__14aa811f": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 16,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 208.32,
+    "avg_profit": 52.08,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-11T23:18:19.273147",
+    "last_seen": "2026-03-11T23:18:19.304676",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 208.32
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 52.48,
+        "timestamp": "2026-03-11T23:18:19.273147"
+      },
+      {
+        "is_win": true,
+        "profit": 51.84,
+        "timestamp": "2026-03-11T23:18:19.284855"
+      },
+      {
+        "is_win": true,
+        "profit": 52.0,
+        "timestamp": "2026-03-11T23:18:19.295074"
+      },
+      {
+        "is_win": true,
+        "profit": 52.0,
+        "timestamp": "2026-03-11T23:18:19.304676"
+      }
+    ]
+  },
+  "6f_MR_h17_daily__24864462": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 17,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -230.07999999999998,
+    "avg_profit": -57.519999999999996,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-11T23:18:19.315466",
+    "last_seen": "2026-03-11T23:18:19.345309",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -230.07999999999998
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -57.44,
+        "timestamp": "2026-03-11T23:18:19.315466"
+      },
+      {
+        "is_win": false,
+        "profit": -57.6,
+        "timestamp": "2026-03-11T23:18:19.324670"
+      },
+      {
+        "is_win": false,
+        "profit": -57.6,
+        "timestamp": "2026-03-11T23:18:19.334490"
+      },
+      {
+        "is_win": false,
+        "profit": -57.44,
+        "timestamp": "2026-03-11T23:18:19.345309"
+      }
+    ]
+  },
+  "6f_MR_h1_daily__8cf8bd6d": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 1,
+    "day_of_week": "Thursday",
+    "total_trades": 8,
+    "wins": 8,
+    "losses": 0,
+    "total_profit": 73.68,
+    "avg_profit": 9.21,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-12T01:35:25.212670",
+    "last_seen": "2026-03-26T05:43:29.463996",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 39.28
+      },
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 34.400000000000006
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 8,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-12T01:35:25.212670"
+      },
+      {
+        "is_win": true,
+        "profit": 9.68,
+        "timestamp": "2026-03-12T01:35:25.222857"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-12T01:35:25.232036"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-12T01:35:25.241173"
+      },
+      {
+        "is_win": true,
+        "profit": 8.48,
+        "timestamp": "2026-03-26T05:43:29.421125"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-26T05:43:29.435126"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-26T05:43:29.450997"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-26T05:43:29.463996"
+      }
+    ]
+  },
+  "10f_MR_h3_below__c88a047f": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 3,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 32.32,
+    "avg_profit": 8.08,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-12T05:11:32.501049",
+    "last_seen": "2026-03-12T05:11:32.533249",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 32.32
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.08,
+        "timestamp": "2026-03-12T05:11:32.501049"
+      },
+      {
+        "is_win": true,
+        "profit": 8.08,
+        "timestamp": "2026-03-12T05:11:32.511984"
+      },
+      {
+        "is_win": true,
+        "profit": 8.08,
+        "timestamp": "2026-03-12T05:11:32.523246"
+      },
+      {
+        "is_win": true,
+        "profit": 8.08,
+        "timestamp": "2026-03-12T05:11:32.533249"
+      }
+    ]
+  },
+  "6f_MR_h7_daily__ae130038": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 40.800000000000004,
+    "avg_profit": 10.200000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-12T07:41:57.614160",
+    "last_seen": "2026-03-12T07:41:57.650120",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 40.800000000000004
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.16,
+        "timestamp": "2026-03-12T07:41:57.614160"
+      },
+      {
+        "is_win": true,
+        "profit": 10.16,
+        "timestamp": "2026-03-12T07:41:57.627732"
+      },
+      {
+        "is_win": true,
+        "profit": 10.24,
+        "timestamp": "2026-03-12T07:41:57.638917"
+      },
+      {
+        "is_win": true,
+        "profit": 10.24,
+        "timestamp": "2026-03-12T07:41:57.650120"
+      }
+    ]
+  },
+  "7f_MR_h19_below__3db14c77": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Week Low + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 19,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 32.96,
+    "avg_profit": 8.24,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-12T23:10:04.508860",
+    "last_seen": "2026-03-12T23:10:04.544785",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 32.96
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.24,
+        "timestamp": "2026-03-12T23:10:04.508860"
+      },
+      {
+        "is_win": true,
+        "profit": 8.24,
+        "timestamp": "2026-03-12T23:10:04.520856"
+      },
+      {
+        "is_win": true,
+        "profit": 8.24,
+        "timestamp": "2026-03-12T23:10:04.533784"
+      },
+      {
+        "is_win": true,
+        "profit": 8.24,
+        "timestamp": "2026-03-12T23:10:04.544785"
+      }
+    ]
+  },
+  "7f_MR_h5_below__cc537adb": {
+    "factors": [
+      "Below VAL",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low"
+    ],
+    "signature": "Below VAL + Low Volume Node + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 5,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -122.88,
+    "avg_profit": -30.72,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-13T06:00:13.214020",
+    "last_seen": "2026-03-13T06:00:13.243653",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -122.88
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -30.08,
+        "timestamp": "2026-03-13T06:00:13.214020"
+      },
+      {
+        "is_win": false,
+        "profit": -31.04,
+        "timestamp": "2026-03-13T06:00:13.225022"
+      },
+      {
+        "is_win": false,
+        "profit": -30.88,
+        "timestamp": "2026-03-13T06:00:13.234021"
+      },
+      {
+        "is_win": false,
+        "profit": -30.88,
+        "timestamp": "2026-03-13T06:00:13.243653"
+      }
+    ]
+  },
+  "6f_MR_h14_below__7d5f9599": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Week Low + Swing Low + Weekly HVN",
+    "strategy_type": "mean_reversion",
+    "hour": 14,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -120.95999999999998,
+    "avg_profit": -30.239999999999995,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-13T14:37:29.680215",
+    "last_seen": "2026-03-13T14:37:29.712481",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -120.95999999999998
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -30.08,
+        "timestamp": "2026-03-13T14:37:29.680215"
+      },
+      {
+        "is_win": false,
+        "profit": -30.24,
+        "timestamp": "2026-03-13T14:37:29.691387"
+      },
+      {
+        "is_win": false,
+        "profit": -30.24,
+        "timestamp": "2026-03-13T14:37:29.701478"
+      },
+      {
+        "is_win": false,
+        "profit": -30.4,
+        "timestamp": "2026-03-13T14:37:29.712481"
+      }
+    ]
+  },
+  "7f_MR_h15_below__bdf82b59": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Week Low + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 15,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 38.64,
+    "avg_profit": 9.66,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-13T16:36:36.472148",
+    "last_seen": "2026-03-13T16:36:36.500148",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 38.64
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.6,
+        "timestamp": "2026-03-13T16:36:36.472148"
+      },
+      {
+        "is_win": true,
+        "profit": 9.68,
+        "timestamp": "2026-03-13T16:36:36.482150"
+      },
+      {
+        "is_win": true,
+        "profit": 9.68,
+        "timestamp": "2026-03-13T16:36:36.491148"
+      },
+      {
+        "is_win": true,
+        "profit": 9.68,
+        "timestamp": "2026-03-13T16:36:36.500148"
+      }
+    ]
+  },
+  "9f_MR_h20_below__eeb81f1d": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Low Volume Node",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Low Volume Node + Prev Day Low + Prev Day POC",
+    "strategy_type": "mean_reversion",
+    "hour": 20,
+    "day_of_week": "Sunday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 35.28,
+    "avg_profit": 8.82,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-15T23:01:02.174910",
+    "last_seen": "2026-03-15T23:01:02.215171",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 35.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.8,
+        "timestamp": "2026-03-15T23:01:02.174910"
+      },
+      {
+        "is_win": true,
+        "profit": 8.72,
+        "timestamp": "2026-03-15T23:01:02.190545"
+      },
+      {
+        "is_win": true,
+        "profit": 8.8,
+        "timestamp": "2026-03-15T23:01:02.206149"
+      },
+      {
+        "is_win": true,
+        "profit": 8.96,
+        "timestamp": "2026-03-15T23:01:02.215171"
+      }
+    ]
+  },
+  "8f_MR_h2_below__a37312cf": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 2,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -84.96000000000001,
+    "avg_profit": -21.240000000000002,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-16T04:36:16.357702",
+    "last_seen": "2026-03-16T04:36:16.393574",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -84.96000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -21.44,
+        "timestamp": "2026-03-16T04:36:16.357702"
+      },
+      {
+        "is_win": false,
+        "profit": -21.44,
+        "timestamp": "2026-03-16T04:36:16.368700"
+      },
+      {
+        "is_win": false,
+        "profit": -21.44,
+        "timestamp": "2026-03-16T04:36:16.383577"
+      },
+      {
+        "is_win": false,
+        "profit": -20.64,
+        "timestamp": "2026-03-16T04:36:16.393574"
+      }
+    ]
+  },
+  "10f_MR_h2_below__4b859171": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 2,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -44.31999999999999,
+    "avg_profit": -11.079999999999998,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-16T04:36:16.406751",
+    "last_seen": "2026-03-16T04:36:16.442841",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -44.31999999999999
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -11.04,
+        "timestamp": "2026-03-16T04:36:16.406751"
+      },
+      {
+        "is_win": false,
+        "profit": -11.04,
+        "timestamp": "2026-03-16T04:36:16.418758"
+      },
+      {
+        "is_win": false,
+        "profit": -11.04,
+        "timestamp": "2026-03-16T04:36:16.429754"
+      },
+      {
+        "is_win": false,
+        "profit": -11.2,
+        "timestamp": "2026-03-16T04:36:16.442841"
+      }
+    ]
+  },
+  "9f_MR_h6_below__f7b8dc1c": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 6,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 39.36,
+    "avg_profit": 9.84,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-16T07:24:46.366698",
+    "last_seen": "2026-03-16T07:24:46.404174",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 39.36
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-16T07:24:46.366698"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-16T07:24:46.379835"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-16T07:24:46.392308"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-16T07:24:46.404174"
+      }
+    ]
+  },
+  "4f_MR_h14_below__370c5e27": {
+    "factors": [
+      "Below VAL",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Below VAL + Prev Day VAH + Swing Low + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 14,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 44.56,
+    "avg_profit": 11.14,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-16T14:41:04.207827",
+    "last_seen": "2026-03-16T14:42:04.378095",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 44.56
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 11.52,
+        "timestamp": "2026-03-16T14:41:04.207827"
+      },
+      {
+        "is_win": true,
+        "profit": 11.52,
+        "timestamp": "2026-03-16T14:41:04.218830"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-16T14:42:04.366608"
+      },
+      {
+        "is_win": true,
+        "profit": 10.96,
+        "timestamp": "2026-03-16T14:42:04.378095"
+      }
+    ]
+  },
+  "4f_MR_h15_below__608232d3": {
+    "factors": [
+      "Below VAL",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Below VAL + Prev Day VAH + Swing Low + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 15,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 43.60000000000001,
+    "avg_profit": 10.900000000000002,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-16T17:16:20.739096",
+    "last_seen": "2026-03-16T17:16:20.771045",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 43.60000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.96,
+        "timestamp": "2026-03-16T17:16:20.739096"
+      },
+      {
+        "is_win": true,
+        "profit": 10.88,
+        "timestamp": "2026-03-16T17:16:20.749098"
+      },
+      {
+        "is_win": true,
+        "profit": 10.88,
+        "timestamp": "2026-03-16T17:16:20.759962"
+      },
+      {
+        "is_win": true,
+        "profit": 10.88,
+        "timestamp": "2026-03-16T17:16:20.771045"
+      }
+    ]
+  },
+  "5f_MR_h18_below__ae3db489": {
+    "factors": [
+      "Below VAL",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Below VAL + Prev Day High + Prev Day VAH + Swing Low + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 18,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -119.68,
+    "avg_profit": -29.92,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-16T21:38:29.130825",
+    "last_seen": "2026-03-16T21:38:29.166035",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -119.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-16T21:38:29.130825"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-16T21:38:29.142597"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-16T21:38:29.155856"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-16T21:38:29.166035"
+      }
+    ]
+  },
+  "6f_MR_h0_below__fd8de160": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 2"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day High + Prev Day VAH + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 0,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -120.96000000000001,
+    "avg_profit": -30.240000000000002,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-17T05:03:39.639564",
+    "last_seen": "2026-03-17T05:03:39.677795",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -120.96000000000001
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-17T05:03:39.639564"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-17T05:03:39.652702"
+      },
+      {
+        "is_win": false,
+        "profit": -30.4,
+        "timestamp": "2026-03-17T05:03:39.664834"
+      },
+      {
+        "is_win": false,
+        "profit": -30.72,
+        "timestamp": "2026-03-17T05:03:39.677795"
+      }
+    ]
+  },
+  "6f_MR_h6_below__080b0dc2": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day High + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 6,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 41.92,
+    "avg_profit": 10.48,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-17T06:28:49.361636",
+    "last_seen": "2026-03-17T06:28:49.400042",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 41.92
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.48,
+        "timestamp": "2026-03-17T06:28:49.361636"
+      },
+      {
+        "is_win": true,
+        "profit": 10.4,
+        "timestamp": "2026-03-17T06:28:49.374630"
+      },
+      {
+        "is_win": true,
+        "profit": 10.48,
+        "timestamp": "2026-03-17T06:28:49.386332"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-17T06:28:49.400042"
+      }
+    ]
+  },
+  "6f_MR_h20_daily__1884af34": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 20,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -119.68,
+    "avg_profit": -29.92,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T04:53:57.789078",
+    "last_seen": "2026-03-18T04:53:57.831120",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -119.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-18T04:53:57.789078"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-18T04:53:57.802884"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-18T04:53:57.817423"
+      },
+      {
+        "is_win": false,
+        "profit": -29.92,
+        "timestamp": "2026-03-18T04:53:57.831120"
+      }
+    ]
+  },
+  "6f_MR_h6_daily__13f6c9af": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 6,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 41.84,
+    "avg_profit": 10.46,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T06:46:06.480173",
+    "last_seen": "2026-03-18T06:46:06.522683",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 41.84
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.32,
+        "timestamp": "2026-03-18T06:46:06.480173"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-18T06:46:06.495297"
+      },
+      {
+        "is_win": true,
+        "profit": 10.48,
+        "timestamp": "2026-03-18T06:46:06.508302"
+      },
+      {
+        "is_win": true,
+        "profit": 10.48,
+        "timestamp": "2026-03-18T06:46:06.522683"
+      }
+    ]
+  },
+  "6f_MR_h13_daily__2fe56624": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day POC + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 13,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -60.31999999999999,
+    "avg_profit": -30.159999999999997,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T16:37:27.511743",
+    "last_seen": "2026-03-18T16:37:27.524738",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -60.31999999999999
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -30.24,
+        "timestamp": "2026-03-18T16:37:27.511743"
+      },
+      {
+        "is_win": false,
+        "profit": -30.08,
+        "timestamp": "2026-03-18T16:37:27.524738"
+      }
+    ]
+  },
+  "5f_MR_h13_daily__f27afa86": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 13,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 0,
+    "losses": 2,
+    "total_profit": -58.88,
+    "avg_profit": -29.44,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T16:37:27.539267",
+    "last_seen": "2026-03-18T16:37:27.551262",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 2,
+        "profit": -58.88
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 2
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -29.44,
+        "timestamp": "2026-03-18T16:37:27.539267"
+      },
+      {
+        "is_win": false,
+        "profit": -29.44,
+        "timestamp": "2026-03-18T16:37:27.551262"
+      }
+    ]
+  },
+  "5f_MR_h16_poc_edd1ceb1": {
+    "factors": [
+      "POC",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "POC + Prev Day High + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 16,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -129.28,
+    "avg_profit": -32.32,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T17:40:33.531811",
+    "last_seen": "2026-03-18T17:40:33.566297",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -129.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -32.32,
+        "timestamp": "2026-03-18T17:40:33.532809"
+      },
+      {
+        "is_win": false,
+        "profit": -32.32,
+        "timestamp": "2026-03-18T17:40:33.543807"
+      },
+      {
+        "is_win": false,
+        "profit": -32.32,
+        "timestamp": "2026-03-18T17:40:33.554807"
+      },
+      {
+        "is_win": false,
+        "profit": -32.32,
+        "timestamp": "2026-03-18T17:40:33.566297"
+      }
+    ]
+  },
+  "8f_MR_h22_below__32b9838d": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 32.480000000000004,
+    "avg_profit": 8.120000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T23:06:34.861984",
+    "last_seen": "2026-03-18T23:31:35.533034",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 32.480000000000004
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.0,
+        "timestamp": "2026-03-18T23:06:34.861984"
+      },
+      {
+        "is_win": true,
+        "profit": 8.0,
+        "timestamp": "2026-03-18T23:06:34.884617"
+      },
+      {
+        "is_win": true,
+        "profit": 8.16,
+        "timestamp": "2026-03-18T23:31:35.533034"
+      },
+      {
+        "is_win": true,
+        "profit": 8.32,
+        "timestamp": "2026-03-18T23:31:35.533034"
+      }
+    ]
+  },
+  "10f_MR_h22_below__1538436c": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 41.44,
+    "avg_profit": 10.36,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-18T23:48:36.051202",
+    "last_seen": "2026-03-18T23:48:36.082452",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 41.44
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.4,
+        "timestamp": "2026-03-18T23:48:36.051202"
+      },
+      {
+        "is_win": true,
+        "profit": 10.4,
+        "timestamp": "2026-03-18T23:48:36.066827"
+      },
+      {
+        "is_win": true,
+        "profit": 10.32,
+        "timestamp": "2026-03-18T23:48:36.066827"
+      },
+      {
+        "is_win": true,
+        "profit": 10.32,
+        "timestamp": "2026-03-18T23:48:36.082452"
+      }
+    ]
+  },
+  "3f_MR_h12_prev_d_59841e7f": {
+    "factors": [
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day VAH + Swing Low + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 12,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 48.879999999999995,
+    "avg_profit": 12.219999999999999,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-19T12:20:18.292643",
+    "last_seen": "2026-03-19T12:20:18.339931",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 48.879999999999995
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 12.64,
+        "timestamp": "2026-03-19T12:20:18.292643"
+      },
+      {
+        "is_win": true,
+        "profit": 12.08,
+        "timestamp": "2026-03-19T12:20:18.311264"
+      },
+      {
+        "is_win": true,
+        "profit": 12.4,
+        "timestamp": "2026-03-19T12:20:18.324283"
+      },
+      {
+        "is_win": true,
+        "profit": 11.76,
+        "timestamp": "2026-03-19T12:20:18.339931"
+      }
+    ]
+  },
+  "2f_MR_h12_prev_d_835f9ac2": {
+    "factors": [
+      "Prev Day VAH",
+      "VWAP Band 1"
+    ],
+    "signature": "Prev Day VAH + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 12,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 30.959999999999997,
+    "avg_profit": 7.739999999999999,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-19T12:21:19.381840",
+    "last_seen": "2026-03-19T12:21:19.428709",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 30.959999999999997
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 7.92,
+        "timestamp": "2026-03-19T12:21:19.381840"
+      },
+      {
+        "is_win": true,
+        "profit": 7.92,
+        "timestamp": "2026-03-19T12:21:19.397459"
+      },
+      {
+        "is_win": true,
+        "profit": 7.6,
+        "timestamp": "2026-03-19T12:21:19.413087"
+      },
+      {
+        "is_win": true,
+        "profit": 7.52,
+        "timestamp": "2026-03-19T12:21:19.428709"
+      }
+    ]
+  },
+  "6f_MR_h23_above__0a51b35e": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 2"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day High + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 23,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 41.6,
+    "avg_profit": 10.4,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-20T02:02:41.597500",
+    "last_seen": "2026-03-20T02:02:41.644800",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 41.6
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-20T02:02:41.597500"
+      },
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-20T02:02:41.620638"
+      },
+      {
+        "is_win": true,
+        "profit": 10.8,
+        "timestamp": "2026-03-20T02:02:41.629153"
+      },
+      {
+        "is_win": true,
+        "profit": 10.96,
+        "timestamp": "2026-03-20T02:02:41.644800"
+      }
+    ]
+  },
+  "3f_MR_h16_daily__8767a76f": {
+    "factors": [
+      "Daily HVN",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 16,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 39.6,
+    "avg_profit": 9.9,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-20T17:07:12.509493",
+    "last_seen": "2026-03-20T17:07:12.550562",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 39.6
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-20T17:07:12.509493"
+      },
+      {
+        "is_win": true,
+        "profit": 10.0,
+        "timestamp": "2026-03-20T17:07:12.525563"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-20T17:07:12.537561"
+      },
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-20T17:07:12.550562"
+      }
+    ]
+  },
+  "8f_MR_h20_daily__3a1b0b1f": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 20,
+    "day_of_week": "Sunday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 34.160000000000004,
+    "avg_profit": 8.540000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-23T05:13:20.818740",
+    "last_seen": "2026-03-23T05:13:20.865632",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 34.160000000000004
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.48,
+        "timestamp": "2026-03-23T05:13:20.818740"
+      },
+      {
+        "is_win": true,
+        "profit": 8.56,
+        "timestamp": "2026-03-23T05:13:20.834382"
+      },
+      {
+        "is_win": true,
+        "profit": 8.56,
+        "timestamp": "2026-03-23T05:13:20.850014"
+      },
+      {
+        "is_win": true,
+        "profit": 8.56,
+        "timestamp": "2026-03-23T05:13:20.865632"
+      }
+    ]
+  },
+  "8f_MR_h6_daily__906a4801": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 6,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 42.96,
+    "avg_profit": 10.74,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-23T07:12:03.153270",
+    "last_seen": "2026-03-23T07:12:03.200171",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 42.96
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 11.04,
+        "timestamp": "2026-03-23T07:12:03.153270"
+      },
+      {
+        "is_win": true,
+        "profit": 10.72,
+        "timestamp": "2026-03-23T07:12:03.168915"
+      },
+      {
+        "is_win": true,
+        "profit": 10.64,
+        "timestamp": "2026-03-23T07:12:03.184541"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-23T07:12:03.200171"
+      }
+    ]
+  },
+  "4f_MR_h11_poc_4dabebaa": {
+    "factors": [
+      "POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 2"
+    ],
+    "signature": "POC + Prev Day VAH + Swing High + VWAP Band 2",
+    "strategy_type": "mean_reversion",
+    "hour": 11,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 45.519999999999996,
+    "avg_profit": 11.379999999999999,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-23T11:18:19.226373",
+    "last_seen": "2026-03-23T11:20:20.526331",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 45.519999999999996
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-23T11:18:19.226373"
+      },
+      {
+        "is_win": true,
+        "profit": 11.92,
+        "timestamp": "2026-03-23T11:20:20.494564"
+      },
+      {
+        "is_win": true,
+        "profit": 11.84,
+        "timestamp": "2026-03-23T11:20:20.510668"
+      },
+      {
+        "is_win": true,
+        "profit": 11.84,
+        "timestamp": "2026-03-23T11:20:20.526331"
+      }
+    ]
+  },
+  "5f_MR_h15_prev_d_131e3a30": {
+    "factors": [
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 2"
+    ],
+    "signature": "Prev Day High + Prev Day VAH + Prev Week High + Swing High + VWAP Band 2",
+    "strategy_type": "mean_reversion",
+    "hour": 15,
+    "day_of_week": "Monday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -238.88000000000002,
+    "avg_profit": -59.720000000000006,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-23T17:31:12.194809",
+    "last_seen": "2026-03-23T17:31:12.242087",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -238.88000000000002
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -59.84,
+        "timestamp": "2026-03-23T17:31:12.194809"
+      },
+      {
+        "is_win": false,
+        "profit": -59.84,
+        "timestamp": "2026-03-23T17:31:12.210430"
+      },
+      {
+        "is_win": false,
+        "profit": -59.68,
+        "timestamp": "2026-03-23T17:31:12.233073"
+      },
+      {
+        "is_win": false,
+        "profit": -59.52,
+        "timestamp": "2026-03-23T17:31:12.242087"
+      }
+    ]
+  },
+  "5f_MR_h11_above__dc9cc1cb": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Prev Week High",
+      "VWAP Band 2"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day VAH + Prev Week High + VWAP Band 2",
+    "strategy_type": "mean_reversion",
+    "hour": 11,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 39.28,
+    "avg_profit": 9.82,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-24T12:09:40.862606",
+    "last_seen": "2026-03-24T12:09:40.904637",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 39.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.24,
+        "timestamp": "2026-03-24T12:09:40.862606"
+      },
+      {
+        "is_win": true,
+        "profit": 10.0,
+        "timestamp": "2026-03-24T12:09:40.876607"
+      },
+      {
+        "is_win": true,
+        "profit": 9.6,
+        "timestamp": "2026-03-24T12:09:40.892638"
+      },
+      {
+        "is_win": true,
+        "profit": 9.44,
+        "timestamp": "2026-03-24T12:09:40.904637"
+      }
+    ]
+  },
+  "5f_MR_h11_above__bfda2c24": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day VAH + Swing High + VWAP Band 1",
+    "strategy_type": "mean_reversion",
+    "hour": 11,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 54.16,
+    "avg_profit": 13.54,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-24T12:09:40.918744",
+    "last_seen": "2026-03-24T12:09:40.961112",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 54.16
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 13.04,
+        "timestamp": "2026-03-24T12:09:40.918744"
+      },
+      {
+        "is_win": true,
+        "profit": 13.52,
+        "timestamp": "2026-03-24T12:09:40.934743"
+      },
+      {
+        "is_win": true,
+        "profit": 13.6,
+        "timestamp": "2026-03-24T12:09:40.948112"
+      },
+      {
+        "is_win": true,
+        "profit": 14.0,
+        "timestamp": "2026-03-24T12:09:40.961112"
+      }
+    ]
+  },
+  "5f_MR_h2_above__ac906cbb": {
+    "factors": [
+      "Above VAH",
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "VWAP Band 2"
+    ],
+    "signature": "Above VAH + Daily HVN + Prev Day High + Prev Day VAH + VWAP Band 2",
+    "strategy_type": "mean_reversion",
+    "hour": 2,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 39.68,
+    "avg_profit": 9.92,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-25T04:05:54.598814",
+    "last_seen": "2026-03-25T04:05:54.647283",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 39.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.0,
+        "timestamp": "2026-03-25T04:05:54.598814"
+      },
+      {
+        "is_win": true,
+        "profit": 9.84,
+        "timestamp": "2026-03-25T04:05:54.618362"
+      },
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-25T04:05:54.631746"
+      },
+      {
+        "is_win": true,
+        "profit": 9.92,
+        "timestamp": "2026-03-25T04:05:54.647283"
+      }
+    ]
+  },
+  "6f_MR_h2_daily__84de5165": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week High",
+      "Swing High",
+      "VWAP Band 2"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day VAH + Prev Week High + Swing High",
+    "strategy_type": "mean_reversion",
+    "hour": 2,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 34.56,
+    "avg_profit": 8.64,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-25T04:25:55.434165",
+    "last_seen": "2026-03-25T04:25:55.470714",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 34.56
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-25T04:25:55.434165"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-25T04:25:55.448062"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-25T04:25:55.460625"
+      },
+      {
+        "is_win": true,
+        "profit": 8.64,
+        "timestamp": "2026-03-25T04:25:55.470714"
+      }
+    ]
+  },
+  "7f_MR_h8_daily__28b55ec0": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week High",
+      "VWAP Band 2"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 8,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 24.16,
+    "avg_profit": 12.08,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-25T13:19:16.731496",
+    "last_seen": "2026-03-25T13:28:17.115203",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 24.16
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 12.56,
+        "timestamp": "2026-03-25T13:19:16.731496"
+      },
+      {
+        "is_win": true,
+        "profit": 11.6,
+        "timestamp": "2026-03-25T13:28:17.115203"
+      }
+    ]
+  },
+  "7f_MR_h11_daily__e0e977c7": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week High",
+      "VWAP Band 2"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 11,
+    "day_of_week": "Wednesday",
+    "total_trades": 2,
+    "wins": 2,
+    "losses": 0,
+    "total_profit": 12.72,
+    "avg_profit": 6.36,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-25T13:34:17.486012",
+    "last_seen": "2026-03-25T13:34:17.501016",
+    "symbols": {
+      "EURUSD": {
+        "wins": 2,
+        "losses": 0,
+        "profit": 12.72
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 2,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 6.4,
+        "timestamp": "2026-03-25T13:34:17.486012"
+      },
+      {
+        "is_win": true,
+        "profit": 6.32,
+        "timestamp": "2026-03-25T13:34:17.501016"
+      }
+    ]
+  },
+  "6f_MR_h11_daily__9e48269c": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 11,
+    "day_of_week": "Wednesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 82.48,
+    "avg_profit": 20.62,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-25T13:34:17.516685",
+    "last_seen": "2026-03-25T13:40:18.988748",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 82.48
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 4,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 19.6,
+        "timestamp": "2026-03-25T13:34:17.516685"
+      },
+      {
+        "is_win": true,
+        "profit": 18.88,
+        "timestamp": "2026-03-25T13:35:18.673642"
+      },
+      {
+        "is_win": true,
+        "profit": 22.0,
+        "timestamp": "2026-03-25T13:40:18.974993"
+      },
+      {
+        "is_win": true,
+        "profit": 22.0,
+        "timestamp": "2026-03-25T13:40:18.988748"
+      }
+    ]
+  },
+  "6f_MR_h4_daily__8ef808b0": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 4,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -239.68,
+    "avg_profit": -59.92,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-26T10:58:28.642592",
+    "last_seen": "2026-03-26T10:58:28.688603",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -239.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -60.0,
+        "timestamp": "2026-03-26T10:58:28.642592"
+      },
+      {
+        "is_win": false,
+        "profit": -60.0,
+        "timestamp": "2026-03-26T10:58:28.658539"
+      },
+      {
+        "is_win": false,
+        "profit": -59.84,
+        "timestamp": "2026-03-26T10:58:28.672839"
+      },
+      {
+        "is_win": false,
+        "profit": -59.84,
+        "timestamp": "2026-03-26T10:58:28.688603"
+      }
+    ]
+  },
+  "7f_MR_h22_daily__fe44428f": {
+    "factors": [
+      "Daily HVN",
+      "POC",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing High",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + POC + Prev Day High + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -24.0,
+    "avg_profit": -6.0,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T00:20:55.076115",
+    "last_seen": "2026-03-27T00:20:55.123427",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -24.0
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -5.92,
+        "timestamp": "2026-03-27T00:20:55.076115"
+      },
+      {
+        "is_win": false,
+        "profit": -5.92,
+        "timestamp": "2026-03-27T00:20:55.091739"
+      },
+      {
+        "is_win": false,
+        "profit": -6.08,
+        "timestamp": "2026-03-27T00:20:55.107370"
+      },
+      {
+        "is_win": false,
+        "profit": -6.08,
+        "timestamp": "2026-03-27T00:20:55.123427"
+      }
+    ]
+  },
+  "6f_MR_h22_daily__619e28c0": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day POC + Prev Day VAH + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 22,
+    "day_of_week": "Thursday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -7.359999999999999,
+    "avg_profit": -1.8399999999999999,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T00:20:55.139077",
+    "last_seen": "2026-03-27T00:20:55.185950",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -7.359999999999999
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -1.6,
+        "timestamp": "2026-03-27T00:20:55.139077"
+      },
+      {
+        "is_win": false,
+        "profit": -1.92,
+        "timestamp": "2026-03-27T00:20:55.154694"
+      },
+      {
+        "is_win": false,
+        "profit": -1.92,
+        "timestamp": "2026-03-27T00:20:55.170321"
+      },
+      {
+        "is_win": false,
+        "profit": -1.92,
+        "timestamp": "2026-03-27T00:20:55.185950"
+      }
+    ]
+  },
+  "6f_MR_h3_daily__51d07719": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day High",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Daily HVN + Prev Day High + Prev Day POC + Prev Day VAH + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 3,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 8.0,
+    "avg_profit": 2.0,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T05:22:16.939993",
+    "last_seen": "2026-03-27T05:22:16.999073",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 8.0
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 1.92,
+        "timestamp": "2026-03-27T05:22:16.939993"
+      },
+      {
+        "is_win": true,
+        "profit": 2.08,
+        "timestamp": "2026-03-27T05:22:16.961185"
+      },
+      {
+        "is_win": true,
+        "profit": 1.92,
+        "timestamp": "2026-03-27T05:22:16.979524"
+      },
+      {
+        "is_win": true,
+        "profit": 2.08,
+        "timestamp": "2026-03-27T05:22:16.999073"
+      }
+    ]
+  },
+  "7f_MR_h7_below__e8e8cdfb": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -75.84,
+    "avg_profit": -18.96,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T09:50:36.106350",
+    "last_seen": "2026-03-27T09:50:36.149701",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -75.84
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -19.04,
+        "timestamp": "2026-03-27T09:50:36.106350"
+      },
+      {
+        "is_win": false,
+        "profit": -18.88,
+        "timestamp": "2026-03-27T09:50:36.123473"
+      },
+      {
+        "is_win": false,
+        "profit": -19.04,
+        "timestamp": "2026-03-27T09:50:36.136471"
+      },
+      {
+        "is_win": false,
+        "profit": -18.88,
+        "timestamp": "2026-03-27T09:50:36.149701"
+      }
+    ]
+  },
+  "8f_MR_h7_daily__d58a59f7": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Swing Low",
+      "VWAP Band 1",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 7,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -73.28,
+    "avg_profit": -18.32,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T09:58:36.593314",
+    "last_seen": "2026-03-27T09:58:36.647319",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -73.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -18.24,
+        "timestamp": "2026-03-27T09:58:36.593314"
+      },
+      {
+        "is_win": false,
+        "profit": -18.24,
+        "timestamp": "2026-03-27T09:58:36.611322"
+      },
+      {
+        "is_win": false,
+        "profit": -18.4,
+        "timestamp": "2026-03-27T09:58:36.629323"
+      },
+      {
+        "is_win": false,
+        "profit": -18.4,
+        "timestamp": "2026-03-27T09:58:36.647319"
+      }
+    ]
+  },
+  "8f_MR_h10_daily__a74f1381": {
+    "factors": [
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 10,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 37.75999999999999,
+    "avg_profit": 9.439999999999998,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T12:21:57.970486",
+    "last_seen": "2026-03-27T12:21:58.024491",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 37.75999999999999
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.44,
+        "timestamp": "2026-03-27T12:21:57.970486"
+      },
+      {
+        "is_win": true,
+        "profit": 9.36,
+        "timestamp": "2026-03-27T12:21:57.988486"
+      },
+      {
+        "is_win": true,
+        "profit": 9.44,
+        "timestamp": "2026-03-27T12:21:58.006490"
+      },
+      {
+        "is_win": true,
+        "profit": 9.52,
+        "timestamp": "2026-03-27T12:21:58.024491"
+      }
+    ]
+  },
+  "9f_MR_h10_below__69e6dece": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 10,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -84.64,
+    "avg_profit": -21.16,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T12:28:59.713381",
+    "last_seen": "2026-03-27T12:28:59.760256",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -84.64
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -21.92,
+        "timestamp": "2026-03-27T12:28:59.713381"
+      },
+      {
+        "is_win": false,
+        "profit": -20.96,
+        "timestamp": "2026-03-27T12:28:59.729006"
+      },
+      {
+        "is_win": false,
+        "profit": -20.96,
+        "timestamp": "2026-03-27T12:28:59.744635"
+      },
+      {
+        "is_win": false,
+        "profit": -20.8,
+        "timestamp": "2026-03-27T12:28:59.760256"
+      }
+    ]
+  },
+  "9f_MR_h17_below__5b1d9f0b": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 17,
+    "day_of_week": "Friday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -6.5600000000000005,
+    "avg_profit": -1.6400000000000001,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-27T19:52:17.226584",
+    "last_seen": "2026-03-27T19:52:17.273460",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -6.5600000000000005
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -2.4,
+        "timestamp": "2026-03-27T19:52:17.226584"
+      },
+      {
+        "is_win": false,
+        "profit": -2.08,
+        "timestamp": "2026-03-27T19:52:17.242212"
+      },
+      {
+        "is_win": false,
+        "profit": -1.92,
+        "timestamp": "2026-03-27T19:52:17.257836"
+      },
+      {
+        "is_win": false,
+        "profit": -0.16,
+        "timestamp": "2026-03-27T19:52:17.273460"
+      }
+    ]
+  },
+  "10f_MR_h21_below__0e39dde3": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 21,
+    "day_of_week": "Sunday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 33.519999999999996,
+    "avg_profit": 8.379999999999999,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-29T23:28:39.833983",
+    "last_seen": "2026-03-29T23:28:39.880885",
+    "symbols": {
+      "EURUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 33.519999999999996
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 8.32,
+        "timestamp": "2026-03-29T23:28:39.833983"
+      },
+      {
+        "is_win": true,
+        "profit": 8.4,
+        "timestamp": "2026-03-29T23:28:39.865251"
+      },
+      {
+        "is_win": true,
+        "profit": 8.4,
+        "timestamp": "2026-03-29T23:28:39.880885"
+      },
+      {
+        "is_win": true,
+        "profit": 8.4,
+        "timestamp": "2026-03-29T23:28:39.880885"
+      }
+    ]
+  },
+  "9f_MR_h23_below__6623579c": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Prev Week Low",
+      "Swing Low",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 23,
+    "day_of_week": "Sunday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 39.68,
+    "avg_profit": 9.92,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-30T02:08:44.980743",
+    "last_seen": "2026-03-30T02:09:46.541605",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 39.68
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.76,
+        "timestamp": "2026-03-30T02:08:44.980743"
+      },
+      {
+        "is_win": true,
+        "profit": 9.68,
+        "timestamp": "2026-03-30T02:08:44.991265"
+      },
+      {
+        "is_win": true,
+        "profit": 10.16,
+        "timestamp": "2026-03-30T02:09:46.527586"
+      },
+      {
+        "is_win": true,
+        "profit": 10.08,
+        "timestamp": "2026-03-30T02:09:46.541605"
+      }
+    ]
+  },
+  "7f_MR_h4_below__a2b7b7a9": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 4,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 42.400000000000006,
+    "avg_profit": 10.600000000000001,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-31T07:45:33.105830",
+    "last_seen": "2026-03-31T07:45:33.169186",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 42.400000000000006
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 10.72,
+        "timestamp": "2026-03-31T07:45:33.105830"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-31T07:45:33.124530"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-31T07:45:33.155665"
+      },
+      {
+        "is_win": true,
+        "profit": 10.56,
+        "timestamp": "2026-03-31T07:45:33.169186"
+      }
+    ]
+  },
+  "9f_MR_h5_below__16f231c5": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAH",
+    "strategy_type": "mean_reversion",
+    "hour": 5,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 0,
+    "losses": 4,
+    "total_profit": -3.84,
+    "avg_profit": -0.96,
+    "win_rate": 0.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-31T09:44:37.498107",
+    "last_seen": "2026-03-31T09:44:37.545001",
+    "symbols": {
+      "EURUSD": {
+        "wins": 0,
+        "losses": 4,
+        "profit": -3.84
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 0,
+        "losses": 4
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": false,
+        "profit": -0.96,
+        "timestamp": "2026-03-31T09:44:37.498107"
+      },
+      {
+        "is_win": false,
+        "profit": -0.96,
+        "timestamp": "2026-03-31T09:44:37.513756"
+      },
+      {
+        "is_win": false,
+        "profit": -0.96,
+        "timestamp": "2026-03-31T09:44:37.529380"
+      },
+      {
+        "is_win": false,
+        "profit": -0.96,
+        "timestamp": "2026-03-31T09:44:37.545001"
+      }
+    ]
+  },
+  "6f_MR_h11_below__84beb934": {
+    "factors": [
+      "Below VAL",
+      "Prev Day High",
+      "Prev Day VAH",
+      "Prev Week Low",
+      "Swing Low",
+      "VWAP Band 2"
+    ],
+    "signature": "Below VAL + Prev Day High + Prev Day VAH + Prev Week Low + Swing Low",
+    "strategy_type": "mean_reversion",
+    "hour": 11,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 38.8,
+    "avg_profit": 9.7,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-31T12:20:15.013424",
+    "last_seen": "2026-03-31T12:20:15.076344",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 38.8
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 9.76,
+        "timestamp": "2026-03-31T12:20:15.013424"
+      },
+      {
+        "is_win": true,
+        "profit": 9.68,
+        "timestamp": "2026-03-31T12:20:15.044668"
+      },
+      {
+        "is_win": true,
+        "profit": 9.6,
+        "timestamp": "2026-03-31T12:20:15.060301"
+      },
+      {
+        "is_win": true,
+        "profit": 9.76,
+        "timestamp": "2026-03-31T12:20:15.076344"
+      }
+    ]
+  },
+  "8f_MR_h15_below__fbba2458": {
+    "factors": [
+      "Below VAL",
+      "Daily HVN",
+      "Prev Day Low",
+      "Prev Day POC",
+      "Prev Day VAL",
+      "VWAP Band 2",
+      "Weekly HVN",
+      "Weekly POC"
+    ],
+    "signature": "Below VAL + Daily HVN + Prev Day Low + Prev Day POC + Prev Day VAL",
+    "strategy_type": "mean_reversion",
+    "hour": 15,
+    "day_of_week": "Tuesday",
+    "total_trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "total_profit": 111.28,
+    "avg_profit": 27.82,
+    "win_rate": 100.0,
+    "tier": "UNPROVEN",
+    "first_seen": "2026-03-31T15:40:58.249190",
+    "last_seen": "2026-03-31T15:41:58.551040",
+    "symbols": {
+      "GBPUSD": {
+        "wins": 4,
+        "losses": 0,
+        "profit": 111.28
+      }
+    },
+    "directions": {
+      "buy": {
+        "wins": 4,
+        "losses": 0
+      },
+      "sell": {
+        "wins": 0,
+        "losses": 0
+      }
+    },
+    "htf_scores": [],
+    "entry_scores": [],
+    "recent_results": [
+      {
+        "is_win": true,
+        "profit": 26.88,
+        "timestamp": "2026-03-31T15:40:58.249190"
+      },
+      {
+        "is_win": true,
+        "profit": 29.12,
+        "timestamp": "2026-03-31T15:40:58.264813"
+      },
+      {
+        "is_win": true,
+        "profit": 28.88,
+        "timestamp": "2026-03-31T15:40:58.280440"
+      },
+      {
+        "is_win": true,
+        "profit": 26.4,
+        "timestamp": "2026-03-31T15:41:58.551040"
+      }
+    ]
+  }
+}

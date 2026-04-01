@@ -1,0 +1,40 @@
+{
+  "0": {
+    "regime": "COMPRESSION",
+    "description": "Low ATR (0.92x), range_pct=0.26, small bodies=0.42 -- pre-breakout",
+    "pct": 38.5,
+    "allowed_strategies": [
+      "BO"
+    ]
+  },
+  "1": {
+    "regime": "VOLATILITY_SPIKE",
+    "description": "ATR 1.18x, vol_ratio=2.24, volume=1.60 -- event-driven",
+    "pct": 7.8,
+    "allowed_strategies": []
+  },
+  "2": {
+    "regime": "TREND_EXPANSION",
+    "description": "Efficiency=0.252, |slope12|=0.295, body=0.43, consistency=0.68",
+    "pct": 15.6,
+    "allowed_strategies": [
+      "BO"
+    ]
+  },
+  "3": {
+    "regime": "TREND_EXHAUSTION",
+    "description": "|slope12|=0.128 but wicks=0.55, ATR change=+0.008, efficiency=0.122",
+    "pct": 14.5,
+    "allowed_strategies": [
+      "MR"
+    ]
+  },
+  "4": {
+    "regime": "TREND_EXHAUSTION",
+    "description": "|slope12|=0.141 but wicks=0.55, ATR change=+0.043, efficiency=0.131",
+    "pct": 23.7,
+    "allowed_strategies": [
+      "MR"
+    ]
+  }
+}

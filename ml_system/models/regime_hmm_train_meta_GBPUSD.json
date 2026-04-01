@@ -1,0 +1,7 @@
+{
+  "symbol": "GBPUSD",
+  "trained_at": "2026-03-30T08:00:23.366519",
+  "bars_used": 12371,
+  "data_range": "2018-04-02 to 2026-03-30",
+  "n_states": 5
+}

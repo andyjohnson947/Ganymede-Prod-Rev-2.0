@@ -62,3 +62,22 @@ ml_system/reports/daily/*.txt
 ml_system/logs/*.log
 ml_system/outputs/*.jsonl
 ml_system/outputs/adaptive_confluence_weights.json
+
+# Large historical data files — not versioned
+history/
+ml_system/import/
+
+# Runtime databases — change every session
+*.db
+*.db-shm
+*.db-wal
+
+# Live runtime state — regenerated on startup
+trading_bot/data/recovery_state.json
+trading_bot/data/signal_state.json
+
+# Windows artifacts
+nul
+
+# Claude internal config
+.claude/

@@ -1,0 +1,1598 @@
+{
+  "analysis_date": "2026-04-01T05:20:36.227781",
+  "days_analyzed": 30,
+  "trades_analyzed": 272,
+  "global": {
+    "VWAP Band 1": {
+      "wins": 84,
+      "losses": 60,
+      "total": 144,
+      "profit": -685.2800000000001,
+      "avg_profit": -4.76,
+      "win_rate": 58.3
+    },
+    "Swing High": {
+      "wins": 64,
+      "losses": 36,
+      "total": 100,
+      "profit": -233.68,
+      "avg_profit": -2.34,
+      "win_rate": 64.0
+    },
+    "Prev Day VAH": {
+      "wins": 88,
+      "losses": 60,
+      "total": 148,
+      "profit": -619.7600000000008,
+      "avg_profit": -4.19,
+      "win_rate": 59.5
+    },
+    "Prev Day High": {
+      "wins": 48,
+      "losses": 44,
+      "total": 92,
+      "profit": -765.7600000000006,
+      "avg_profit": -8.32,
+      "win_rate": 52.2
+    },
+    "POC": {
+      "wins": 20,
+      "losses": 20,
+      "total": 40,
+      "profit": -259.68,
+      "avg_profit": -6.49,
+      "win_rate": 50.0
+    },
+    "VWAP Band 2": {
+      "wins": 68,
+      "losses": 24,
+      "total": 92,
+      "profit": 163.36,
+      "avg_profit": 1.78,
+      "win_rate": 73.9
+    },
+    "Swing Low": {
+      "wins": 72,
+      "losses": 48,
+      "total": 120,
+      "profit": -644.24,
+      "avg_profit": -5.37,
+      "win_rate": 60.0
+    },
+    "Prev Day VAL": {
+      "wins": 68,
+      "losses": 32,
+      "total": 100,
+      "profit": -77.11999999999992,
+      "avg_profit": -0.77,
+      "win_rate": 68.0
+    },
+    "Prev Day POC": {
+      "wins": 92,
+      "losses": 58,
+      "total": 150,
+      "profit": -205.4399999999998,
+      "avg_profit": -1.37,
+      "win_rate": 61.3
+    },
+    "Prev Day Low": {
+      "wins": 84,
+      "losses": 48,
+      "total": 132,
+      "profit": -158.6399999999999,
+      "avg_profit": -1.2,
+      "win_rate": 63.6
+    },
+    "Daily HVN": {
+      "wins": 132,
+      "losses": 72,
+      "total": 204,
+      "profit": -161.75999999999985,
+      "avg_profit": -0.79,
+      "win_rate": 64.7
+    },
+    "Weekly POC": {
+      "wins": 60,
+      "losses": 28,
+      "total": 88,
+      "profit": 154.24000000000004,
+      "avg_profit": 1.75,
+      "win_rate": 68.2
+    },
+    "Weekly HVN": {
+      "wins": 64,
+      "losses": 28,
+      "total": 92,
+      "profit": 186.72000000000006,
+      "avg_profit": 2.03,
+      "win_rate": 69.6
+    },
+    "Prev Week Low": {
+      "wins": 44,
+      "losses": 20,
+      "total": 64,
+      "profit": -4.319999999999936,
+      "avg_profit": -0.07,
+      "win_rate": 68.8
+    },
+    "Above VAH": {
+      "wins": 20,
+      "losses": 0,
+      "total": 20,
+      "profit": 225.11999999999998,
+      "avg_profit": 11.26,
+      "win_rate": 100.0
+    },
+    "Prev Week High": {
+      "wins": 16,
+      "losses": 8,
+      "total": 24,
+      "profit": -143.20000000000005,
+      "avg_profit": -5.97,
+      "win_rate": 66.7
+    },
+    "Below VAL": {
+      "wins": 60,
+      "losses": 40,
+      "total": 100,
+      "profit": -136.3999999999999,
+      "avg_profit": -1.36,
+      "win_rate": 60.0
+    },
+    "Low Volume Node": {
+      "wins": 12,
+      "losses": 4,
+      "total": 16,
+      "profit": -15.99999999999999,
+      "avg_profit": -1.0,
+      "win_rate": 75.0
+    }
+  },
+  "by_symbol": {
+    "GBPUSD": {
+      "VWAP Band 1": {
+        "wins": 60,
+        "losses": 28,
+        "total": 88,
+        "profit": 56.88000000000008,
+        "avg_profit": 0.65,
+        "win_rate": 68.2
+      },
+      "Swing High": {
+        "wins": 44,
+        "losses": 16,
+        "total": 60,
+        "profit": 184.39999999999998,
+        "avg_profit": 3.07,
+        "win_rate": 73.3
+      },
+      "Prev Day VAH": {
+        "wins": 56,
+        "losses": 24,
+        "total": 80,
+        "profit": 91.20000000000006,
+        "avg_profit": 1.14,
+        "win_rate": 70.0
+      },
+      "Prev Day High": {
+        "wins": 32,
+        "losses": 20,
+        "total": 52,
+        "profit": -164.16,
+        "avg_profit": -3.16,
+        "win_rate": 61.5
+      },
+      "VWAP Band 2": {
+        "wins": 32,
+        "losses": 12,
+        "total": 44,
+        "profit": 239.59999999999994,
+        "avg_profit": 5.45,
+        "win_rate": 72.7
+      },
+      "Swing Low": {
+        "wins": 40,
+        "losses": 28,
+        "total": 68,
+        "profit": -226.3999999999999,
+        "avg_profit": -3.33,
+        "win_rate": 58.8
+      },
+      "Prev Day VAL": {
+        "wins": 36,
+        "losses": 16,
+        "total": 52,
+        "profit": 197.35999999999999,
+        "avg_profit": 3.8,
+        "win_rate": 69.2
+      },
+      "Prev Day POC": {
+        "wins": 48,
+        "losses": 26,
+        "total": 74,
+        "profit": 206.72000000000006,
+        "avg_profit": 2.79,
+        "win_rate": 64.9
+      },
+      "Prev Day Low": {
+        "wins": 44,
+        "losses": 20,
+        "total": 64,
+        "profit": 266.4,
+        "avg_profit": 4.16,
+        "win_rate": 68.8
+      },
+      "Daily HVN": {
+        "wins": 72,
+        "losses": 40,
+        "total": 112,
+        "profit": 76.80000000000001,
+        "avg_profit": 0.69,
+        "win_rate": 64.3
+      },
+      "Weekly POC": {
+        "wins": 28,
+        "losses": 16,
+        "total": 44,
+        "profit": 66.32000000000002,
+        "avg_profit": 1.51,
+        "win_rate": 63.6
+      },
+      "Weekly HVN": {
+        "wins": 28,
+        "losses": 16,
+        "total": 44,
+        "profit": 66.32000000000002,
+        "avg_profit": 1.51,
+        "win_rate": 63.6
+      },
+      "Above VAH": {
+        "wins": 16,
+        "losses": 0,
+        "total": 16,
+        "profit": 185.83999999999997,
+        "avg_profit": 11.61,
+        "win_rate": 100.0
+      },
+      "Prev Week High": {
+        "wins": 4,
+        "losses": 4,
+        "total": 8,
+        "profit": -15.04,
+        "avg_profit": -1.88,
+        "win_rate": 50.0
+      },
+      "Below VAL": {
+        "wins": 36,
+        "losses": 20,
+        "total": 56,
+        "profit": 110.00000000000006,
+        "avg_profit": 1.96,
+        "win_rate": 64.3
+      },
+      "Prev Week Low": {
+        "wins": 16,
+        "losses": 8,
+        "total": 24,
+        "profit": -6.71999999999994,
+        "avg_profit": -0.28,
+        "win_rate": 66.7
+      },
+      "Low Volume Node": {
+        "wins": 4,
+        "losses": 0,
+        "total": 4,
+        "profit": 38.64,
+        "avg_profit": 9.66,
+        "win_rate": 100.0
+      },
+      "POC": {
+        "wins": 12,
+        "losses": 4,
+        "total": 16,
+        "profit": 50.16000000000001,
+        "avg_profit": 3.14,
+        "win_rate": 75.0
+      }
+    },
+    "EURUSD": {
+      "VWAP Band 1": {
+        "wins": 24,
+        "losses": 32,
+        "total": 56,
+        "profit": -742.1600000000003,
+        "avg_profit": -13.25,
+        "win_rate": 42.9
+      },
+      "POC": {
+        "wins": 8,
+        "losses": 16,
+        "total": 24,
+        "profit": -309.84,
+        "avg_profit": -12.91,
+        "win_rate": 33.3
+      },
+      "Prev Day VAH": {
+        "wins": 32,
+        "losses": 36,
+        "total": 68,
+        "profit": -710.9600000000005,
+        "avg_profit": -10.46,
+        "win_rate": 47.1
+      },
+      "VWAP Band 2": {
+        "wins": 36,
+        "losses": 12,
+        "total": 48,
+        "profit": -76.24000000000004,
+        "avg_profit": -1.59,
+        "win_rate": 75.0
+      },
+      "Swing Low": {
+        "wins": 32,
+        "losses": 20,
+        "total": 52,
+        "profit": -417.84,
+        "avg_profit": -8.04,
+        "win_rate": 61.5
+      },
+      "Prev Day VAL": {
+        "wins": 32,
+        "losses": 16,
+        "total": 48,
+        "profit": -274.4800000000001,
+        "avg_profit": -5.72,
+        "win_rate": 66.7
+      },
+      "Prev Day POC": {
+        "wins": 44,
+        "losses": 32,
+        "total": 76,
+        "profit": -412.16,
+        "avg_profit": -5.42,
+        "win_rate": 57.9
+      },
+      "Prev Day Low": {
+        "wins": 40,
+        "losses": 28,
+        "total": 68,
+        "profit": -425.04,
+        "avg_profit": -6.25,
+        "win_rate": 58.8
+      },
+      "Daily HVN": {
+        "wins": 60,
+        "losses": 32,
+        "total": 92,
+        "profit": -238.56000000000003,
+        "avg_profit": -2.59,
+        "win_rate": 65.2
+      },
+      "Weekly POC": {
+        "wins": 32,
+        "losses": 12,
+        "total": 44,
+        "profit": 87.92000000000004,
+        "avg_profit": 2.0,
+        "win_rate": 72.7
+      },
+      "Weekly HVN": {
+        "wins": 36,
+        "losses": 12,
+        "total": 48,
+        "profit": 120.40000000000006,
+        "avg_profit": 2.51,
+        "win_rate": 75.0
+      },
+      "Prev Week Low": {
+        "wins": 28,
+        "losses": 12,
+        "total": 40,
+        "profit": 2.3999999999999826,
+        "avg_profit": 0.06,
+        "win_rate": 70.0
+      },
+      "Swing High": {
+        "wins": 20,
+        "losses": 20,
+        "total": 40,
+        "profit": -418.0800000000001,
+        "avg_profit": -10.45,
+        "win_rate": 50.0
+      },
+      "Prev Day High": {
+        "wins": 16,
+        "losses": 24,
+        "total": 40,
+        "profit": -601.6,
+        "avg_profit": -15.04,
+        "win_rate": 40.0
+      },
+      "Below VAL": {
+        "wins": 24,
+        "losses": 20,
+        "total": 44,
+        "profit": -246.4000000000001,
+        "avg_profit": -5.6,
+        "win_rate": 54.5
+      },
+      "Low Volume Node": {
+        "wins": 8,
+        "losses": 4,
+        "total": 12,
+        "profit": -54.63999999999999,
+        "avg_profit": -4.55,
+        "win_rate": 66.7
+      },
+      "Prev Week High": {
+        "wins": 12,
+        "losses": 4,
+        "total": 16,
+        "profit": -128.16000000000008,
+        "avg_profit": -8.01,
+        "win_rate": 75.0
+      },
+      "Above VAH": {
+        "wins": 4,
+        "losses": 0,
+        "total": 4,
+        "profit": 39.28,
+        "avg_profit": 9.82,
+        "win_rate": 100.0
+      }
+    }
+  },
+  "by_direction": {
+    "buy": {
+      "VWAP Band 1": {
+        "wins": 36,
+        "losses": 36,
+        "total": 72,
+        "profit": -656.16,
+        "win_rate": 50.0,
+        "avg_profit": -9.11
+      },
+      "Swing High": {
+        "wins": 12,
+        "losses": 12,
+        "total": 24,
+        "profit": -146.07999999999998,
+        "win_rate": 50.0,
+        "avg_profit": -6.09
+      },
+      "Prev Day VAH": {
+        "wins": 40,
+        "losses": 36,
+        "total": 76,
+        "profit": -275.92,
+        "win_rate": 52.6,
+        "avg_profit": -3.63
+      },
+      "Prev Day High": {
+        "wins": 12,
+        "losses": 24,
+        "total": 36,
+        "profit": -432.40000000000003,
+        "win_rate": 33.3,
+        "avg_profit": -12.01
+      },
+      "VWAP Band 2": {
+        "wins": 36,
+        "losses": 20,
+        "total": 56,
+        "profit": 148.79999999999998,
+        "win_rate": 64.3,
+        "avg_profit": 2.66
+      },
+      "Swing Low": {
+        "wins": 64,
+        "losses": 48,
+        "total": 112,
+        "profit": -655.28,
+        "win_rate": 57.1,
+        "avg_profit": -5.85
+      },
+      "Prev Day VAL": {
+        "wins": 44,
+        "losses": 28,
+        "total": 72,
+        "profit": -322.1600000000001,
+        "win_rate": 61.1,
+        "avg_profit": -4.47
+      },
+      "Prev Day POC": {
+        "wins": 56,
+        "losses": 48,
+        "total": 104,
+        "profit": -402.5600000000002,
+        "win_rate": 53.8,
+        "avg_profit": -3.87
+      },
+      "Prev Day Low": {
+        "wins": 52,
+        "losses": 40,
+        "total": 92,
+        "profit": -379.2,
+        "win_rate": 56.5,
+        "avg_profit": -4.12
+      },
+      "Prev Week Low": {
+        "wins": 40,
+        "losses": 20,
+        "total": 60,
+        "profit": -8.959999999999921,
+        "win_rate": 66.7,
+        "avg_profit": -0.15
+      },
+      "Daily HVN": {
+        "wins": 64,
+        "losses": 52,
+        "total": 116,
+        "profit": -466.8800000000001,
+        "win_rate": 55.2,
+        "avg_profit": -4.02
+      },
+      "Below VAL": {
+        "wins": 60,
+        "losses": 40,
+        "total": 100,
+        "profit": -136.3999999999999,
+        "win_rate": 60.0,
+        "avg_profit": -1.36
+      },
+      "Weekly POC": {
+        "wins": 48,
+        "losses": 28,
+        "total": 76,
+        "profit": 109.04000000000002,
+        "win_rate": 63.2,
+        "avg_profit": 1.43
+      },
+      "Weekly HVN": {
+        "wins": 52,
+        "losses": 28,
+        "total": 80,
+        "profit": 141.52000000000004,
+        "win_rate": 65.0,
+        "avg_profit": 1.77
+      },
+      "Low Volume Node": {
+        "wins": 12,
+        "losses": 4,
+        "total": 16,
+        "profit": -15.99999999999999,
+        "win_rate": 75.0,
+        "avg_profit": -1.0
+      },
+      "POC": {
+        "wins": 4,
+        "losses": 8,
+        "total": 12,
+        "profit": -107.75999999999999,
+        "win_rate": 33.3,
+        "avg_profit": -8.98
+      }
+    },
+    "sell": {
+      "VWAP Band 1": {
+        "wins": 48,
+        "losses": 24,
+        "total": 72,
+        "profit": -29.120000000000005,
+        "win_rate": 66.7,
+        "avg_profit": -0.4
+      },
+      "POC": {
+        "wins": 16,
+        "losses": 12,
+        "total": 28,
+        "profit": -151.92000000000004,
+        "win_rate": 57.1,
+        "avg_profit": -5.43
+      },
+      "Prev Day VAH": {
+        "wins": 48,
+        "losses": 24,
+        "total": 72,
+        "profit": -343.84,
+        "win_rate": 66.7,
+        "avg_profit": -4.78
+      },
+      "Swing High": {
+        "wins": 52,
+        "losses": 24,
+        "total": 76,
+        "profit": -87.60000000000004,
+        "win_rate": 68.4,
+        "avg_profit": -1.15
+      },
+      "Prev Day High": {
+        "wins": 36,
+        "losses": 20,
+        "total": 56,
+        "profit": -333.36,
+        "win_rate": 64.3,
+        "avg_profit": -5.95
+      },
+      "VWAP Band 2": {
+        "wins": 32,
+        "losses": 4,
+        "total": 36,
+        "profit": 14.559999999999965,
+        "win_rate": 88.9,
+        "avg_profit": 0.4
+      },
+      "Swing Low": {
+        "wins": 8,
+        "losses": 0,
+        "total": 8,
+        "profit": 11.04,
+        "win_rate": 100.0,
+        "avg_profit": 1.38
+      },
+      "Prev Day VAL": {
+        "wins": 24,
+        "losses": 4,
+        "total": 28,
+        "profit": 245.03999999999996,
+        "win_rate": 85.7,
+        "avg_profit": 8.75
+      },
+      "Prev Day POC": {
+        "wins": 36,
+        "losses": 10,
+        "total": 46,
+        "profit": 197.11999999999995,
+        "win_rate": 78.3,
+        "avg_profit": 4.29
+      },
+      "Prev Day Low": {
+        "wins": 32,
+        "losses": 8,
+        "total": 40,
+        "profit": 220.55999999999995,
+        "win_rate": 80.0,
+        "avg_profit": 5.51
+      },
+      "Daily HVN": {
+        "wins": 68,
+        "losses": 20,
+        "total": 88,
+        "profit": 305.1199999999999,
+        "win_rate": 77.3,
+        "avg_profit": 3.47
+      },
+      "Weekly POC": {
+        "wins": 12,
+        "losses": 0,
+        "total": 12,
+        "profit": 45.2,
+        "win_rate": 100.0,
+        "avg_profit": 3.77
+      },
+      "Weekly HVN": {
+        "wins": 12,
+        "losses": 0,
+        "total": 12,
+        "profit": 45.2,
+        "win_rate": 100.0,
+        "avg_profit": 3.77
+      },
+      "Prev Week Low": {
+        "wins": 4,
+        "losses": 0,
+        "total": 4,
+        "profit": 4.640000000000001,
+        "win_rate": 100.0,
+        "avg_profit": 1.16
+      },
+      "Above VAH": {
+        "wins": 20,
+        "losses": 0,
+        "total": 20,
+        "profit": 225.11999999999998,
+        "win_rate": 100.0,
+        "avg_profit": 11.26
+      },
+      "Prev Week High": {
+        "wins": 16,
+        "losses": 8,
+        "total": 24,
+        "profit": -143.20000000000005,
+        "win_rate": 66.7,
+        "avg_profit": -5.97
+      }
+    }
+  },
+  "best_combos": [
+    {
+      "combo": "Above VAH + Prev Day High",
+      "wins": 12,
+      "losses": 0,
+      "total": 12,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Above VAH + Prev Week High",
+      "wins": 8,
+      "losses": 0,
+      "total": 8,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Above VAH + Swing High",
+      "wins": 12,
+      "losses": 0,
+      "total": 12,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Above VAH + VWAP Band 2",
+      "wins": 16,
+      "losses": 0,
+      "total": 16,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Daily HVN + Low Volume Node",
+      "wins": 12,
+      "losses": 0,
+      "total": 12,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Low Volume Node + Weekly HVN",
+      "wins": 12,
+      "losses": 0,
+      "total": 12,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Low Volume Node + Weekly POC",
+      "wins": 12,
+      "losses": 0,
+      "total": 12,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Below VAL + Swing High",
+      "wins": 4,
+      "losses": 0,
+      "total": 4,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Above VAH + Daily HVN",
+      "wins": 16,
+      "losses": 0,
+      "total": 16,
+      "win_rate": 100.0
+    },
+    {
+      "combo": "Above VAH + Prev Day VAH",
+      "wins": 16,
+      "losses": 0,
+      "total": 16,
+      "win_rate": 100.0
+    }
+  ],
+  "worst_combos": [
+    {
+      "combo": "Prev Week High + VWAP Band 1",
+      "wins": 0,
+      "losses": 4,
+      "total": 4,
+      "win_rate": 0.0
+    },
+    {
+      "combo": "POC + Prev Day VAL",
+      "wins": 0,
+      "losses": 4,
+      "total": 4,
+      "win_rate": 0.0
+    },
+    {
+      "combo": "POC + Swing High",
+      "wins": 8,
+      "losses": 20,
+      "total": 28,
+      "win_rate": 28.6
+    },
+    {
+      "combo": "POC + Prev Day High",
+      "wins": 8,
+      "losses": 16,
+      "total": 24,
+      "win_rate": 33.3
+    },
+    {
+      "combo": "POC + VWAP Band 1",
+      "wins": 12,
+      "losses": 20,
+      "total": 32,
+      "win_rate": 37.5
+    }
+  ],
+  "rankings": {
+    "best": [
+      {
+        "factor": "Above VAH",
+        "wins": 20,
+        "losses": 0,
+        "total": 20,
+        "profit": 225.11999999999998,
+        "avg_profit": 11.26,
+        "win_rate": 100.0
+      },
+      {
+        "factor": "Low Volume Node",
+        "wins": 12,
+        "losses": 4,
+        "total": 16,
+        "profit": -15.99999999999999,
+        "avg_profit": -1.0,
+        "win_rate": 75.0
+      },
+      {
+        "factor": "VWAP Band 2",
+        "wins": 68,
+        "losses": 24,
+        "total": 92,
+        "profit": 163.36,
+        "avg_profit": 1.78,
+        "win_rate": 73.9
+      },
+      {
+        "factor": "Weekly HVN",
+        "wins": 64,
+        "losses": 28,
+        "total": 92,
+        "profit": 186.72000000000006,
+        "avg_profit": 2.03,
+        "win_rate": 69.6
+      },
+      {
+        "factor": "Prev Week Low",
+        "wins": 44,
+        "losses": 20,
+        "total": 64,
+        "profit": -4.319999999999936,
+        "avg_profit": -0.07,
+        "win_rate": 68.8
+      }
+    ],
+    "worst": [
+      {
+        "factor": "Below VAL",
+        "wins": 60,
+        "losses": 40,
+        "total": 100,
+        "profit": -136.3999999999999,
+        "avg_profit": -1.36,
+        "win_rate": 60.0
+      },
+      {
+        "factor": "Prev Day VAH",
+        "wins": 88,
+        "losses": 60,
+        "total": 148,
+        "profit": -619.7600000000008,
+        "avg_profit": -4.19,
+        "win_rate": 59.5
+      },
+      {
+        "factor": "VWAP Band 1",
+        "wins": 84,
+        "losses": 60,
+        "total": 144,
+        "profit": -685.2800000000001,
+        "avg_profit": -4.76,
+        "win_rate": 58.3
+      },
+      {
+        "factor": "Prev Day High",
+        "wins": 48,
+        "losses": 44,
+        "total": 92,
+        "profit": -765.7600000000006,
+        "avg_profit": -8.32,
+        "win_rate": 52.2
+      },
+      {
+        "factor": "POC",
+        "wins": 20,
+        "losses": 20,
+        "total": 40,
+        "profit": -259.68,
+        "avg_profit": -6.49,
+        "win_rate": 50.0
+      }
+    ],
+    "all": [
+      {
+        "factor": "Above VAH",
+        "wins": 20,
+        "losses": 0,
+        "total": 20,
+        "profit": 225.11999999999998,
+        "avg_profit": 11.26,
+        "win_rate": 100.0
+      },
+      {
+        "factor": "Low Volume Node",
+        "wins": 12,
+        "losses": 4,
+        "total": 16,
+        "profit": -15.99999999999999,
+        "avg_profit": -1.0,
+        "win_rate": 75.0
+      },
+      {
+        "factor": "VWAP Band 2",
+        "wins": 68,
+        "losses": 24,
+        "total": 92,
+        "profit": 163.36,
+        "avg_profit": 1.78,
+        "win_rate": 73.9
+      },
+      {
+        "factor": "Weekly HVN",
+        "wins": 64,
+        "losses": 28,
+        "total": 92,
+        "profit": 186.72000000000006,
+        "avg_profit": 2.03,
+        "win_rate": 69.6
+      },
+      {
+        "factor": "Prev Week Low",
+        "wins": 44,
+        "losses": 20,
+        "total": 64,
+        "profit": -4.319999999999936,
+        "avg_profit": -0.07,
+        "win_rate": 68.8
+      },
+      {
+        "factor": "Weekly POC",
+        "wins": 60,
+        "losses": 28,
+        "total": 88,
+        "profit": 154.24000000000004,
+        "avg_profit": 1.75,
+        "win_rate": 68.2
+      },
+      {
+        "factor": "Prev Day VAL",
+        "wins": 68,
+        "losses": 32,
+        "total": 100,
+        "profit": -77.11999999999992,
+        "avg_profit": -0.77,
+        "win_rate": 68.0
+      },
+      {
+        "factor": "Prev Week High",
+        "wins": 16,
+        "losses": 8,
+        "total": 24,
+        "profit": -143.20000000000005,
+        "avg_profit": -5.97,
+        "win_rate": 66.7
+      },
+      {
+        "factor": "Daily HVN",
+        "wins": 132,
+        "losses": 72,
+        "total": 204,
+        "profit": -161.75999999999985,
+        "avg_profit": -0.79,
+        "win_rate": 64.7
+      },
+      {
+        "factor": "Swing High",
+        "wins": 64,
+        "losses": 36,
+        "total": 100,
+        "profit": -233.68,
+        "avg_profit": -2.34,
+        "win_rate": 64.0
+      },
+      {
+        "factor": "Prev Day Low",
+        "wins": 84,
+        "losses": 48,
+        "total": 132,
+        "profit": -158.6399999999999,
+        "avg_profit": -1.2,
+        "win_rate": 63.6
+      },
+      {
+        "factor": "Prev Day POC",
+        "wins": 92,
+        "losses": 58,
+        "total": 150,
+        "profit": -205.4399999999998,
+        "avg_profit": -1.37,
+        "win_rate": 61.3
+      },
+      {
+        "factor": "Swing Low",
+        "wins": 72,
+        "losses": 48,
+        "total": 120,
+        "profit": -644.24,
+        "avg_profit": -5.37,
+        "win_rate": 60.0
+      },
+      {
+        "factor": "Below VAL",
+        "wins": 60,
+        "losses": 40,
+        "total": 100,
+        "profit": -136.3999999999999,
+        "avg_profit": -1.36,
+        "win_rate": 60.0
+      },
+      {
+        "factor": "Prev Day VAH",
+        "wins": 88,
+        "losses": 60,
+        "total": 148,
+        "profit": -619.7600000000008,
+        "avg_profit": -4.19,
+        "win_rate": 59.5
+      },
+      {
+        "factor": "VWAP Band 1",
+        "wins": 84,
+        "losses": 60,
+        "total": 144,
+        "profit": -685.2800000000001,
+        "avg_profit": -4.76,
+        "win_rate": 58.3
+      },
+      {
+        "factor": "Prev Day High",
+        "wins": 48,
+        "losses": 44,
+        "total": 92,
+        "profit": -765.7600000000006,
+        "avg_profit": -8.32,
+        "win_rate": 52.2
+      },
+      {
+        "factor": "POC",
+        "wins": 20,
+        "losses": 20,
+        "total": 40,
+        "profit": -259.68,
+        "avg_profit": -6.49,
+        "win_rate": 50.0
+      }
+    ]
+  },
+  "symbol_rankings": {
+    "GBPUSD": {
+      "best": [
+        {
+          "factor": "Above VAH",
+          "wins": 16,
+          "losses": 0,
+          "total": 16,
+          "profit": 185.83999999999997,
+          "avg_profit": 11.61,
+          "win_rate": 100.0
+        },
+        {
+          "factor": "Low Volume Node",
+          "wins": 4,
+          "losses": 0,
+          "total": 4,
+          "profit": 38.64,
+          "avg_profit": 9.66,
+          "win_rate": 100.0
+        },
+        {
+          "factor": "POC",
+          "wins": 12,
+          "losses": 4,
+          "total": 16,
+          "profit": 50.16000000000001,
+          "avg_profit": 3.14,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Swing High",
+          "wins": 44,
+          "losses": 16,
+          "total": 60,
+          "profit": 184.39999999999998,
+          "avg_profit": 3.07,
+          "win_rate": 73.3
+        },
+        {
+          "factor": "VWAP Band 2",
+          "wins": 32,
+          "losses": 12,
+          "total": 44,
+          "profit": 239.59999999999994,
+          "avg_profit": 5.45,
+          "win_rate": 72.7
+        }
+      ],
+      "worst": [
+        {
+          "factor": "Weekly POC",
+          "wins": 28,
+          "losses": 16,
+          "total": 44,
+          "profit": 66.32000000000002,
+          "avg_profit": 1.51,
+          "win_rate": 63.6
+        },
+        {
+          "factor": "Weekly HVN",
+          "wins": 28,
+          "losses": 16,
+          "total": 44,
+          "profit": 66.32000000000002,
+          "avg_profit": 1.51,
+          "win_rate": 63.6
+        },
+        {
+          "factor": "Prev Day High",
+          "wins": 32,
+          "losses": 20,
+          "total": 52,
+          "profit": -164.16,
+          "avg_profit": -3.16,
+          "win_rate": 61.5
+        },
+        {
+          "factor": "Swing Low",
+          "wins": 40,
+          "losses": 28,
+          "total": 68,
+          "profit": -226.3999999999999,
+          "avg_profit": -3.33,
+          "win_rate": 58.8
+        },
+        {
+          "factor": "Prev Week High",
+          "wins": 4,
+          "losses": 4,
+          "total": 8,
+          "profit": -15.04,
+          "avg_profit": -1.88,
+          "win_rate": 50.0
+        }
+      ],
+      "all": [
+        {
+          "factor": "Above VAH",
+          "wins": 16,
+          "losses": 0,
+          "total": 16,
+          "profit": 185.83999999999997,
+          "avg_profit": 11.61,
+          "win_rate": 100.0
+        },
+        {
+          "factor": "Low Volume Node",
+          "wins": 4,
+          "losses": 0,
+          "total": 4,
+          "profit": 38.64,
+          "avg_profit": 9.66,
+          "win_rate": 100.0
+        },
+        {
+          "factor": "POC",
+          "wins": 12,
+          "losses": 4,
+          "total": 16,
+          "profit": 50.16000000000001,
+          "avg_profit": 3.14,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Swing High",
+          "wins": 44,
+          "losses": 16,
+          "total": 60,
+          "profit": 184.39999999999998,
+          "avg_profit": 3.07,
+          "win_rate": 73.3
+        },
+        {
+          "factor": "VWAP Band 2",
+          "wins": 32,
+          "losses": 12,
+          "total": 44,
+          "profit": 239.59999999999994,
+          "avg_profit": 5.45,
+          "win_rate": 72.7
+        },
+        {
+          "factor": "Prev Day VAH",
+          "wins": 56,
+          "losses": 24,
+          "total": 80,
+          "profit": 91.20000000000006,
+          "avg_profit": 1.14,
+          "win_rate": 70.0
+        },
+        {
+          "factor": "Prev Day VAL",
+          "wins": 36,
+          "losses": 16,
+          "total": 52,
+          "profit": 197.35999999999999,
+          "avg_profit": 3.8,
+          "win_rate": 69.2
+        },
+        {
+          "factor": "Prev Day Low",
+          "wins": 44,
+          "losses": 20,
+          "total": 64,
+          "profit": 266.4,
+          "avg_profit": 4.16,
+          "win_rate": 68.8
+        },
+        {
+          "factor": "VWAP Band 1",
+          "wins": 60,
+          "losses": 28,
+          "total": 88,
+          "profit": 56.88000000000008,
+          "avg_profit": 0.65,
+          "win_rate": 68.2
+        },
+        {
+          "factor": "Prev Week Low",
+          "wins": 16,
+          "losses": 8,
+          "total": 24,
+          "profit": -6.71999999999994,
+          "avg_profit": -0.28,
+          "win_rate": 66.7
+        },
+        {
+          "factor": "Prev Day POC",
+          "wins": 48,
+          "losses": 26,
+          "total": 74,
+          "profit": 206.72000000000006,
+          "avg_profit": 2.79,
+          "win_rate": 64.9
+        },
+        {
+          "factor": "Daily HVN",
+          "wins": 72,
+          "losses": 40,
+          "total": 112,
+          "profit": 76.80000000000001,
+          "avg_profit": 0.69,
+          "win_rate": 64.3
+        },
+        {
+          "factor": "Below VAL",
+          "wins": 36,
+          "losses": 20,
+          "total": 56,
+          "profit": 110.00000000000006,
+          "avg_profit": 1.96,
+          "win_rate": 64.3
+        },
+        {
+          "factor": "Weekly POC",
+          "wins": 28,
+          "losses": 16,
+          "total": 44,
+          "profit": 66.32000000000002,
+          "avg_profit": 1.51,
+          "win_rate": 63.6
+        },
+        {
+          "factor": "Weekly HVN",
+          "wins": 28,
+          "losses": 16,
+          "total": 44,
+          "profit": 66.32000000000002,
+          "avg_profit": 1.51,
+          "win_rate": 63.6
+        },
+        {
+          "factor": "Prev Day High",
+          "wins": 32,
+          "losses": 20,
+          "total": 52,
+          "profit": -164.16,
+          "avg_profit": -3.16,
+          "win_rate": 61.5
+        },
+        {
+          "factor": "Swing Low",
+          "wins": 40,
+          "losses": 28,
+          "total": 68,
+          "profit": -226.3999999999999,
+          "avg_profit": -3.33,
+          "win_rate": 58.8
+        },
+        {
+          "factor": "Prev Week High",
+          "wins": 4,
+          "losses": 4,
+          "total": 8,
+          "profit": -15.04,
+          "avg_profit": -1.88,
+          "win_rate": 50.0
+        }
+      ]
+    },
+    "EURUSD": {
+      "best": [
+        {
+          "factor": "Above VAH",
+          "wins": 4,
+          "losses": 0,
+          "total": 4,
+          "profit": 39.28,
+          "avg_profit": 9.82,
+          "win_rate": 100.0
+        },
+        {
+          "factor": "VWAP Band 2",
+          "wins": 36,
+          "losses": 12,
+          "total": 48,
+          "profit": -76.24000000000004,
+          "avg_profit": -1.59,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Weekly HVN",
+          "wins": 36,
+          "losses": 12,
+          "total": 48,
+          "profit": 120.40000000000006,
+          "avg_profit": 2.51,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Prev Week High",
+          "wins": 12,
+          "losses": 4,
+          "total": 16,
+          "profit": -128.16000000000008,
+          "avg_profit": -8.01,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Weekly POC",
+          "wins": 32,
+          "losses": 12,
+          "total": 44,
+          "profit": 87.92000000000004,
+          "avg_profit": 2.0,
+          "win_rate": 72.7
+        }
+      ],
+      "worst": [
+        {
+          "factor": "Swing High",
+          "wins": 20,
+          "losses": 20,
+          "total": 40,
+          "profit": -418.0800000000001,
+          "avg_profit": -10.45,
+          "win_rate": 50.0
+        },
+        {
+          "factor": "Prev Day VAH",
+          "wins": 32,
+          "losses": 36,
+          "total": 68,
+          "profit": -710.9600000000005,
+          "avg_profit": -10.46,
+          "win_rate": 47.1
+        },
+        {
+          "factor": "VWAP Band 1",
+          "wins": 24,
+          "losses": 32,
+          "total": 56,
+          "profit": -742.1600000000003,
+          "avg_profit": -13.25,
+          "win_rate": 42.9
+        },
+        {
+          "factor": "Prev Day High",
+          "wins": 16,
+          "losses": 24,
+          "total": 40,
+          "profit": -601.6,
+          "avg_profit": -15.04,
+          "win_rate": 40.0
+        },
+        {
+          "factor": "POC",
+          "wins": 8,
+          "losses": 16,
+          "total": 24,
+          "profit": -309.84,
+          "avg_profit": -12.91,
+          "win_rate": 33.3
+        }
+      ],
+      "all": [
+        {
+          "factor": "Above VAH",
+          "wins": 4,
+          "losses": 0,
+          "total": 4,
+          "profit": 39.28,
+          "avg_profit": 9.82,
+          "win_rate": 100.0
+        },
+        {
+          "factor": "VWAP Band 2",
+          "wins": 36,
+          "losses": 12,
+          "total": 48,
+          "profit": -76.24000000000004,
+          "avg_profit": -1.59,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Weekly HVN",
+          "wins": 36,
+          "losses": 12,
+          "total": 48,
+          "profit": 120.40000000000006,
+          "avg_profit": 2.51,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Prev Week High",
+          "wins": 12,
+          "losses": 4,
+          "total": 16,
+          "profit": -128.16000000000008,
+          "avg_profit": -8.01,
+          "win_rate": 75.0
+        },
+        {
+          "factor": "Weekly POC",
+          "wins": 32,
+          "losses": 12,
+          "total": 44,
+          "profit": 87.92000000000004,
+          "avg_profit": 2.0,
+          "win_rate": 72.7
+        },
+        {
+          "factor": "Prev Week Low",
+          "wins": 28,
+          "losses": 12,
+          "total": 40,
+          "profit": 2.3999999999999826,
+          "avg_profit": 0.06,
+          "win_rate": 70.0
+        },
+        {
+          "factor": "Prev Day VAL",
+          "wins": 32,
+          "losses": 16,
+          "total": 48,
+          "profit": -274.4800000000001,
+          "avg_profit": -5.72,
+          "win_rate": 66.7
+        },
+        {
+          "factor": "Low Volume Node",
+          "wins": 8,
+          "losses": 4,
+          "total": 12,
+          "profit": -54.63999999999999,
+          "avg_profit": -4.55,
+          "win_rate": 66.7
+        },
+        {
+          "factor": "Daily HVN",
+          "wins": 60,
+          "losses": 32,
+          "total": 92,
+          "profit": -238.56000000000003,
+          "avg_profit": -2.59,
+          "win_rate": 65.2
+        },
+        {
+          "factor": "Swing Low",
+          "wins": 32,
+          "losses": 20,
+          "total": 52,
+          "profit": -417.84,
+          "avg_profit": -8.04,
+          "win_rate": 61.5
+        },
+        {
+          "factor": "Prev Day Low",
+          "wins": 40,
+          "losses": 28,
+          "total": 68,
+          "profit": -425.04,
+          "avg_profit": -6.25,
+          "win_rate": 58.8
+        },
+        {
+          "factor": "Prev Day POC",
+          "wins": 44,
+          "losses": 32,
+          "total": 76,
+          "profit": -412.16,
+          "avg_profit": -5.42,
+          "win_rate": 57.9
+        },
+        {
+          "factor": "Below VAL",
+          "wins": 24,
+          "losses": 20,
+          "total": 44,
+          "profit": -246.4000000000001,
+          "avg_profit": -5.6,
+          "win_rate": 54.5
+        },
+        {
+          "factor": "Swing High",
+          "wins": 20,
+          "losses": 20,
+          "total": 40,
+          "profit": -418.0800000000001,
+          "avg_profit": -10.45,
+          "win_rate": 50.0
+        },
+        {
+          "factor": "Prev Day VAH",
+          "wins": 32,
+          "losses": 36,
+          "total": 68,
+          "profit": -710.9600000000005,
+          "avg_profit": -10.46,
+          "win_rate": 47.1
+        },
+        {
+          "factor": "VWAP Band 1",
+          "wins": 24,
+          "losses": 32,
+          "total": 56,
+          "profit": -742.1600000000003,
+          "avg_profit": -13.25,
+          "win_rate": 42.9
+        },
+        {
+          "factor": "Prev Day High",
+          "wins": 16,
+          "losses": 24,
+          "total": 40,
+          "profit": -601.6,
+          "avg_profit": -15.04,
+          "win_rate": 40.0
+        },
+        {
+          "factor": "POC",
+          "wins": 8,
+          "losses": 16,
+          "total": 24,
+          "profit": -309.84,
+          "avg_profit": -12.91,
+          "win_rate": 33.3
+        }
+      ]
+    }
+  }
+}

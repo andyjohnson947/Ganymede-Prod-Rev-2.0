@@ -30,18 +30,20 @@ class EnhancedTradeLogger:
         self.output_dir = self.project_root / "ml_system" / "outputs"
         self.output_dir.mkdir(exist_ok=True)
 
-        self.log_file = self.output_dir / "enhanced_trade_log.jsonl"
-        self.execution_log = self.output_dir / "execution_quality.jsonl"
+        # DEPRECATED: These files are no longer written to
+        # Execution quality is now tracked in continuous_trade_log.jsonl via ContinuousMLLogger
+        self.log_file = self.output_dir / "enhanced_trade_log.jsonl"  # DEPRECATED
+        self.execution_log = self.output_dir / "execution_quality.jsonl"  # DEPRECATED
         self.market_conditions_log = self.output_dir / "market_conditions.jsonl"
 
-        print(f"[ENHANCED LOGGER] Starting...")
-        print(f"  Trade log: {self.log_file}")
-        print(f"  Execution log: {self.execution_log}")
-        print(f"  Market conditions log: {self.market_conditions_log}")
+        pass  # Enhanced logger ready
 
     def log_trade_with_execution(self, trade_data: Dict):
         """
-        Log trade with enhanced execution quality data
+        Calculate execution quality data and attach to trade_data.
+
+        DEPRECATED: No longer writes to enhanced_trade_log.jsonl.
+        Execution quality is now tracked in continuous_trade_log.jsonl via ContinuousMLLogger.
 
         Enhanced fields:
         - slippage (expected vs actual entry)
@@ -71,16 +73,16 @@ class EnhancedTradeLogger:
             'execution_quality_score': self._calculate_execution_quality(trade_data)
         }
 
-        # Log to execution quality file
-        with open(self.execution_log, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(execution_quality, ensure_ascii=False) + '\n')
+        # DEPRECATED: No longer log to execution_quality.jsonl (merged into continuous_trade_log)
+        # with open(self.execution_log, 'a', encoding='utf-8') as f:
+        #     f.write(json.dumps(execution_quality, ensure_ascii=False) + '\n')
 
-        # Add to main trade data
+        # Add to main trade data (still needed for MLIntegrationManager)
         trade_data['execution_quality'] = execution_quality
 
-        # Log to main trade log
-        with open(self.log_file, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(trade_data, ensure_ascii=False) + '\n')
+        # DEPRECATED: No longer log to enhanced_trade_log.jsonl (merged into continuous_trade_log)
+        # with open(self.log_file, 'a', encoding='utf-8') as f:
+        #     f.write(json.dumps(trade_data, ensure_ascii=False) + '\n')
 
     def log_market_conditions(self, symbol: str, conditions: Dict):
         """

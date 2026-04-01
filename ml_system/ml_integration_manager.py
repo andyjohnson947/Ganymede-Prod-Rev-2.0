@@ -51,32 +51,23 @@ class MLIntegrationManager:
         Args:
             enable_adaptive_weighting: Use adaptive confluence scoring (requires 50+ trades)
         """
-        print("[ML INTEGRATION] Initializing enhanced ML system...")
-
         # Enhanced logger
         self.enhanced_logger = EnhancedTradeLogger()
-        print("[ML] [OK] Enhanced trade logger active")
 
         # Adaptive confluence (requires data)
         self.enable_adaptive = enable_adaptive_weighting
         if self.enable_adaptive:
             try:
                 self.confluence_analyzer = AdaptiveConfluenceWeighting()
-                if self.confluence_analyzer.trade_log and len(self.confluence_analyzer.trade_log) >= 10:
-                    print(f"[ML] [OK] Adaptive confluence active ({len(self.confluence_analyzer.trade_log)} trades)")
-                else:
-                    print(f"[ML] [WARN] Adaptive confluence limited (only {len(self.confluence_analyzer.trade_log)} trades, need 50+)")
+                if not (self.confluence_analyzer.trade_log and len(self.confluence_analyzer.trade_log) >= 10):
                     self.enable_adaptive = False
-            except Exception as e:
-                print(f"[ML] [WARN] Adaptive confluence disabled: {e}")
+            except Exception:
                 self.enable_adaptive = False
 
         # Stats
         self.trades_logged = 0
         self.signals_logged = 0
         self.recovery_decisions_logged = 0
-
-        print("[ML INTEGRATION] [OK] Ready (all encoding UTF-8)")
 
     # ============================================================================
     # TRADE LOGGING

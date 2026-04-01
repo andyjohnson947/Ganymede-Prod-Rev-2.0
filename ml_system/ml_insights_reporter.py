@@ -18,7 +18,10 @@ class MLInsightsReporter:
     def __init__(self):
         # Use absolute path based on this file's location (not current working directory)
         self.outputs_dir = Path(__file__).parent / "outputs"
-        self.enhanced_trade_log = self.outputs_dir / "enhanced_trade_log.jsonl"
+        # Primary trade log - has outcome data AND execution_quality (merged)
+        self.continuous_trade_log = self.outputs_dir / "continuous_trade_log.jsonl"
+        # DEPRECATED: enhanced_trade_log has been merged into continuous_trade_log
+        self.enhanced_trade_log = self.outputs_dir / "enhanced_trade_log.jsonl"  # Legacy, not used
         self.recovery_log = self.outputs_dir / "recovery_decisions.jsonl"
         self.market_conditions_log = self.outputs_dir / "market_conditions.jsonl"
         self.adaptive_weights = self.outputs_dir / "adaptive_confluence_weights.json"
@@ -27,16 +30,42 @@ class MLInsightsReporter:
         """Get current ML data collection status"""
         status = {
             'trades_logged': 0,
+            'trades_closed': 0,
             'recovery_decisions': 0,
             'has_adaptive_weights': False,
             'data_age_hours': None,
             'ready_for_analysis': False
         }
 
-        # Count trade entries
-        if self.enhanced_trade_log.exists():
-            with open(self.enhanced_trade_log, 'r', encoding='utf-8') as f:
-                status['trades_logged'] = sum(1 for line in f if line.strip())
+        # Try SQLite first for trade counts
+        db_used = False
+        try:
+            from ml_system.trade_db import get_trade_db
+            db = get_trade_db()
+            if db:
+                counts = db.get_trade_counts()
+                status['trades_logged'] = counts['total']
+                status['trades_closed'] = counts['closed']
+                db_used = True
+        except Exception:
+            pass
+
+        if not db_used:
+            # Fallback: Count trade entries from continuous_trade_log (primary) or enhanced_trade_log (fallback)
+            log_file = self.continuous_trade_log if self.continuous_trade_log.exists() else self.enhanced_trade_log
+
+            if log_file and log_file.exists():
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        if line.strip():
+                            status['trades_logged'] += 1
+                            # Check if trade has outcome (closed)
+                            try:
+                                trade = json.loads(line)
+                                if 'outcome' in trade and trade['outcome'].get('status') == 'closed':
+                                    status['trades_closed'] += 1
+                            except:
+                                pass
 
         # Count recovery decisions
         if self.recovery_log.exists():
@@ -47,12 +76,13 @@ class MLInsightsReporter:
         status['has_adaptive_weights'] = self.adaptive_weights.exists()
 
         # Check data freshness
-        if self.enhanced_trade_log.exists():
-            age = datetime.now() - datetime.fromtimestamp(self.enhanced_trade_log.stat().st_mtime)
+        log_file = self.continuous_trade_log if self.continuous_trade_log.exists() else self.enhanced_trade_log
+        if log_file and log_file.exists():
+            age = datetime.now() - datetime.fromtimestamp(log_file.stat().st_mtime)
             status['data_age_hours'] = age.total_seconds() / 3600
 
-        # Ready for analysis if we have 50+ trades
-        status['ready_for_analysis'] = status['trades_logged'] >= 50
+        # Ready for analysis if we have 50+ closed trades
+        status['ready_for_analysis'] = status['trades_closed'] >= 50
 
         return status
 
@@ -120,26 +150,38 @@ class MLInsightsReporter:
         return insights
 
     def _load_recent_trades(self, days: int) -> List[Dict]:
-        """Load trades from last N days"""
+        """Load trades from last N days from SQLite (fallback: JSONL)"""
         cutoff = datetime.now() - timedelta(days=days)
-        trades = []
 
+        # Try SQLite first
+        raw_trades = None
         try:
-            with open(self.enhanced_trade_log, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if not line.strip():
-                        continue
-                    try:
-                        trade = json.loads(line)
-                        entry_time = datetime.fromisoformat(trade['entry_time'].replace('Z', ''))
-                        if entry_time >= cutoff:
-                            trades.append(trade)
-                    except (json.JSONDecodeError, KeyError, ValueError):
-                        continue
+            from ml_system.trade_db import get_trade_db
+            db = get_trade_db()
+            if db:
+                raw_trades = db.get_trades_since(days)
         except Exception:
             pass
 
-        return trades
+        if raw_trades is not None:
+            # Normalize trade data (same post-processing as JSONL path)
+            for trade in raw_trades:
+                if 'outcome' in trade:
+                    outcome = trade['outcome']
+                    trade['exit_time'] = outcome.get('exit_time')
+                    trade['profit'] = outcome.get('profit', 0)
+                    trade['had_dca'] = outcome.get('had_recovery', False) or outcome.get('recovery', {}).get('dca_count', 0) > 0
+                    trade['had_hedge'] = outcome.get('recovery', {}).get('hedge_count', 0) > 0
+                entry_time_str = trade.get('entry_time', '')
+                if entry_time_str:
+                    try:
+                        trade['hour'] = datetime.fromisoformat(entry_time_str.replace('Z', '')).hour
+                    except:
+                        pass
+            return raw_trades
+
+        # SQLite failed or returned nothing — no JSONL fallback (SQLite is source of truth)
+        return []
 
     def _analyze_confluence_factors(self, trades: List[Dict]) -> Dict:
         """Analyze which confluence factors are winning/losing"""
@@ -307,12 +349,12 @@ class MLInsightsReporter:
 
         # Data status
         report.append("Data Collection:")
-        report.append(f"   Trades Logged: {status['trades_logged']}")
+        report.append(f"   Trades Logged: {status['trades_logged']} ({status.get('trades_closed', 0)} closed)")
         report.append(f"   Recovery Decisions: {status['recovery_decisions']}")
         if status['data_age_hours']:
             report.append(f"   Last Update: {status['data_age_hours']:.1f} hours ago")
-        trades_needed = 50 - status['trades_logged']
-        analysis_status = 'Yes' if status['ready_for_analysis'] else f'No (need {trades_needed} more trades)'
+        trades_needed = max(0, 50 - status.get('trades_closed', 0))
+        analysis_status = 'Yes' if status['ready_for_analysis'] else f'No (need {trades_needed} more closed trades)'
         report.append(f"   Analysis Ready: {analysis_status}")
         report.append("")
 

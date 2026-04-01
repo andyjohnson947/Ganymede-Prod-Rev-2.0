@@ -1,15 +1,15 @@
 ML DATASET INFORMATION
 ================================================================================
-Generated: 2026-01-27 09:54:37
+Generated: 2026-04-01 05:20:37
 Source: ml_system/outputs/continuous_trade_log.jsonl
 Output: ml_system/data/training_data.csv
 ================================================================================
 
-Total samples: 73
+Total samples: 540
 Features: 88
-Win rate: 71.23%
-Wins: 52
-Losses: 21
+Win rate: 57.41%
+Wins: 310
+Losses: 230
 
 Feature List:
    1. vwap_distance_pct

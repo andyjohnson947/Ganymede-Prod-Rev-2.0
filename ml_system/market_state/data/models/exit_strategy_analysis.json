@@ -1,0 +1,281 @@
+{
+  "EURUSD": {
+    "total": 24568,
+    "sl_pips": 20,
+    "hits": {
+      "5": 22582,
+      "7": 21722,
+      "8": 21312,
+      "10": 20424,
+      "14": 18725,
+      "15": 18313,
+      "16": 17918,
+      "20": 16319,
+      "25": 14433,
+      "30": 12692,
+      "35": 11226,
+      "40": 9875,
+      "45": 8616
+    },
+    "strategies": {
+      "A_current_pc": {
+        "trades": 24568,
+        "total_pips": 311548.40000000154,
+        "avg_pips": 12.681064799739561,
+        "winners": 21722,
+        "losers": 0,
+        "breakeven": 2846,
+        "win_rate": 88.41582546401824,
+        "avg_win": 14.34252831231017,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "B_flat_1r": {
+        "trades": 24568,
+        "total_pips": 274695.0,
+        "avg_pips": 11.18100781504396,
+        "winners": 18313,
+        "losers": 0,
+        "breakeven": 6255,
+        "win_rate": 74.54005210029307,
+        "avg_win": 15.0,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "C_scaled_1r_2r": {
+        "trades": 24568,
+        "total_pips": 347986.4999999994,
+        "avg_pips": 14.164217681536934,
+        "winners": 18313,
+        "losers": 0,
+        "breakeven": 6255,
+        "win_rate": 74.54005210029307,
+        "avg_win": 19.0021569376945,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "D_scaled_1r_2r_3r": {
+        "trades": 24568,
+        "total_pips": 405997.36800004635,
+        "avg_pips": 16.52545457505887,
+        "winners": 18313,
+        "losers": 0,
+        "breakeven": 6255,
+        "win_rate": 74.54005210029307,
+        "avg_win": 22.16989941571814,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "E_flat_2r": {
+        "trades": 24568,
+        "total_pips": 308220.0,
+        "avg_pips": 12.54558775643113,
+        "winners": 12692,
+        "losers": 3627,
+        "breakeven": 8249,
+        "win_rate": 51.66069684141973,
+        "avg_win": 30.0,
+        "avg_loss": -20.0,
+        "profit_factor": 5.248966087675765
+      },
+      "F_flat_3r": {
+        "trades": 24568,
+        "total_pips": 233660.0,
+        "avg_pips": 9.51074568544448,
+        "winners": 8616,
+        "losers": 7703,
+        "breakeven": 8249,
+        "win_rate": 35.07000976880495,
+        "avg_win": 45.0,
+        "avg_loss": -20.0,
+        "profit_factor": 2.5166818122809294
+      }
+    }
+  },
+  "GBPUSD": {
+    "total": 24584,
+    "sl_pips": 28,
+    "hits": {
+      "5": 22970,
+      "7": 22302,
+      "8": 21953,
+      "10": 21249,
+      "14": 19895,
+      "15": 19569,
+      "16": 19235,
+      "20": 17897,
+      "25": 16253,
+      "30": 14714,
+      "35": 13164,
+      "40": 11868,
+      "45": 10681
+    },
+    "strategies": {
+      "A_current_pc": {
+        "trades": 24584,
+        "total_pips": 393668.25000000047,
+        "avg_pips": 16.013189472827875,
+        "winners": 21953,
+        "losers": 0,
+        "breakeven": 2631,
+        "win_rate": 89.29791734461439,
+        "avg_win": 17.93232132282606,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "B_flat_1r": {
+        "trades": 24584,
+        "total_pips": 293535.0,
+        "avg_pips": 11.94008298080052,
+        "winners": 19569,
+        "losers": 0,
+        "breakeven": 5015,
+        "win_rate": 79.6005532053368,
+        "avg_win": 15.0,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "C_scaled_1r_2r": {
+        "trades": 24584,
+        "total_pips": 385205.2000000003,
+        "avg_pips": 15.668939147412964,
+        "winners": 19569,
+        "losers": 0,
+        "breakeven": 5015,
+        "win_rate": 79.6005532053368,
+        "avg_win": 19.6844601154888,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "D_scaled_1r_2r_3r": {
+        "trades": 24584,
+        "total_pips": 459789.81000007,
+        "avg_pips": 18.7028071103185,
+        "winners": 19569,
+        "losers": 0,
+        "breakeven": 5015,
+        "win_rate": 79.6005532053368,
+        "avg_win": 23.495825540399103,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "E_flat_2r": {
+        "trades": 24584,
+        "total_pips": 423584.0,
+        "avg_pips": 17.23006833712984,
+        "winners": 14714,
+        "losers": 637,
+        "breakeven": 9233,
+        "win_rate": 59.851936218678816,
+        "avg_win": 30.0,
+        "avg_loss": -28.0,
+        "profit_factor": 24.74882260596546
+      },
+      "F_flat_3r": {
+        "trades": 24584,
+        "total_pips": 349885.0,
+        "avg_pips": 14.232224210868857,
+        "winners": 10681,
+        "losers": 4670,
+        "breakeven": 9233,
+        "win_rate": 43.446957370647574,
+        "avg_win": 45.0,
+        "avg_loss": -28.0,
+        "profit_factor": 3.6757800550627104
+      }
+    }
+  },
+  "AUDUSD": {
+    "total": 34116,
+    "sl_pips": 20,
+    "hits": {
+      "5": 30754,
+      "7": 29400,
+      "8": 28715,
+      "10": 27341,
+      "14": 24753,
+      "15": 24143,
+      "16": 23536,
+      "20": 21038,
+      "25": 18183,
+      "30": 15556,
+      "35": 13311,
+      "40": 11240,
+      "45": 9350
+    },
+    "strategies": {
+      "A_current_pc": {
+        "trades": 34116,
+        "total_pips": 377759.4749999986,
+        "avg_pips": 11.072795022863131,
+        "winners": 29400,
+        "losers": 0,
+        "breakeven": 4716,
+        "win_rate": 86.17657404150545,
+        "avg_win": 12.848961734693829,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "B_flat_1r": {
+        "trades": 34116,
+        "total_pips": 362145.0,
+        "avg_pips": 10.615107281041153,
+        "winners": 24143,
+        "losers": 0,
+        "breakeven": 9973,
+        "win_rate": 70.76738187360769,
+        "avg_win": 15.0,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "C_scaled_1r_2r": {
+        "trades": 34116,
+        "total_pips": 445027.5999999983,
+        "avg_pips": 13.044542150310654,
+        "winners": 24143,
+        "losers": 0,
+        "breakeven": 9973,
+        "win_rate": 70.76738187360769,
+        "avg_win": 18.43298678706036,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "D_scaled_1r_2r_3r": {
+        "trades": 34116,
+        "total_pips": 504246.35200007266,
+        "avg_pips": 14.780347989215402,
+        "winners": 24143,
+        "losers": 0,
+        "breakeven": 9973,
+        "win_rate": 70.76738187360769,
+        "avg_win": 20.88581998923384,
+        "avg_loss": 0.0,
+        "profit_factor": Infinity
+      },
+      "E_flat_2r": {
+        "trades": 34116,
+        "total_pips": 357040.0,
+        "avg_pips": 10.465470746863641,
+        "winners": 15556,
+        "losers": 5482,
+        "breakeven": 13078,
+        "win_rate": 45.59737366631493,
+        "avg_win": 30.0,
+        "avg_loss": -20.0,
+        "profit_factor": 4.256475738781466
+      },
+      "F_flat_3r": {
+        "trades": 34116,
+        "total_pips": 186990.0,
+        "avg_pips": 5.481005979599015,
+        "winners": 9350,
+        "losers": 11688,
+        "breakeven": 13078,
+        "win_rate": 27.40649548598898,
+        "avg_win": 45.0,
+        "avg_loss": -20.0,
+        "profit_factor": 1.7999229979466118
+      }
+    }
+  }
+}

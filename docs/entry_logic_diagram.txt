@@ -1,0 +1,284 @@
+
+  GANYMEDE ROBOTIC TRADING SYSTEM - TRADE ENTRY DECISION FLOW
+  ============================================================
+
+  Every 60 seconds, the bot runs this decision tree for each symbol (EURUSD, GBPUSD):
+
+
+                          +------------------+
+                          |  60s TICK FIRES  |
+                          +--------+---------+
+                                   |
+                    +--------------v--------------+
+                    |  CASCADE BLOCK ACTIVE?       |
+                    |  (60min cooldown after        |
+                    |   trend-triggered closure)    |
+                    +-----+------------------+-----+
+                     YES  |                  | NO
+                   [SKIP] |                  |
+                          |   +--------------v--------------+
+                          |   |  POSITION LIMITS OK?        |
+                          |   |  Total < 6 across all pairs |
+                          |   |  Symbol < 3 for this pair   |
+                          |   +-----+------------------+----+
+                          |    NO   |                  | YES
+                          | [SKIP]  |                  |
+                          |         |   +--------------v--------------+
+                          |         |   |  MARKET DATA FRESH?         |
+                          |         |   |  H1, M15, D1, W1 bars      |
+                          |         |   |  VWAP, ATR calculated       |
+                          |         |   +-----+------------------+----+
+                          |         |    FAIL |                  | OK
+                          |         | [SKIP]  |                  |
+                          |         |         |                  |
+                          |         |         |   +--------------v--------------+
+                          |         |         |   |  CALCULATE ADX + DI         |
+                          |         |         |   |  ADX = trend strength       |
+                          |         |         |   |  DI gap = direction clarity |
+                          |         |         |   +--------------+--------------+
+                          |         |         |                  |
+                          |         |         |   +--------------v--------------+
+                          |         |         |   |  WHICH STRATEGY CAN TRADE?  |
+                          |         |         |   +---------+----------+--------+
+                          |         |         |             |          |
+                          |         |         |    +--------v---+  +--v---------+
+                          |         |         |    |  MR CHECK  |  |  BO CHECK  |
+                          |         |         |    +--------+---+  +--+---------+
+                          |         |         |             |         |
+                          |         |         |             v         v
+                          |         |         |     (see below) (see below)
+                          |         |         |
+                          |         |         |
+  ========================|=========|=========|===========================================
+   MEAN REVERSION (MR) GATE                  |
+  ============================================|===========================================
+                                              |
+        +-------------------------------------v--------------------------------------+
+        |                    MR ELIGIBLE?                                            |
+        |  - Correct hours? [0,1,2,4,6,7,8,14,16] UTC                               |
+        |  - Correct day?   Mon-Thu (0-3)                                            |
+        |  - ADX < 40?      (not trending)                                           |
+        +----------+---------------------------------------------+------------------+
+              NO   |                                              | YES
+           [SKIP]  |                                              |
+                   |   +------------------------------------------v-----------------+
+                   |   |  HTF CONFLUENCE SCORE (Institutional Levels)               |
+                   |   |                                                            |
+                   |   |  Check price proximity to:                                 |
+                   |   |   prev_day_vah (wt:4)  prev_day_val (wt:4)                 |
+                   |   |   prev_day_poc (wt:4)  daily_hvn (wt:4)                    |
+                   |   |   weekly_poc (wt:3)    prev_day_high (wt:2)                |
+                   |   |   prev_day_low (wt:2)  prev_week_high (wt:2)              |
+                   |   |   swing_high (wt:2)    swing_low (wt:2)                    |
+                   |   |   weekly_hvn (wt:1)    prev_week_low (wt:1) ...            |
+                   |   |                                                            |
+                   |   |  htf_score = SUM of matched factor weights                 |
+                   |   |  NEED: htf_score >= 4                                      |
+                   |   +-------+--------------------------------------------+-------+
+                   |      < 4  |                                            | >= 4
+                   |   [REJECT]|                                            |
+                   |           |   +----------------------------------------v-------+
+                   |           |   |  ENTRY CONFLUENCE SCORE (Intraday Signals)     |
+                   |           |   |                                                |
+                   |           |   |  VWAP Band detection:                          |
+                   |           |   |   Price below VWAP -> BUY (reversion up)       |
+                   |           |   |   Price above VWAP -> SELL (reversion down)    |
+                   |           |   |   Band 1 (wt:3)  Band 2 (wt:3)                |
+                   |           |   |                                                |
+                   |           |   |  Volume Profile:                               |
+                   |           |   |   at_poc (wt:3)  above_vah (wt:3)              |
+                   |           |   |   at_swing_high (wt:3)  at_swing_low (wt:1)    |
+                   |           |   |                                                |
+                   |           |   |  Liquidity:                                    |
+                   |           |   |   session_low/high (wt:2)  eql/eqh (wt:2)     |
+                   |           |   |                                                |
+                   |           |   |  entry_score = SUM of matched weights          |
+                   |           |   |  NEED: entry_score >= 3                        |
+                   |           |   +-------+--------------------------------+-------+
+                   |           |      < 3  |                                | >= 3
+                   |           |   [REJECT]|                                |
+                   |           |           |   +----------------------------v-------+
+                   |           |           |   |  COMBINED SCORE CHECK              |
+                   |           |           |   |  htf_score + entry_score >= 7      |
+                   |           |           |   +-------+--------------------+-------+
+                   |           |           |      < 7  |                    | >= 7
+                   |           |           |   [REJECT]|                    |
+                   |           |           |           |   +----------------v-------+
+                   |           |           |           |   |  TREND FILTER          |
+                   |           |           |           |   |  ADX < 35? (not too    |
+                   |           |           |           |   |  strong for MR)        |
+                   |           |           |           |   +-------+--------+-------+
+                   |           |           |           |    >= 35  |        | < 35
+                   |           |           |           |   [REJECT]|        |
+                   |           |           |           |           | +------v-------+
+                   |           |           |           |           | | DI DIRECTION |
+                   |           |           |           |           | | FILTER       |
+                   |           |           |           |           | | BUY blocked  |
+                   |           |           |           |           | | if -DI > +DI |
+                   |           |           |           |           | | SELL blocked |
+                   |           |           |           |           | | if +DI > -DI |
+                   |           |           |           |           | +--+-------+---+
+                   |           |           |           |           |BLKD|       |PASS
+                   |           |           |           |       [REJECT] |       |
+                   |           |           |           |                |       |
+                   |           |           |           |                | +-----v------+
+                   |           |           |           |                | | MR SIGNAL  |
+                   |           |           |           |                | | GENERATED  |
+                   |           |           |           |                | +-----+------+
+                   |           |           |           |                |       |
+                   |           |           |           |                |       v
+                   |           |           |           |                | (to EXECUTION)
+                   |           |           |           |                |
+  =====================================================================================================
+   BREAKOUT (BO) GATE  (only if MR did NOT generate a signal)
+  =====================================================================================================
+                                                                       |
+        +--------------------------------------------------------------v-----------+
+        |                    BO ELIGIBLE?                                           |
+        |  - Correct hours?  [0,1,5,6,16,20,21,22,23] UTC                          |
+        |  - Correct day?    Mon-Fri (0-4)                                          |
+        |  - ADX in range?   25 <= ADX <= 40                                        |
+        |  - DI gap >= 5?    (clear directional bias)                               |
+        +----------+---------------------------------------------------+------------+
+              NO   |                                                    | YES
+           [SKIP]  |                                                    |
+                   |   +------------------------------------------------v-----------+
+                   |   |  BREAKOUT TYPE DETECTION                                   |
+                   |   |                                                            |
+                   |   |  1. RANGE BREAKOUT                                         |
+                   |   |     - 20-bar range: high/low                               |
+                   |   |     - Range >= 15 pips minimum                             |
+                   |   |     - Price closes above high -> BUY                       |
+                   |   |     - Price closes below low  -> SELL                      |
+                   |   |     - Volume >= 1.2x average                               |
+                   |   |     - ATR >= 0.8x median                                  |
+                   |   |                                                            |
+                   |   |  2. LVN BREAKOUT                                           |
+                   |   |     - Price breaks through Low Volume Node                 |
+                   |   |     - RSI confirms: BUY if RSI > 55, SELL if RSI < 45     |
+                   |   |                                                            |
+                   |   |  3. WEEKLY LEVEL BREAKOUT                                  |
+                   |   |     - Price closes above prev_week_high -> BUY             |
+                   |   |     - Price closes below prev_week_low  -> SELL            |
+                   |   |     - RSI confirmation required                            |
+                   |   +-------+--------------------------------------------+-------+
+                   |    NONE   |                                            | FOUND
+                   |   [SKIP]  |                                            |
+                   |           |   +----------------------------------------v-------+
+                   |           |   |  CONFIDENCE CHECK                              |
+                   |           |   |  HIGH: Volume spike + compression OR           |
+                   |           |   |        ADX >= 30 AND DI gap >= 10              |
+                   |           |   |  MEDIUM: Some confirmation                     |
+                   |           |   |  LOW: Weak setup                               |
+                   |           |   +-------+--------------------------------+-------+
+                   |           |     LOW   |                                | MED/HIGH
+                   |           |   [REJECT]|                                |
+                   |           |           |   +----------------------------v-------+
+                   |           |           |   |  DI DIRECTION FILTER               |
+                   |           |           |   |  BUY blocked if -DI > +DI          |
+                   |           |           |   |  SELL blocked if +DI > -DI         |
+                   |           |           |   +-------+--------------------+-------+
+                   |           |           |    BLOCKED |                   | PASS
+                   |           |           |   [REJECT] |                   |
+                   |           |           |            |   +---------------v-------+
+                   |           |           |            |   |  BO SIGNAL            |
+                   |           |           |            |   |  GENERATED            |
+                   |           |           |            |   +---------------+-------+
+                   |           |           |            |                   |
+                   |           |           |            |                   v
+                   |           |           |            |            (to EXECUTION)
+                   |           |           |            |
+  =====================================================================================================
+   TRADE EXECUTION (applies to both MR and BO signals)
+  =====================================================================================================
+                                                                           |
+        +------------------------------------------------------------------v--------+
+        |  REGIME OVERRIDE CHECK                                                    |
+        |  If positions already exist for this symbol:                              |
+        |   - Existing position must be > 5 pips underwater                         |
+        |   - Existing position must be open > 60 minutes                           |
+        |  If override not met -> BLOCKED                                           |
+        +----------+---------------------------------------------------+-----------+
+              FAIL |                                                    | PASS
+           [BLOCK] |                                                    |
+                   |   +------------------------------------------------v----------+
+                   |   |  RISK VALIDATION                                          |
+                   |   |   - Account equity sufficient?                             |
+                   |   |   - Total lots < 15.0 max?                                 |
+                   |   |   - Drawdown < 50% max?                                    |
+                   |   |   - Margin sufficient?                                     |
+                   |   +-------+--------------------------------------------+------+
+                   |     FAIL  |                                            | PASS
+                   |   [BLOCK] |                                            |
+                   |           |   +----------------------------------------v------+
+                   |           |   |  SETUP TIER CLASSIFICATION (ML-driven)        |
+                   |           |   |                                               |
+                   |           |   |  Based on historical win rate of this          |
+                   |           |   |  factor combination:                           |
+                   |           |   |                                               |
+                   |           |   |  PLATINUM : 3 positions opened                |
+                   |           |   |  GOLD     : 2 positions opened                |
+                   |           |   |  SILVER   : 2 positions opened                |
+                   |           |   |  BRONZE   : 1 position  opened                |
+                   |           |   |  UNPROVEN : 1 position  opened                |
+                   |           |   +--------------------+-------+------------------+
+                   |           |                        |       |
+                   |           |   +--------------------v-------v------------------+
+                   |           |   |  HARD STOP LOSS DECISION                      |
+                   |           |   |                                               |
+                   |           |   |  IF ADX > 30 (trending):                      |
+                   |           |   |    Apply hard SL:                              |
+                   |           |   |    EURUSD = 25 pips                            |
+                   |           |   |    GBPUSD = 35 pips                            |
+                   |           |   |    Recovery BLOCKED (no DCA/hedge/grid)        |
+                   |           |   |                                               |
+                   |           |   |  IF ADX <= 30 (ranging):                      |
+                   |           |   |    No hard SL applied                          |
+                   |           |   |    Recovery ALLOWED if position goes underwater|
+                   |           |   +------------------------+----------------------+
+                   |           |                            |
+                   |           |   +------------------------v----------------------+
+                   |           |   |                                               |
+                   |           |   |  +------------------------------------------+ |
+                   |           |   |  |        PLACE ORDER(S) ON MT5             | |
+                   |           |   |  |                                          | |
+                   |           |   |  |  Volume: 0.04 lots per position          | |
+                   |           |   |  |  Comment: "MR|GLD|C8" or "BO|RB|HI|C5"  | |
+                   |           |   |  |  SL: conditional (see above)             | |
+                   |           |   |  |  TP: none (managed by exit logic)        | |
+                   |           |   |  +------------------------------------------+ |
+                   |           |   |                                               |
+                   |           |   +------------------------+----------------------+
+                   |           |                            |
+                   |           |                +-----------v-----------+
+                   |           |                |   TRADE OPEN          |
+                   |           |                |   Track in recovery   |
+                   |           |                |   Log to ML system    |
+                   |           |                |   Monitor for PC1/PC2 |
+                   |           |                +-----------------------+
+
+
+  =====================================================================================================
+   KEY THRESHOLDS
+  =====================================================================================================
+
+   MR Requirements:                          BO Requirements:
+   +--------------------------+              +--------------------------+
+   | HTF Score    >= 4        |              | ADX          25-40       |
+   | Entry Score  >= 3        |              | DI Gap       >= 5        |
+   | Combined     >= 7        |              | Range Size   >= 15 pips  |
+   | ADX          < 35        |              | Volume       >= 1.2x avg |
+   | Hours: 0,1,2,4,6,7,8,   |              | Confidence   MED or HIGH |
+   |        14,16 UTC         |              | Hours: 0,1,5,6,16,       |
+   | Days:  Mon-Thu           |              |        20,21,22,23 UTC   |
+   +--------------------------+              | Days:  Mon-Fri            |
+                                             +--------------------------+
+
+   Position Limits:                          Risk Limits:
+   +--------------------------+              +--------------------------+
+   | Max total    = 6         |              | Max lots     = 15.0      |
+   | Max/symbol   = 3         |              | Max drawdown = 50%       |
+   | Base lot     = 0.04      |              | Hard SL (EU) = 25 pips   |
+   | Cascade cool = 60 min    |              | Hard SL (GU) = 35 pips   |
+   +--------------------------+              +--------------------------+
+

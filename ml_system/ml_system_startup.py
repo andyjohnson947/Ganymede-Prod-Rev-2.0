@@ -22,9 +22,10 @@ sys.path.insert(0, str(project_root))
 log_dir = 'ml_system/logs'
 os.makedirs(log_dir, exist_ok=True)
 
-# Get ML system logger
+# Get ML system logger - file gets full detail, console only warnings+
 logger = logging.getLogger('MLSystem')
 logger.setLevel(logging.INFO)
+logger.propagate = False  # Don't propagate to root (prevents duplicate console output)
 
 # Only add handlers if not already present (prevent duplicates)
 if not logger.handlers:
@@ -36,8 +37,13 @@ if not logger.handlers:
     ))
     logger.addHandler(file_handler)
 
-    # Don't add console handler - use parent logger (TradingBot) to avoid duplicates
-    # This allows ML logs to appear in trading bot console via propagation
+    # Console handler - only warnings and errors
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.WARNING)
+    console_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    logger.addHandler(console_handler)
 
 class MLSystemManager:
     """
@@ -50,29 +56,39 @@ class MLSystemManager:
 
     def retrain_models(self):
         """Auto-retrain ML models"""
-        logger.info("=" * 60)
         logger.info("AUTO-RETRAIN: Starting...")
 
         try:
             # Import and call retraining directly (avoids encoding and path issues)
             import json
 
-            # Count closed trades
+            # Count closed trades - try SQLite first, then JSONL fallback
             closed_count = 0
-            trade_log = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                'ml_system', 'outputs', 'continuous_trade_log.jsonl'
-            )
+            try:
+                from ml_system.trade_db import get_trade_db
+                db = get_trade_db()
+                if db:
+                    counts = db.get_trade_counts()
+                    closed_count = counts['closed']
+            except Exception:
+                pass
 
-            if os.path.exists(trade_log):
-                with open(trade_log, 'r', encoding='utf-8', errors='ignore') as f:
-                    for line in f:
-                        try:
-                            trade = json.loads(line)
-                            if trade.get('outcome', {}).get('status') == 'closed':
-                                closed_count += 1
-                        except:
-                            continue
+            if closed_count == 0:
+                # Fallback: parse JSONL
+                trade_log = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    'ml_system', 'outputs', 'continuous_trade_log.jsonl'
+                )
+
+                if os.path.exists(trade_log):
+                    with open(trade_log, 'r', encoding='utf-8', errors='ignore') as f:
+                        for line in f:
+                            try:
+                                trade = json.loads(line)
+                                if trade.get('outcome', {}).get('status') == 'closed':
+                                    closed_count += 1
+                            except:
+                                continue
 
             if closed_count < 8:
                 logger.info(f"[SKIP] Only {closed_count} closed trades (need 8+)")
@@ -127,40 +143,27 @@ class MLSystemManager:
 
     def generate_report(self):
         """Generate daily ML decision report"""
-        logger.info("=" * 60)
-        logger.info("DAILY DECISION REPORT: Generating...")
-
         try:
-            # Import decision report generator (actionable recommendations)
             from ml_system.reports.decision_report import DecisionReportGenerator
 
             generator = DecisionReportGenerator()
             report_text, report_file = generator.generate_report()
-
-            logger.info(f"[OK] Decision report generated: {report_file}")
 
             # Try to send email if configured
             import json
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             email_config_file = os.path.join(project_root, 'config', 'email_config.json')
 
-            logger.info(f"Looking for email config at: {email_config_file}")
-
             if os.path.exists(email_config_file):
                 with open(email_config_file, 'r', encoding='utf-8', errors='ignore') as f:
                     email_config = json.load(f)
 
                 if email_config.get('enabled', False):
-                    logger.info(f"Email enabled, attempting to send to {email_config.get('to_email')}")
                     success = generator.send_email(report_text, email_config)
-                    if success:
-                        logger.info(f"[OK] Email sent to {email_config['to_email']}")
-                    else:
-                        logger.warning("[WARN] Email send failed (check logs above for details)")
-                else:
-                    logger.info("[INFO] Email notifications disabled in config")
+                    if not success:
+                        logger.warning("[WARN] Email send failed")
             else:
-                logger.warning(f"[WARN] Email config file not found at {email_config_file}")
+                logger.warning(f"[WARN] Email config not found")
 
         except Exception as e:
             logger.error(f"[ERROR] Error generating report: {e}")
@@ -169,15 +172,9 @@ class MLSystemManager:
 
     def _run_scheduler(self):
         """Run scheduler loop in background thread"""
-        logger.info("ML System scheduler started")
-
         # Schedule recurring jobs
         schedule.every(8).hours.do(self.retrain_models)
         schedule.every().day.at("08:00").do(self.generate_report)
-
-        # Run initial jobs once (non-blocking)
-        logger.info("Running initial ML setup...")
-        logger.info("[INFO] Initial retrain running in background...")
 
         # Flag to track if initial jobs are done
         initial_jobs_done = False
@@ -207,19 +204,9 @@ class MLSystemManager:
             logger.warning("ML System already running")
             return
 
-        logger.info("=" * 60)
-        logger.info("STARTING ML SYSTEM")
-        logger.info("=" * 60)
-        logger.info("Schedules:")
-        logger.info("  * Model Retraining: Every 8 hours")
-        logger.info("  * Daily Report: Every day at 08:00")
-        logger.info("=" * 60)
-
         self.running = True
         self.thread = threading.Thread(target=self._run_scheduler, daemon=True)
         self.thread.start()
-
-        logger.info("[OK] ML System started in background")
 
     def stop(self):
         """Stop ML system"""
