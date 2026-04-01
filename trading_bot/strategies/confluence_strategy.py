@@ -754,7 +754,6 @@ class ConfluenceStrategy:
                 # Primary: match via deal history (order ticket → position ticket)
                 if pending_orders:
                     try:
-                        from datetime import timedelta
                         import MetaTrader5 as _mt5
                         deals = _mt5.history_deals_get(
                             get_current_time() - timedelta(days=7),
@@ -1237,6 +1236,27 @@ class ConfluenceStrategy:
         if symbol in self.cascade_blocks and get_current_time() < self.cascade_blocks[symbol]:
             print(f"[RE-ENTRY] Skipping #{original_ticket} — {symbol} cascade blocked")
             return
+
+        # 5/5 K-LINE TREND FILTER: same guard as confirmation entry.
+        # If all 5 prior H1 bars are against the re-entry direction, the market
+        # is in a genuine trend — re-entry would be counter-trend and high risk.
+        # Example of what this prevents: batch 3 BE stop-out at 13:39, price
+        # already 4+ bearish H1 bars deep — re-entry filled at 13:52, full SL
+        # hit 5 minutes later (-$241 on 4 positions).
+        try:
+            h1_data = self.mt5.get_historical_data(symbol, TIMEFRAME, bars=10)
+            if h1_data is not None and len(h1_data) >= 6:
+                prev5 = h1_data.iloc[-6:-1]
+                if direction == 'buy':
+                    if all(row['close'] < row['open'] for _, row in prev5.iterrows()):
+                        print(f"[RE-ENTRY] Skipping #{original_ticket} — {symbol} BUY re-entry blocked: 5/5 prior H1 bars bearish (trend)")
+                        return
+                else:
+                    if all(row['close'] > row['open'] for _, row in prev5.iterrows()):
+                        print(f"[RE-ENTRY] Skipping #{original_ticket} — {symbol} SELL re-entry blocked: 5/5 prior H1 bars bullish (trend)")
+                        return
+        except Exception as e:
+            print(f"[RE-ENTRY] K-line filter error (proceeding): {e}")
 
         # Calculate SL distance (same formula as _execute_signal)
         symbol_info = self.mt5.get_symbol_info(symbol)
