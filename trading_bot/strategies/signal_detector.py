@@ -583,16 +583,20 @@ class SignalDetector:
 
         return signal if signal['should_trade'] else None
 
-    def update_q_table_online(self, symbol: str, q_state_str: str, reward: float):
+    def update_q_table_online(self, symbol: str, q_state_str: str, reward: float,
+                               trade_db=None):
         """Online Q-learning: update Q-table from live trade outcome.
 
         Called after each trade closes. Updates Q-value for the state that
-        was active at entry, then periodically saves to disk for persistence.
+        was active at entry, then:
+          - Upserts the updated state to trading.db (immediate, every update)
+          - Periodically saves the full table to JSON (every 5 updates, crash cache)
 
         Args:
             symbol: Trading pair (EURUSD, GBPUSD)
             q_state_str: String repr of state tuple from signal time
             reward: +1.0 for profitable trade, -1.0 for losing trade
+            trade_db: Optional TradeDatabase instance for DB persistence
         """
         if not q_state_str or symbol not in self.q_tables:
             return
@@ -606,7 +610,17 @@ class SignalDetector:
             print(f"[Q-LEARN] {symbol} updated: reward={reward:+.1f} | "
                   f"Q(TRADE)={q_vals['TRADE']:.3f} | visits={visits} | state={state}")
 
-            # Periodic save (every 5 updates) for crash protection
+            # Persist updated state to DB (every update — non-blocking, safe to fail)
+            if trade_db is not None:
+                state_key = str(state)
+                trade_db.upsert_q_state(
+                    symbol=symbol, q_type='entry', state_key=state_key,
+                    q_trade=round(q_vals['TRADE'], 6),
+                    q_skip=round(q_vals.get('NO_TRADE', 0.0), 6),
+                    visits=visits,
+                )
+
+            # Periodic JSON save (every 5 updates) — startup load cache / backup
             self._q_update_count = getattr(self, '_q_update_count', 0) + 1
             if self._q_update_count % 5 == 0:
                 qt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),

@@ -181,8 +181,47 @@ class ConfluenceStrategy:
         except Exception as e:
             print(f"[DB WARN] Failed to initialize trade database: {e}")
 
+        # One-time migration: seed DB with existing JSON Q-table data if the
+        # q_table_entries table is empty (first run after this feature was added).
+        if self.trade_db:
+            try:
+                self._migrate_qtables_to_db()
+            except Exception as e:
+                print(f"[DB WARN] Q-table migration failed (non-fatal): {e}")
+
         if self.debug:
             print("[DEBUG] ConfluenceStrategy.__init__() completed successfully", flush=True)
+
+    def _migrate_qtables_to_db(self):
+        """Seed trading.db with existing Q-table JSON data on first run.
+
+        Checks whether q_table_entries is empty before migrating to avoid
+        duplicate inserts on every restart. Uses INSERT OR IGNORE so reruns
+        are always safe.
+        """
+        existing = self.trade_db.load_q_table('EURUSD', 'entry')
+        if existing:
+            return  # Already populated, skip migration
+
+        print("[DB] Migrating Q-tables from JSON to trading.db...")
+        total = 0
+
+        # Entry Q-tables (per symbol)
+        for sym in ['EURUSD', 'GBPUSD']:
+            qt_path = project_root / 'ml_system' / 'qtable' / f'q_table_{sym}.json'
+            if qt_path.exists():
+                n = self.trade_db.migrate_from_json(str(qt_path), sym, 'entry')
+                print(f"[DB]   {sym} entry Q-table: {n} states migrated")
+                total += n
+
+        # Exit Q-table (shared across symbols — stored with symbol='ALL')
+        exit_path = project_root / 'ml_system' / 'models' / 'exit_qtable.json'
+        if exit_path.exists():
+            n = self.trade_db.migrate_from_json(str(exit_path), 'ALL', 'exit')
+            print(f"[DB]   Exit Q-table: {n} states migrated")
+            total += n
+
+        print(f"[DB] Q-table migration complete: {total} total states in trading.db")
 
     def _db_log_exit(self, ticket: int, exit_price: float, pnl: float, pnl_pips: float, exit_reason: str):
         """Helper to log trade exit to DB."""
@@ -220,7 +259,9 @@ class ConfluenceStrategy:
         q_state = tracked_pos.get('q_state')
         if q_state and hasattr(self, 'signal_detector') and self.signal_detector:
             reward = 1.0 if profit > 0 else -1.0
-            self.signal_detector.update_q_table_online(symbol, q_state, reward)
+            # Pass trade_db so the updated state is also upserted to trading.db
+            self.signal_detector.update_q_table_online(symbol, q_state, reward,
+                                                        trade_db=self.trade_db)
 
         # ── Exit Q-table online update ───────────────────────────────────
         # Reconstruct the state snapshot this position was in at each elapsed
@@ -274,7 +315,16 @@ class ConfluenceStrategy:
                 entry['action']   = 'HOLD' if new_pc1 >= self._exit_qtable_threshold else 'CLOSE'
                 entry['live_updates'] = entry.get('live_updates', 0) + 1
 
-                # Persist updated Q-table to disk every 10 live updates
+                # Persist to DB on every update (non-blocking, safe to fail)
+                if self.trade_db:
+                    self.trade_db.upsert_q_state(
+                        symbol=symbol, q_type='exit', state_key=state_key,
+                        pc1_prob=new_pc1, action=entry['action'],
+                        visits=entry.get('n_total', 0),
+                        live_updates=entry['live_updates'],
+                    )
+
+                # Also update JSON backup every 10 live updates (startup load cache)
                 if entry['live_updates'] % 10 == 0:
                     try:
                         from pathlib import Path
@@ -285,7 +335,7 @@ class ConfluenceStrategy:
                         qt_path.write_text(_json.dumps(existing, indent=2), encoding='utf-8')
                         print(f"[EXIT-Q] State '{state_key}' updated: pc1_prob={new_pc1:.3f} ({entry['live_updates']} live updates)")
                     except Exception as e:
-                        print(f"[EXIT-Q] Save error: {e}")
+                        print(f"[EXIT-Q] JSON backup save error: {e}")
         except Exception as e:
             print(f"[EXIT-Q] Online update error: {e}")
 
