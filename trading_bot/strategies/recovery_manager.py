@@ -1078,10 +1078,9 @@ class RecoveryManager:
                 with open(temp_path, 'w', encoding='utf-8', newline='') as f:
                     json.dump(state, f, indent=2, ensure_ascii=False)
 
-                # Atomic rename (Windows-safe)
-                if state_path.exists():
-                    state_path.unlink()
-                temp_path.rename(state_path)
+                # Atomic replace (Windows-safe: Path.replace is atomic, avoids
+                # data loss window between unlink() and rename() on AV-scanned dirs)
+                temp_path.replace(state_path)
             except Exception as write_error:
                 # Cleanup temp file if it exists
                 if temp_path.exists():
@@ -1283,7 +1282,14 @@ class RecoveryManager:
             print(f"   [CLEAN] Pruned {removed_count} old archived positions (keeping last 100)")
 
         # Add new MT5 positions to tracking
+        # Skip recovery orders (Grid/Hedge/DCA children) — they are managed via their
+        # parent's stack and must not be tracked as independent origin positions.
+        # reconstruct_recovery_stacks handles adoption of these.
         for pos in mt5_positions:
+            pos_comment = str(pos.get('comment', ''))
+            if any(marker in pos_comment for marker in ('Grid', 'Hedge', 'DCA')):
+                print(f"   [SKIP] Not tracking recovery order #{pos['ticket']} ({pos_comment[:30]})")
+                continue
             if pos['ticket'] in new_tickets:
                 self.tracked_positions[pos['ticket']] = {
                     'ticket': pos['ticket'],

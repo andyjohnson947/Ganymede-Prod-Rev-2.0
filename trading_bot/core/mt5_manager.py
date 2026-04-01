@@ -440,12 +440,16 @@ class MT5Manager:
         filling_type = self._get_filling_mode(symbol_info)
 
         # Opposite order type
+        tick = mt5.symbol_info_tick(symbol)
+        if tick is None:
+            print(f"[ERROR] close_position: symbol_info_tick returned None for {symbol}")
+            return False
         if position.type == mt5.ORDER_TYPE_BUY:
             order_type = mt5.ORDER_TYPE_SELL
-            price = mt5.symbol_info_tick(symbol).bid
+            price = tick.bid
         else:
             order_type = mt5.ORDER_TYPE_BUY
-            price = mt5.symbol_info_tick(symbol).ask
+            price = tick.ask
 
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -529,12 +533,16 @@ class MT5Manager:
         filling_type = self._get_filling_mode(symbol_info)
 
         # Opposite order type
+        tick = mt5.symbol_info_tick(symbol)
+        if tick is None:
+            print(f"[ERROR] close_partial_position: symbol_info_tick returned None for {symbol}")
+            return False
         if position.type == mt5.ORDER_TYPE_BUY:
             order_type = mt5.ORDER_TYPE_SELL
-            price = mt5.symbol_info_tick(symbol).bid
+            price = tick.bid
         else:
             order_type = mt5.ORDER_TYPE_BUY
-            price = mt5.symbol_info_tick(symbol).ask
+            price = tick.ask
 
         # Generate comment (max 31 chars for MT5, Windows encoding only)
         if comment is None:

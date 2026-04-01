@@ -1028,13 +1028,15 @@ class ConfluenceStrategy:
                             print(f"[PC2] {ticket} - Closed 25% (75% total) @ +{profit_pips:.1f} pips = ${close_volume * profit_pips * 10:.2f}")
                             tracked_pos['partial_2_closed'] = True
 
+                            # Always record PC2 trigger time — used by 60-min runner limit
+                            # regardless of whether trailing stop is already active (crash recovery)
+                            if not tracked_pos.get('pc2_trigger_time'):
+                                tracked_pos['pc2_trigger_time'] = get_current_time()
+
                             # ACTIVATE TRAILING STOP
                             if tp_settings.get('trailing_stop_enabled') and not tracked_pos.get('trailing_stop_active'):
                                 self.recovery_manager.activate_trailing_stop(ticket, current_price, tp_settings)
                                 print(f"[PC2] Trailing stop activated for {ticket}")
-
-                                # Set PC2 trigger time for 60-min limit
-                                tracked_pos['pc2_trigger_time'] = get_current_time()
 
                                 # ML LOGGING: Log PC2 trigger
                                 if self.ml_logger:
@@ -2137,7 +2139,7 @@ class ConfluenceStrategy:
 
                                 # Force save state to disk
                                 if stored:
-                                    self.recovery_manager._save_state()
+                                    self.recovery_manager.save_state()
                                     print(f"   [OK] State saved - prevents duplicate hedge DCA triggers")
 
                                     # ML LOGGING: Log hedge DCA event
