@@ -489,26 +489,8 @@ class ConfluenceStrategy:
         print(f"   Time Filters: {'Disabled (trade 24/7)' if not ENABLE_TIME_FILTERS else 'Enabled'}")
 
         print()
-
-        # ML System status
-        print("[ML] ML Integration:")
-        print(f"   Enhanced Data Collection: Active")
-        print(f"   Adaptive Confluence: {'Active' if self.ml_manager.confluence_analyzer else 'Pending data'}")
-        print(f"   Logging: Trade entries, recovery decisions, market conditions")
-        print(f"   Output: ml_system/outputs/")
-        print(f"   Note: You maintain full control - ML observes and recommends")
-
-        # Show ML insights from recent data
-        try:
-            from ml_system.ml_insights_reporter import MLInsightsReporter
-            reporter = MLInsightsReporter()
-            insights_report = reporter.format_startup_report()
-            print(insights_report)
-        except Exception as e:
-            print(f"\n[WARN]  ML insights unavailable: {e}")
-            print("   (Will be available after first trades are logged)\n")
-            print("=" * 80)
-            print()
+        print("=" * 80)
+        print()
 
         self.running = True
         loop_iteration = 0
